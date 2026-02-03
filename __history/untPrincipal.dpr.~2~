@@ -1,0 +1,16 @@
+program untPrincipal;
+
+uses
+  Vcl.Forms,
+  Loja2 in 'Loja2.pas' {Form1},
+  dmconexao in 'dmconexao.pas' {DataModule1: TDataModule};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TForm1, Form1);
+  Application.CreateForm(TDataModule1, DataModule1);
+  Application.Run;
+end.

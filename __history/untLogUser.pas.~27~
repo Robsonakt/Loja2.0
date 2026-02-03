@@ -1,0 +1,74 @@
+﻿unit untLogUser;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls,
+  Data.DB, Data.SqlExpr, dmconexao, untInicial, Vcl.DBCtrls;
+
+type
+  TfrmLogin = class(TForm)
+    pnPrincipal: TPanel;
+    Label1: TLabel;
+    edtSenha: TEdit;
+    btnOk: TButton;
+    btnCancelar: TButton;
+    Label2: TLabel;
+    cbUsuario: TComboBox;
+    DBComboBox1: TDBComboBox;
+    procedure btnCancelarClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure btnOkClick(Sender: TObject);
+  private
+
+  public
+    { Public declarations }
+  end;
+
+var
+  frmLogin: TfrmLogin;
+
+implementation
+
+{$R *.dfm}
+
+
+procedure TfrmLogin.btnCancelarClick(Sender: TObject);
+begin
+  Application.Terminate;
+end;
+
+procedure TfrmLogin.btnOkClick(Sender: TObject);
+begin
+    with dmConexoes.qrUsuario do
+
+end;
+
+procedure TfrmLogin.FormShow(Sender: TObject);
+begin
+  cbUsuario.Clear;
+
+  with dmConexoes.qrUsuario do
+  begin
+    Close;
+    SQL.Text := 'SELECT * FROM Usuarios ORDER BY Usuario';
+    Open;
+    First;
+
+//    while not Eof do
+//    begin
+//      cbUsuario.Items.Add(FieldByName('Usuario').AsString);
+//      Next;
+//    end;
+//
+//    // seleciona o primeiro usuário automaticamente (se existir)
+//    if cbUsuario.Items.Count > 0 then
+//      cbUsuario.ItemIndex := 0;
+//
+//    Close;
+  end;
+end;
+
+end.
+

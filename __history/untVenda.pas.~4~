@@ -1,0 +1,671 @@
+unit untVenda;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, ACBrBase, ACBrPosPrinter,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.Buttons, Vcl.StdCtrls,
+  Vcl.Mask, Vcl.ExtCtrls, Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids;
+
+type
+  TfrmCaixaVendas = class(TForm)
+    Panel1: TPanel;
+    pnbotvenda: TPanel;
+    Panel3: TPanel;
+    Label1: TLabel;
+    lbNomeCli: TLabel;
+    edtprod: TLabel;
+    lbNomeProd: TLabel;
+    lbValorUni: TLabel;
+    lbquant: TLabel;
+    lbValTotal: TLabel;
+    lbTotalVend: TLabel;
+    lbvalorDinheiro: TLabel;
+    lbDataVenda: TLabel;
+    lbQuantRest: TLabel;
+    Label2: TLabel;
+    EdtNameCliente: TEdit;
+    DBGrid1: TDBGrid;
+    edtQuant: TEdit;
+    btnConfirma: TButton;
+    edtValorTotal: TEdit;
+    edtValorProd: TDBEdit;
+    BtnFiado: TButton;
+    btnVenda: TButton;
+    edtCodProd: TEdit;
+    edtDataVenda: TMaskEdit;
+    edtQuantRest: TDBEdit;
+    Memo1: TMemo;
+    btnVendas: TBitBtn;
+    btnConfirmar: TBitBtn;
+    btnFiados: TBitBtn;
+    edtCodVenda: TEdit;
+    DSItensVenda: TDataSource;
+    fdProduto: TFDMemTable;
+    fdProdutoCodProd: TIntegerField;
+    fdProdutoDescricao: TStringField;
+    fdProdutoQuantidade: TIntegerField;
+    fdProdutoValorUni: TCurrencyField;
+    fdProdutoValorTotal: TCurrencyField;
+    fdProdutoCodVenda: TIntegerField;
+    fdProdutoCodCli: TStringField;
+    ACBrPosPrinter1: TACBrPosPrinter;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmCaixaVendas: TfrmCaixaVendas;
+  quantidade: Integer;
+
+  totalvalor: Currency;
+
+  cfg_Empresa: string;
+  cfg_Endereco: string;
+  cfg_Telefone: string;
+
+implementation
+
+{$R *.dfm}
+
+uses untDmConexao, Principal_main, untCadastroCliente, untCadastroProduto,
+  untConsultaCliente, untConsultaProdutos, UntExibeCadastroCliente,
+  UntExibeCadastroProduto, UntFiadoCli, UntFuncoes, Venda_Itens;
+
+procedure TfrmCaixaVendas.addmm(ctexto: string);
+begin
+  Memo1.Lines.Add(ctexto);
+end;
+
+procedure TfrmCaixaVendas.btnConfirmaClick(Sender: TObject);
+begin
+
+  with dmconexoes do
+  begin
+
+    if qrEstoque.FieldByName('quantidade').AsInteger -
+      StrToInt(edtQuant.text) <= 0 then
+    begin
+      if application.MessageBox
+        ('Você ficara sem estoque deste produto, Deseja continuar a venda ?',
+        'Atenção  ', MB_YESNO + MB_ICONINFORMATION) = 6 then
+      begin
+        InsereProd;
+      end
+      else
+      begin
+        application.MessageBox('Venda  de produto Cancelada', 'Atenção  ',
+          MB_OK + MB_ICONINFORMATION);
+        edtCodProd.SetFocus;
+      end;
+    end
+    else
+    begin
+      InsereProd;
+    end;
+  end;
+
+end;
+
+procedure TfrmCaixaVendas.btnConfirmarClick(Sender: TObject);
+begin
+  with dmconexoes do
+  begin
+    qrcomando.close;
+    qrcomando.sql.clear;
+    qrcomando.sql.Add('SELECT MAX(CodVenda) AS ULTIMOCODIGO FROM [ROBSON].[dbo].[vendas]');
+    qrcomando.open;
+    if qrEstoque.FieldByName('quantidade').AsInteger -
+      StrToInt(edtQuant.text) <= 0 then
+    begin
+      if application.MessageBox
+        ('Você ficara sem estoque deste produto, Deseja continuar a venda ?',
+        'Atenção  ', MB_YESNO + MB_ICONINFORMATION) = 6 then
+      begin
+        InsereProd;
+      end
+      else
+      begin
+        application.MessageBox('Venda  de produto Cancelada', 'Atenção  ',
+          MB_OK + MB_ICONINFORMATION);
+        edtCodProd.SetFocus;
+      end;
+    end
+    else
+    begin
+      InsereProd;
+    end;
+    edtCodVenda.text := Inttostr(qrcomando.FieldByName('ULTIMOCODIGO')
+      .AsInteger + 1);
+  end;
+end;
+
+procedure TfrmCaixaVendas.BtnFiadoClick(Sender: TObject);
+var
+  soma: Currency;
+begin
+
+  with dmconexoes do
+  begin
+
+    begin
+      quantidade := qrEstoque.FieldByName('quantidade').AsInteger -
+        StrToInt(edtQuant.text); // subtrai quantidade
+      qrEstoque.Edit;
+      qrEstoque.FieldByName('quantidade').Value := quantidade;
+      qrEstoque.post;
+
+      qrCliente.close;
+      qrCliente.sql.clear;
+      qrCliente.sql.Add
+        ('SELECT * FROM [ROBSON].[dbo].[Cadastro] where codigo = :pcod');
+      qrCliente.Parameters.ParamByName('pcod').Value := EdtNameCliente.text;
+      qrCliente.open;
+      qrCliente.First;
+
+      if not qrCliente.IsEmpty then
+      begin
+
+        soma := 0;
+        soma := dmconexoes.qrCliente.FieldByName('Valorfiado').AsCurrency +
+          StrToCurr(copy(lbvalorDinheiro.Caption, 3, 10));
+        // pegando apartir do $ e fazendo a copia
+
+        qrCliente.Edit;
+        qrCliente.FieldByName('Valorfiado').Value := soma;
+        qrCliente.post;
+
+      end
+
+    end;
+
+    application.MessageBox('Venda Feita', 'Venda  ',
+      MB_OK + MB_ICONINFORMATION);
+
+    EdtNameCliente.clear;
+    edtCodProd.clear;
+    edtValorProd.clear;
+    edtQuant.clear;
+    edtValorTotal.clear;
+    edtDataVenda.clear;
+    lbvalorDinheiro.Caption := '';
+    lbNomeCli.Caption := '';
+    lbNomeProd.Caption := '';
+    totalvalor := 0;
+
+    EdtNameCliente.SetFocus;
+
+    fdProduto.close;
+    fdProduto.open;
+
+  end;
+
+end;
+
+procedure TfrmCaixaVendas.btnFiadosClick(Sender: TObject);
+var
+  soma: Currency;
+begin
+
+  with dmconexoes do
+  begin
+
+    begin
+      quantidade := qrEstoque.FieldByName('quantidade').AsInteger -
+        StrToInt(edtQuant.text); // subtrai quantidade
+      qrEstoque.Edit;
+      qrEstoque.FieldByName('quantidade').Value := quantidade;
+      qrEstoque.post;
+
+      qrCliente.close;
+      qrCliente.sql.clear;
+      qrCliente.sql.Add
+        ('SELECT * FROM [ROBSON].[dbo].[Cadastro] where codigo = :pcod');
+      qrCliente.Parameters.ParamByName('pcod').Value := EdtNameCliente.text;
+      qrCliente.open;
+      qrCliente.First;
+
+      if not qrCliente.IsEmpty then
+      begin
+
+        soma := 0;
+        soma := dmconexoes.qrCliente.FieldByName('Valorfiado').AsCurrency +
+          StrToCurr(copy(lbvalorDinheiro.Caption, 3, 10));
+        // pegando apartir do $ e fazendo a copia
+
+        qrCliente.Edit;
+        qrCliente.FieldByName('Valorfiado').Value := soma;
+        qrCliente.post;
+
+      end
+
+    end;
+
+    application.MessageBox('Venda Feita', 'Venda  ',
+      MB_OK + MB_ICONINFORMATION);
+
+    EdtNameCliente.clear;
+    edtCodProd.clear;
+    edtValorProd.clear;
+    edtQuant.clear;
+    edtValorTotal.clear;
+    edtDataVenda.clear;
+    lbvalorDinheiro.Caption := '';
+    lbNomeCli.Caption := '';
+    lbNomeProd.Caption := '';
+    totalvalor := 0;
+
+    EdtNameCliente.SetFocus;
+
+    fdProduto.close;
+    fdProduto.open;
+
+  end;
+
+end;
+
+procedure TfrmCaixaVendas.btnVendaClick(Sender: TObject);
+
+begin
+
+  with dmconexoes do
+  begin
+
+    qrVendas.close;
+    qrVendas.sql.clear;
+    qrVendas.sql.Add('SELECT * FROM [ROBSON].[dbo].[VENDAS]');
+    qrVendas.open;
+    qrVendas.First;
+
+    qrItensVenda.close;
+    qrItensVenda.sql.clear;
+    qrItensVenda.sql.Add('SELECT * FROM [ROBSON].[dbo].[ITENSVENDAS]');
+    qrItensVenda.open;
+    qrItensVenda.First;
+
+    begin
+
+      quantidade := qrEstoque.FieldByName('quantidade').AsInteger -
+        StrToInt(edtQuant.text); // q subtrai quantidade
+      qrEstoque.Edit;
+      qrEstoque.FieldByName('quantidade').Value := quantidade;
+      qrEstoque.post;
+
+    end;
+
+    qrVendas.Insert;
+    // qrVendas.FieldByName('CodVenda').AsString                              := qrVendas.fieldbyname('Codvenda').AsString;
+    qrVendas.FieldByName('ValorTotal').Value := (lbvalorDinheiro.Caption);
+    qrVendas.FieldByName('CodCli').asstring := Trim(EdtNameCliente.text);
+    qrVendas.FieldByName('DataVenda').AsDateTime :=
+      StrToDateTime(edtDataVenda.text);
+    qrVendas.post;
+    qrVendas.sql.clear;
+    qrVendas.close;
+
+
+
+    // pegar campos da qrItensVenda que tem aque atribuir tb
+
+    application.MessageBox('Venda Feita com Sucesso', 'Venda  ',
+      MB_OK + MB_ICONINFORMATION);
+
+    // memo1.Lines.Clear;
+    // addmm(fdProdutoCodCli.AsString+''+FloatToStr(fdProdutoValorTotal.AsFloat));
+
+    ACBrPosPrinter1.Ativar;
+    ACBrPosPrinter1.Buffer.text := Memo1.text;
+    ACBrPosPrinter1.Imprimir;
+    ACBrPosPrinter1.CortarPapel;
+
+    EdtNameCliente.clear;
+    edtCodProd.clear;
+    edtValorProd.clear;
+    edtQuant.clear;
+    edtValorTotal.clear;
+    edtDataVenda.clear;
+    lbvalorDinheiro.Caption := '';
+    lbNomeCli.Caption := '';
+    lbNomeProd.Caption := '';
+    totalvalor := 0;
+
+    EdtNameCliente.SetFocus;
+
+    fdProduto.close;
+    fdProduto.open;
+
+  end;
+
+end;
+
+procedure TfrmCaixaVendas.btnVendasClick(Sender: TObject);
+begin
+
+
+  with dmconexoes do
+  begin
+
+    qrVendas.close;
+    qrVendas.sql.clear;
+    qrVendas.sql.Add('SELECT * FROM [ROBSON].[dbo].[VENDAS]');
+    qrVendas.open;
+    qrVendas.First;
+
+    qrItensVenda.close;
+    qrItensVenda.sql.clear;
+    qrItensVenda.sql.Add('SELECT * FROM [ROBSON].[dbo].[ITENSVENDAS]');
+    qrItensVenda.open;
+    qrItensVenda.First;
+
+    quantidade := qrEstoque.FieldByName('quantidade').AsInteger - StrToInt(edtQuant.text); // q subtrai quantidade
+    qrEstoque.Edit;
+    qrEstoque.FieldByName('quantidade').Value := quantidade;
+    qrEstoque.post;
+
+    qrcomando.close;
+    qrcomando.sql.clear;
+    qrcomando.sql.Add('SELECT MAX(CodVenda) AS ULTIMOCODIGO FROM [ROBSON].[dbo].[vendas]');
+    qrcomando.open;
+
+    qrVendas.Insert;
+    qrVendas.FieldByName('ValorTotal').Value                                 := (lbvalorDinheiro.Caption);
+    qrVendas.FieldByName('CodCli').asstring                                  := Trim(EdtNameCliente.text);
+    qrVendas.FieldByName('DataVenda').AsDateTime                             := StrToDateTime(edtDataVenda.text);
+    qrVendas.FieldByName('descriprod').AsString                              := fdProduto.fieldbyname('Descricao').AsString;
+
+    edtCodVenda.text := Inttostr(qrcomando.FieldByName('ULTIMOCODIGO').AsInteger + 1);
+    qrVendas.post;
+    qrVendas.sql.clear;
+    qrVendas.close;
+
+    fdProduto.First;
+    while not fdProduto.Eof do // not.. eof é para percorrer a tabela até ser o ultimo registro
+      begin
+        qrItensVenda.Insert;
+        qrItensVenda.FieldByName('CodItem').AsString        := fdProduto.fieldbyname('CodProd').AsString;
+        qrItensVenda.FieldByName('CodVenda').AsString       := fdProduto.fieldbyname('CodVenda').AsString;
+        qrItensVenda.FieldByName('Descricao').AsString      := fdProduto.fieldbyname('Descricao').AsString;
+        qrItensVenda.FieldByName('ValorTotal').AsString     := fdProduto.fieldbyname('ValorTotal').AsString;
+        qrItensVenda.FieldByName('Quantidade').AsString     := fdProduto.fieldbyname('Quantidade').AsString;
+        qrItensVenda.FieldByName('ValorProdUni').AsString   := fdProduto.fieldbyname('ValorUni').AsString;
+        qrItensVenda.FieldByName('DataVenda').AsDateTime    := StrToDateTime(edtDataVenda.text);
+        qrItensVenda.Post;
+        fdproduto.Next
+
+      end;
+
+
+      if Application.MessageBox('Deseja imprimir o comprovante ? ', 'Atenção', MB_YESNO) = idyes then
+          begin
+                ACBrPosPrinter1.Ativar;
+                ACBrPosPrinter1.Buffer.text := Memo1.text;
+                ACBrPosPrinter1.Imprimir;
+                ACBrPosPrinter1.CortarPapel;
+          end
+      else
+          begin
+                           // pegar campos da qrItensVenda que tem aque atribuir tb
+
+            application.MessageBox('Venda Feita com Sucesso', 'Venda  ',
+              MB_OK + MB_ICONINFORMATION);
+
+            // memo1.Lines.Clear;
+            // addmm(fdProdutoCodCli.AsString+''+FloatToStr(fdProdutoValorTotal.AsFloat));
+
+
+
+            EdtNameCliente.clear;
+            edtCodProd.clear;
+            edtValorProd.clear;
+            edtQuant.clear;
+            edtValorTotal.clear;
+            edtDataVenda.clear;
+            lbvalorDinheiro.Caption := '';
+            lbNomeCli.Caption := '';
+            lbNomeProd.Caption := '';
+            totalvalor := 0;
+
+            EdtNameCliente.SetFocus;
+
+            fdProduto.close;
+            fdProduto.open;
+            end;
+
+
+
+  end;
+end;
+
+procedure TfrmCaixaVendas.DBGrid1KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_DELETE then
+  begin
+    if application.MessageBox('Deseja deletar o produto?', 'Atenção',
+      MB_ICONQUESTION + MB_YESNO) = idYes then
+    begin
+      fdProduto.Delete;
+    end;
+  end;
+end;
+
+procedure TfrmCaixaVendas.edtCodProdKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+
+begin
+ with dmconexoes do
+  if Key = vk_f2 then
+    begin
+
+    frmConsultaProduto.ShowModal;
+
+    edtCodProd.text := LocalizaCodProduto;
+    edtCodProdKeyPress(self, keyEnter);
+
+    end;
+
+end;
+
+
+procedure TfrmCaixaVendas.edtCodProdKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then
+  begin
+    with dmconexoes do
+    begin
+      try
+        qrEstoque.close;
+        qrEstoque.sql.clear;
+        qrEstoque.sql.Add('SELECT * FROM PRODUTO WHERE CODIGO = :pcod');
+        qrEstoque.Parameters.ParamByName('pcod').Value :=
+          StrToInt(edtCodProd.text);
+        qrEstoque.open;
+      Except
+        on e: exception do
+          application.MessageBox(pchar('Erro select Produto' + #13 + e.Message),
+            '', MB_OK);
+
+      end;
+
+      lbNomeProd.Caption := qrEstoque.FieldByName('descricao').asstring;
+
+    end;
+  end;
+
+  if Key = #13 then
+
+    edtQuant.SetFocus;
+end;
+
+procedure TfrmCaixaVendas.edtDataVendaKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #32 then
+  begin
+    edtDataVenda.text := FormatDateTime('dd/mm/yyyy', Date);
+    edtCodProd.SetFocus;
+  end;
+end;
+
+procedure TfrmCaixaVendas.EdtNameClienteChange(Sender: TObject);
+begin
+
+  edtValorProd.clear;
+  edtQuantRest.clear;
+
+end;
+
+procedure TfrmCaixaVendas.EdtNameClienteExit(Sender: TObject);
+begin
+  VerificaCliente;
+end;
+
+procedure TfrmCaixaVendas.EdtNameClienteKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  with dmconexoes do
+  begin
+    if key = vk_f2 then
+      begin
+        Application.CreateForm(TfrmConsultaCliente, frmConsultaCliente);
+        frmConsultaCliente.ShowModal;
+        frmConsultaCliente.Free;
+
+        EdtNameCliente.text :=  LocalizaCodigoCli;
+        EdtNameClienteKeyPress(self,keyEnter);
+      end;
+  end;
+end;
+
+procedure TfrmCaixaVendas.EdtNameClienteKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+
+  if Key = #13 then
+  begin
+    Key := #0;
+    LocalizaCodigoCli := dmconexoes.qrCliente.FieldByName('codigo').asstring;
+    VerificaCliente;
+  end;
+end;
+
+procedure TfrmCaixaVendas.edtQuantKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then
+  begin
+    // floattostr(strtofloat(edtValorProd.Text)   StrToCurr(copy(edtValorProd.Caption,3,10))
+
+    edtValorTotal.text := floattostr(strtofloat(edtValorProd.text) *
+      strtofloat(edtQuant.text)); // calculo de multiplicação
+    edtValorTotal.SetFocus;
+
+  end;
+end;
+
+procedure TfrmCaixaVendas.edtValorTotalKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then
+    btnConfirmar.SetFocus;
+end;
+
+procedure TfrmCaixaVendas.FormShow(Sender: TObject);
+begin
+  pnbotvenda.Color := color_01;
+  pnbotvenda.Font.Color := color_02;
+
+  cfg_Empresa := 'J.A ARMARINHOS';
+  cfg_Endereco := 'JOSE ELIAS HADDAD N71';
+  cfg_Telefone := '16.3242-5219';
+  fdProduto.open;
+
+  EdtNameCliente.SetFocus;
+
+end;
+
+procedure TfrmCaixaVendas.InsereProd;
+var
+  i: Integer;
+begin
+  with dmconexoes do
+  begin
+    fdProduto.Active := true;
+    fdProduto.Insert;
+    fdProduto.FieldByName('Descricao').asstring := qrEstoque.FieldByName('descricao').asstring; // colocada
+    fdProduto.FieldByName('codVenda').AsString := edtCodVenda.Text;
+    fdProduto.FieldByName('CodProd').Value := edtCodProd.text; // colocada
+    fdProduto.FieldByName('valorUni').asstring := edtValorProd.text;
+    fdProduto.FieldByName('Quantidade').asstring := edtQuant.text;
+    fdProduto.FieldByName('ValorTotal').Value := edtValorTotal.text;
+    fdProduto.post;
+
+    totalvalor := totalvalor + StrToCurr(edtValorTotal.text);
+    lbvalorDinheiro.Caption := FormatFloat('R$ 0.00', totalvalor);
+    // colocando formatação direto na variavel
+
+
+    Memo1.Lines.clear;
+    addmm('</zera>');
+    addmm(PadCenter('<e>' + '<in>' + cfg_Empresa + '</in>' + '</e>', 40));
+    addmm(PadCenter('<in>' + 'Não tem valor Fiscal' + '</in>', 48));
+    addmm(PadCenter('<in>' + cfg_Endereco + '</in>', 48));
+    addmm(PadCenter('<in>' + cfg_Telefone + '</in>', 48));
+    addmm('</linha_simples>');
+    addmm('Cod.Vend: ' + IntToStr(fdProdutoCodVenda.AsInteger));
+    addmm('</linha_dupla>');
+    addmm('<n>' + 'COD.PROD' + '      ' + 'DESCRIÇÃO');
+    addmm('QTD' + ' x ' + 'VL.UNI');
+    addmm('</linha_dupla>');
+
+    fdProduto.First;
+    while not fdProduto.Eof do
+    begin
+      addmm('<n>' + IntToStrZero(fdProdutoCodProd.Value, 6) + ' | ' +fdProdutoDescricao.asstring);
+      addmm(fdProdutoQuantidade.asstring + 'UN' + '  ' + 'x' + '  ' +floattostr(fdProdutoValorUni.AsFloat));
+      fdProduto.Next;
+      addmm('</linha_simples>');
+    end;
+    addmm(fdProdutoCodCli.asstring + '');
+    addmm('Total ' + (lbvalorDinheiro.Caption));
+    begin
+      // Loop que executa 7 vezes
+      for i := 1 to 7 do
+      begin
+        // Chama a função addmm com uma string vazia para pular linhas, para o corte do cupom
+        addmm('');
+      end;
+    end;
+
+  end;
+end;
+
+procedure TfrmCaixaVendas.VerificaCliente;
+begin
+  with dmconexoes do
+  begin
+    qrcomando.close;
+    qrcomando.sql.clear;
+    qrcomando.sql.Add('select * from cadastro where codigo = :pcod');
+    qrcomando.Parameters.ParamByName('pcod').Value := EdtNameCliente.text;
+    qrcomando.open;
+
+    if qrcomando.IsEmpty then
+    begin
+      application.MessageBox('Cliente não encontrado', 'Atenção',
+        MB_OK + MB_ICONERROR);
+      EdtNameCliente.SetFocus;
+    end
+    Else
+    begin
+      lbNomeCli.Caption := qrcomando.FieldByName('nome').asstring;
+      edtDataVenda.SetFocus;
+    end;
+  end;
+end;
+
+
+
+end.

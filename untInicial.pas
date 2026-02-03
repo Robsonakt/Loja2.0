@@ -1,0 +1,248 @@
+﻿unit untInicial;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, Vcl.Imaging.pngimage, Vcl.ExtCtrls, Data.DB,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.Menus, Vcl.StdCtrls;
+
+type
+  TFormularioPrincipal = class(TForm)
+    Panel2: TPanel;
+    Panel3: TPanel;
+    PnConsultFecha: TPanel;
+    PnAbertura: TPanel;
+    PnConsulta: TPanel;
+    PnVenda: TPanel;
+    PnFechamento: TPanel;
+    MainMenu1: TMainMenu;
+    Cadastro1: TMenuItem;
+    Estoque1: TMenuItem;
+    Cliente1: TMenuItem;
+    dsCliente: TDataSource;
+    dsProduto: TDataSource;
+    fdCliente: TFDMemTable;
+    fdClienteNumero: TIntegerField;
+    fdClienteDataVencimento: TDateField;
+    fdClienteValor: TCurrencyField;
+    fdProduto: TFDMemTable;
+    IntegerField1: TIntegerField;
+    DateField1: TDateField;
+    CurrencyField1: TCurrencyField;
+    FDMemTable1: TFDMemTable;
+    IntegerField2: TIntegerField;
+    DateField2: TDateField;
+    CurrencyField2: TCurrencyField;
+    DataSource1: TDataSource;
+
+    lblTextoAbertura: TLabel;
+    lblCaixa: TLabel;
+    Usurio1: TMenuItem;
+    Cadastro2: TMenuItem;
+    procedure PnAberturaMouseEnter(Sender: TObject);
+    procedure PnAberturaMouseLeave(Sender: TObject);
+    procedure Estoque1Click(Sender: TObject);
+    procedure PnAberturaClick(Sender: TObject);
+    procedure PnFechamentoClick(Sender: TObject);
+    procedure Cliente1Click(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure Cadastro2Click(Sender: TObject);
+
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    procedure AtualizarStatusCaixa;
+
+  end;
+
+var
+  FormularioPrincipal: TFormularioPrincipal;
+
+implementation
+
+Uses
+untCadastroProd, untCadastroCli, untConsultavendas, untRelatorioProd, untVenda, untRelatorioVenda, dmconexao,
+  untCadastroUsuario, untLogUser;
+
+{$R *.dfm}
+
+
+
+procedure TFormularioPrincipal.AtualizarStatusCaixa;
+begin
+  if dmConexoes.CaixaAberto then
+  begin
+    lblCaixa.Caption := 'Caixa Aberto';
+    lblCaixa.Font.Color := clGreen;
+
+    lblTextoAbertura.Caption := 'Iniciar Vendas';
+
+  end
+  else
+  begin
+    lblCaixa.Caption := 'Caixa Fechado';
+    lblCaixa.Font.Color := clRed;
+
+    lblTextoAbertura.Caption := 'Abrir Caixa';
+
+  end;
+end;
+
+procedure TFormularioPrincipal.Cadastro2Click(Sender: TObject);
+begin
+             Application.CreateForm(TFrmCadastroUsuario,FrmCadastroUsuario);  //CRIA A TELA
+             FrmCadastroUsuario.showmodal;                           //CHAMA O FORMULARIO
+             FrmCadastroUsuario.Free;
+
+end;
+
+procedure TFormularioPrincipal.Cliente1Click(Sender: TObject);
+begin
+               Application.CreateForm(TfrmCadastroCliente,frmCadastroCliente);  //CRIA A TELA
+             frmCadastroCliente.showmodal;                           //CHAMA O FORMULARIO
+             frmCadastroCliente.Free;
+
+end;
+
+procedure TFormularioPrincipal.PnFechamentoClick(Sender: TObject);
+var
+  ValorStr: string;
+  ValorFinal: Currency;
+begin
+  if not dmConexoes.CaixaAberto then
+  begin
+    ShowMessage('Não existe caixa aberto para fechamento.');
+    Exit;
+  end;
+
+  ValorStr := '0,00';
+
+  // 👉 SE CLICAR EM CANCELAR → ABORTA TUDO
+  if not InputQuery(
+    'Fechamento de Caixa',
+    'Informe o valor final em caixa:',
+    ValorStr
+  ) then
+    Exit;
+
+  if ValorStr.Trim = '' then
+    Exit;
+
+  try
+    ValorFinal := StrToCurr(ValorStr);
+  except
+    ShowMessage('Valor inválido.');
+    Exit;
+  end;
+
+  if dmConexoes.FecharCaixa(ValorFinal) then
+  begin
+    ShowMessage('Caixa fechado com sucesso!');
+
+    // 🔄 ATUALIZA STATUS VISUAL
+    AtualizarStatusCaixa;
+  end
+  else
+    ShowMessage('Erro ao fechar o caixa.');
+end;
+
+
+procedure TFormularioPrincipal.PnAberturaMouseEnter(Sender: TObject);
+begin
+
+ TPanel(sender).Color :=$00333333;
+ TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TFormularioPrincipal.PnAberturaMouseLeave(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00666666;
+   TPanel(sender).Font.Color :=0;
+end;
+
+
+procedure TFormularioPrincipal.Estoque1Click(Sender: TObject);
+begin
+             Application.CreateForm(TfrmCadastroProdutos,frmCadastroProdutos);  //CRIA A TELA
+             frmCadastroProdutos.showmodal;                           //CHAMA O FORMULARIO
+             frmCadastroProdutos.Free;
+
+//             PnAbertura.ParentDoubleBuffered := False;
+end;
+
+procedure TFormularioPrincipal.FormShow(Sender: TObject);
+begin
+  AtualizarStatusCaixa;
+  begin
+             Application.CreateForm(TfrmLogin,frmLogin);  //CRIA A TELA
+             frmLogin.showmodal;                           //CHAMA O FORMULARIO
+             frmLogin.Free;
+  end;
+
+end;
+
+procedure TFormularioPrincipal.PnAberturaClick(Sender: TObject);
+var
+  ValorStr: string;
+  ValorInicial: Currency;
+begin
+  // 🔓 Caixa já aberto → entra direto
+  if dmConexoes.CaixaAberto then
+  begin
+    Application.CreateForm(TfrmCaixaVendas, frmCaixaVendas);
+    try
+      frmCaixaVendas.ShowModal;
+    finally
+      frmCaixaVendas.Free;
+    end;
+    Exit;
+  end;
+
+  // 🔒 Caixa fechado
+  MessageBox(
+    Handle,
+    'Caixa fechado.'#13#10'É necessário abrir o caixa para iniciar as vendas.',
+    'Caixa',
+    MB_OK or MB_ICONWARNING
+  );
+
+  ValorStr := '0,00';
+
+  // 👉 SE CLICAR EM CANCELAR → ABORTA
+  if not InputQuery(
+    'Abertura de Caixa',
+    'Informe o valor inicial do caixa:',
+    ValorStr
+  ) then
+    Exit;
+
+  if ValorStr.Trim = '' then
+    Exit;
+
+  try
+    ValorInicial := StrToCurr(ValorStr);
+  except
+    ShowMessage('Valor inválido.');
+    Exit;
+  end;
+
+ if dmConexoes.AbrirCaixa(ValorInicial) then
+begin
+  ShowMessage('Caixa aberto com sucesso!');
+
+  AtualizarStatusCaixa; // AGORA FUNCIONA
+
+  Application.CreateForm(TfrmCaixaVendas, frmCaixaVendas);
+  try
+    frmCaixaVendas.ShowModal;
+  finally
+    frmCaixaVendas.Free;
+  end;
+end;
+end;
+end.

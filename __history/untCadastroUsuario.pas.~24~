@@ -1,0 +1,267 @@
+unit untCadastroUsuario;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.WinXPickers, Vcl.StdCtrls, Vcl.Mask,
+  Vcl.ExtCtrls, Vcl.DBCtrls, Data.DB;
+
+type
+  TFrmCadastroUsuario = class(TForm)
+    Panel1: TPanel;
+    PnNovo: TPanel;
+    PnEditar: TPanel;
+    PnCancelar: TPanel;
+    PnExcluir: TPanel;
+    PnGravar: TPanel;
+    PnSair: TPanel;
+    PnUltimo: TPanel;
+    PnProximo: TPanel;
+    PnAnterior: TPanel;
+    PnPrimeiro: TPanel;
+    PnLocaliza: TPanel;
+    Panel2: TPanel;
+    lbEndereco: TLabel;
+    LbNomeCli: TLabel;
+    edtNomeUsuario: TDBEdit;
+    edtSenha: TDBEdit;
+    edtID: TDBEdit;
+    Label2: TLabel;
+    Label1: TLabel;
+    procedure PnNovoClick(Sender: TObject);
+    procedure PnEditarClick(Sender: TObject);
+    procedure PnCancelarClick(Sender: TObject);
+    procedure PnExcluirClick(Sender: TObject);
+    procedure PnGravarClick(Sender: TObject);
+    procedure PnSairClick(Sender: TObject);
+    procedure PnPrimeiroClick(Sender: TObject);
+    procedure PnUltimoClick(Sender: TObject);
+    procedure PnAnteriorClick(Sender: TObject);
+    procedure PnProximoClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmCadastroUsuario: TFrmCadastroUsuario;
+
+implementation
+
+{$R *.dfm}
+
+uses dmconexao;
+
+procedure TFrmCadastroUsuario.PnAnteriorClick(Sender: TObject);
+begin
+       with dmConexoes.qrUsuario do
+  begin
+    if not Bof then
+      Prior // Retrocede para o registro anterior
+    else
+      ShowMessage('Primeiro registro!');
+  end;
+end;
+
+procedure TFrmCadastroUsuario.PnCancelarClick(Sender: TObject);
+begin
+    with dmConexoes do
+  begin
+    qrUsuario.close;
+    qrUsuario.sql.clear;
+    qrUsuario.sql.Add('SELECT *  FROM [LojaNova].[dbo].[Usuarios]');
+    qrUsuario.open;
+    qrUsuario.First;
+
+  end;
+
+  begin
+     MessageDlg('Cadastro cancelado', mtInformation, [mbOK], 0);
+  end;
+
+        PnEditar.Enabled     := true  ;
+        PnExcluir.Enabled    := true  ;
+        PnPrimeiro.Enabled   := true  ;
+        PnAnterior.Enabled   := true  ;
+        PnProximo.Enabled    := true  ;
+        PnUltimo.Enabled     := true  ;
+        PnCancelar.Enabled   := true  ;
+        PnSair.Enabled       := true  ;
+        PnGravar.Enabled     := false ;
+
+        PnEditar.Font.Color      := 0;
+        PnExcluir.Font.Color     := 0;
+        PnPrimeiro.Font.Color    := 0;
+        PnAnterior.Font.Color    := 0;
+        PnProximo.Font.Color     := 0;
+        PnUltimo.Font.Color      := 0;
+        PnSair.Font.Color        := 0;
+        PnGravar.Font.Color      := $00333333;
+
+  // Habilita/Desabilita campos
+
+  edtNomeUsuario.Enabled   := not edtNomeUsuario.Enabled ;
+  edtSenha.Enabled         := not edtSenha.Enabled ;
+
+end;
+
+procedure TFrmCadastroUsuario.PnEditarClick(Sender: TObject);
+begin
+      // Habilita/Desabilita campos
+  edtNomeUsuario.Enabled   := true;
+  edtSenha.Enabled         := true;
+
+  // Configura botões de ação
+  PnGravar.Enabled := true;
+  PnCancelar.Enabled := true;
+  PnGravar.Font.Color := 0; // Preto
+  PnCancelar.Font.Color := 0; // Preto
+
+  // Desabilita PnEditar e configura cores
+  PnEditar.Font.Color     := $00333333;
+  PnExcluir.Font.Color    := $00333333;
+  PnPrimeiro.Font.Color   := $00333333;
+  PnAnterior.Font.Color   := $00333333;
+  PnProximo.Font.Color    := $00333333;
+  PnUltimo.Font.Color     := $00333333;
+
+  // Outros componentes (verifique se há lógica faltando aqui)
+  PnEditar.Enabled    := false;
+  PnExcluir.Enabled   := false;
+  PnPrimeiro.Enabled  := false;
+  PnAnterior.Enabled  := false;
+  PnProximo.Enabled   := false;
+  PnUltimo.Enabled    := false;
+end;
+
+procedure TFrmCadastroUsuario.PnExcluirClick(Sender: TObject);
+begin
+      if MessageDlg('Deseja excluir este registro?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+  begin
+    try
+      // Exclui o registro atual diretamente
+      dmConexoes.qrUsuario.Delete;
+      ShowMessage('Registro excluído com sucesso!');
+    except
+      on E: Exception do
+        ShowMessage('Erro ao excluir: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TFrmCadastroUsuario.PnGravarClick(Sender: TObject);
+begin
+    application.MessageBox('Deseja gravar o Usuario?','Cadastro  ',mb_ok+MB_ICONINFORMATION);
+    edtSenha.Enabled := false;
+    edtNomeUsuario.Enabled := false;
+
+ with dmConexoes do
+  begin
+
+              qrUsuario.FieldByName('tipo').asstring                              := trim(edtTipo.Text);
+              qrUsuario.FieldByName('data').AsDateTime                            := edtDatacri.Date;
+              qrUsuario.post;
+
+              application.MessageBox('Produto Cadastrado com Sucesso','Cadastro  ',mb_ok+MB_ICONINFORMATION);
+
+end;
+
+  // Configura botões de ação
+  PnGravar.Enabled := false;
+  PnCancelar.Enabled := true;
+  PnGravar.Font.Color := 0; // Preto
+  PnCancelar.Font.Color := 0; // Preto
+  PnPrimeiro.Font.Color := 0; // Preto
+  PnAnterior.Font.Color := 0; // Preto
+  PnProximo.Font.Color := 0; // Preto
+  PnUltimo.Font.Color := 0; // Preto
+  PnRelatorio.Font.Color := 0; // Preto
+
+
+  // Outros componentes (verifique se há lógica faltando aqui)
+  PnEditar.Enabled    := true;
+  PnExcluir.Enabled   := true;
+  PnPrimeiro.Enabled  := true;
+  PnAnterior.Enabled  := true;
+  PnProximo.Enabled   := true;
+  PnUltimo.Enabled    := true;
+  PnRelatorio.Enabled := true;
+  PnSair.Enabled      := true;
+end;
+
+procedure TFrmCadastroUsuario.PnNovoClick(Sender: TObject);
+begin
+       with dmConexoes do
+  begin
+    qrUsuario.close;
+    qrUsuario.sql.clear;
+    qrUsuario.sql.Add('SELECT *  FROM [LojaNova].[dbo].[Usuarios]');
+    qrUsuario.open;
+    qrUsuario.First;
+
+
+    qrUsuario.Insert;
+
+    PnEditar.Enabled      := not PnEditar.Enabled ;
+    PnExcluir.Enabled     := not PnExcluir.Enabled ;
+    PnPrimeiro.Enabled    := not PnPrimeiro.Enabled ;
+    PnAnterior.Enabled    := not PnAnterior.Enabled ;
+    PnProximo.Enabled     := not PnProximo.Enabled ;
+    PnUltimo.Enabled      := not PnUltimo.Enabled ;
+    PnSair.Enabled        := not PnSair.Enabled ;
+    PnGravar.Enabled      := True;
+    PnCancelar.Enabled    := True;
+
+
+    PnEditar.Font.Color      := $00333333;
+    PnExcluir.Font.Color     := $00333333;
+    PnPrimeiro.Font.Color    := $00333333;
+    PnAnterior.Font.Color    := $00333333;
+    PnProximo.Font.Color     := $00333333;
+    PnUltimo.Font.Color      := $00333333;
+    PnSair.Font.Color        := $00333333;
+    PnCancelar.Font.Color    := 0;
+    PnGravar.Font.Color      := 0;
+
+
+    edtNomeUsuario.Enabled   := not edtNomeUsuario.Enabled ;
+    edtID.Enabled            := not edtID.Enabled ;
+    edtSenha.Enabled         := not edtSenha.Enabled ;
+
+
+    begin
+      edtNomeUsuario.SetFocus;
+    end;
+
+  end;
+end;
+
+procedure TFrmCadastroUsuario.PnPrimeiroClick(Sender: TObject);
+begin
+    dmConexoes.qrCliente.First;
+end;
+
+procedure TFrmCadastroUsuario.PnProximoClick(Sender: TObject);
+begin
+     with dmConexoes.qrUsuario do
+  begin
+    if not Eof then
+      Next // Move para o próximo registro
+    else
+      ShowMessage('Último registro!');
+  end;
+end;
+
+procedure TFrmCadastroUsuario.PnSairClick(Sender: TObject);
+begin
+ close;
+end;
+
+procedure TFrmCadastroUsuario.PnUltimoClick(Sender: TObject);
+begin
+    dmConexoes.qrUsuario.Last;
+end;
+
+end.

@@ -1,0 +1,91 @@
+﻿unit untLogUser;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls,
+  Data.DB, dmconexao;
+
+type
+  TfrmLogin = class(TForm)
+    pnPrincipal: TPanel;
+    Label1: TLabel;
+    Label2: TLabel;
+    btnOk: TButton;
+    btnCancelar: TButton;
+    cbUsuario: TComboBox;
+    edtSenha: TEdit;
+    procedure FormCreate(Sender: TObject);
+    procedure btnOkClick(Sender: TObject);
+    procedure btnCancelarClick(Sender: TObject);
+  private
+  public
+  end;
+
+var
+  frmLogin: TfrmLogin;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmLogin.FormCreate(Sender: TObject);
+begin
+  cbUsuario.Clear;
+  dmConexoes.qrUsuariosLista.Close;
+  dmConexoes.qrUsuariosLista.SQL.Text :=
+    'SELECT ID, Usuario FROM Usuarios ORDER BY Usuario';
+  dmConexoes.qrUsuariosLista.Open;
+
+  cbUsuario.Clear;
+  while not dmConexoes.qrUsuariosLista.Eof do
+  begin
+    cbUsuario.Items.AddObject(
+      dmConexoes.qrUsuariosLista.FieldByName('Usuario').AsString,
+      TObject(dmConexoes.qrUsuariosLista.FieldByName('ID').AsInteger)
+    );
+    dmConexoes.qrUsuariosLista.Next;
+  end;
+end;
+
+procedure TfrmLogin.btnOkClick(Sender: TObject);
+var
+  UsuarioID: Integer;
+begin
+  if cbUsuario.ItemIndex = -1 then
+  begin
+    ShowMessage('Selecione um usuário.');
+    Exit;
+  end;
+
+  if Trim(edtSenha.Text) = '' then
+  begin
+    ShowMessage('Informe a senha.');
+    edtSenha.SetFocus;
+    Exit;
+  end;
+
+  UsuarioID := Integer(cbUsuario.Items.Objects[cbUsuario.ItemIndex]);
+
+  dmConexoes.qrLogin.Close;
+  dmConexoes.qrLogin.SQL.Text :=
+    'SELECT ID FROM Usuarios WHERE ID = :ID AND Senha = :Senha';
+
+  dmConexoes.qrLogin.Parameters.ParamByName('ID').Value := UsuarioID;
+  dmConexoes.qrLogin.Parameters.ParamByName('Senha').Value := edtSenha.Text;
+  dmConexoes.qrLogin.Open;
+
+  if not dmConexoes.qrLogin.IsEmpty then
+    ModalResult := mrOk
+  else
+    ShowMessage('Usuário ou senha inválidos.');
+end;
+
+procedure TfrmLogin.btnCancelarClick(Sender: TObject);
+begin
+  Application.Terminate;
+end;
+
+end.
+

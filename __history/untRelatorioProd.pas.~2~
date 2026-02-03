@@ -1,0 +1,54 @@
+unit untRelatorioProd;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.WinXPickers, Vcl.StdCtrls, Vcl.Mask,
+  Vcl.ExtCtrls, Vcl.DBCtrls;
+
+type
+  TForm6 = class(TForm)
+    Panel1: TPanel;
+    PnNovo: TPanel;
+    PnEditar: TPanel;
+    PnCancelar: TPanel;
+    PnExcluir: TPanel;
+    PnGravar: TPanel;
+    PnPrimeiro: TPanel;
+    PnAnterior: TPanel;
+    PnProximo: TPanel;
+    PnUltimo: TPanel;
+    PnSair: TPanel;
+    PnRelatorio: TPanel;
+    PnCentro: TPanel;
+    LbCodProd: TLabel;
+    Lbdatacadastroproduto: TLabel;
+    Lbnomeproduto: TLabel;
+    lbQuant: TLabel;
+    lbTipo: TLabel;
+    lbvalorproduto: TLabel;
+    Label1: TLabel;
+    Label2: TLabel;
+    edtDescricaoProd: TDBEdit;
+    edtBarras: TDBEdit;
+    edtValorCusto: TDBEdit;
+    EdtValorVend: TDBEdit;
+    edtQuantProd: TDBEdit;
+    edtTipo: TComboBox;
+    edtDatacri: TDatePicker;
+    edtCodProd: TDBEdit;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form6: TForm6;
+
+implementation
+
+{$R *.dfm}
+
+end.
