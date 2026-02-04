@@ -4,9 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls,
-  Data.DB, Data.SqlExpr, dmconexao, untInicial, Vcl.DBCtrls;
-
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.WinXPickers, Vcl.StdCtrls, Vcl.Mask,
+  Vcl.ExtCtrls, Vcl.DBCtrls, Data.DB;
 type
   TfrmLogin = class(TForm)
     pnPrincipal: TPanel;
@@ -32,6 +31,7 @@ implementation
 
 {$R *.dfm}
 
+uses dmconexao, untLocalizaCli;
 
 procedure TfrmLogin.btnCancelarClick(Sender: TObject);
 begin
@@ -39,35 +39,69 @@ begin
 end;
 
 procedure TfrmLogin.btnOkClick(Sender: TObject);
+var
+  IdUsuario: Integer;
 begin
-    with dmConexoes.qrUsuario do
+  // Validação básica
+  if cbUsuario.ItemIndex < 0 then
+  begin
+    ShowMessage('Selecione um usuário.');
+    Exit;
+  end;
 
+  if Trim(edtSenha.Text) = '' then
+  begin
+    ShowMessage('Informe a senha.');
+    edtSenha.SetFocus;
+    Exit;
+  end;
+
+  // Recupera o ID real do ComboBox
+  IdUsuario := NativeInt(cbUsuario.Items.Objects[cbUsuario.ItemIndex]);
+
+  // Reutiliza a mesma query, trocando o SQL
+  dmConexoes.qrUsuario.Close;
+  dmConexoes.qrUsuario.SQL.Clear;
+  dmConexoes.qrUsuario.SQL.Add(
+    'SELECT * FROM [LojaNova].[dbo].[Usuarios] ' +
+    'WHERE id = :id AND Senha = :senha'
+  );
+
+  dmConexoes.qrUsuario.Parameters.ParamByName('id').value := IdUsuario;
+dmConexoes.qrUsuario.Parameters.ParamByName('senha').value := edtSenha.Text;
+  dmConexoes.qrUsuario.Open;
+
+  // Valida resultado
+  if dmConexoes.qrUsuario.RecordCount = 0 then
+  begin
+    ShowMessage('Usuário ou senha inválidos.');
+    edtSenha.SetFocus;
+    Exit;
+  end;
+
+  // Login OK
+  ShowMessage('Login realizado com sucesso!');
+  ModalResult := mrOk;
 end;
 
 procedure TfrmLogin.FormShow(Sender: TObject);
 begin
   cbUsuario.Clear;
 
-  with dmConexoes.qrUsuario do
-  begin
-    Close;
-    SQL.Text := 'SELECT * FROM Usuarios ORDER BY Usuario';
-    Open;
-    First;
+  dmConexoes.qrUsuario.Close;
+  dmConexoes.qrUsuario.SQL.Text :=
+    'SELECT * FROM [LojaNova].[dbo].[Usuarios] ORDER BY Usuario';
+  dmConexoes.qrUsuario.Open;
 
-//    while not Eof do
-//    begin
-//      cbUsuario.Items.Add(FieldByName('Usuario').AsString);
-//      Next;
-//    end;
-//
-//    // seleciona o primeiro usuário automaticamente (se existir)
-//    if cbUsuario.Items.Count > 0 then
-//      cbUsuario.ItemIndex := 0;
-//
-//    Close;
+  while not dmConexoes.qrUsuario.Eof do
+  begin
+    cbUsuario.Items.AddObject(
+      dmConexoes.qrUsuario.FieldByName('Usuario').AsString,
+      TObject(NativeInt(dmConexoes.qrUsuario.FieldByName('id').AsInteger))
+    );
+    dmConexoes.qrUsuario.Next;
   end;
 end;
 
+end.
 
-end.

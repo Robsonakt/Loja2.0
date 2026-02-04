@@ -11,6 +11,7 @@ object frmLogin: TfrmLogin
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poScreenCenter
+  OnShow = FormShow
   TextHeight = 15
   object pnPrincipal: TPanel
     Left = 0
@@ -29,9 +30,9 @@ object frmLogin: TfrmLogin
     object Label2: TLabel
       Left = 72
       Top = 22
-      Width = 10
+      Width = 36
       Height = 15
-      Caption = 'id'
+      Caption = 'Nome:'
     end
     object btnOk: TButton
       Left = 48
@@ -56,8 +57,8 @@ object frmLogin: TfrmLogin
       Top = 43
       Width = 145
       Height = 23
+      Style = csDropDownList
       TabOrder = 2
-      Text = 'Usu'#225'rio'
     end
     object edtSenha: TEdit
       Left = 69
