@@ -11,6 +11,7 @@ object frmLogin: TfrmLogin
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poScreenCenter
+  OnCloseQuery = FormCloseQuery
   OnShow = FormShow
   TextHeight = 15
   object pnPrincipal: TPanel

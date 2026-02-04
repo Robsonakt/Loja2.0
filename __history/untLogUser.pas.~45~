@@ -18,7 +18,6 @@ type
     procedure btnCancelarClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnOkClick(Sender: TObject);
-    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   private
 
   public
@@ -83,17 +82,6 @@ dmConexoes.qrUsuario.Parameters.ParamByName('senha').value := edtSenha.Text;
   // Login OK
   ShowMessage('Login realizado com sucesso!');
   ModalResult := mrOk;
-end;
-
-procedure TfrmLogin.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-begin
-  // Se ainda não houve login
-  if ModalResult <> mrOk then
-  begin
-    Application.Terminate;
-  end;
-
-  CanClose := True;
 end;
 
 procedure TfrmLogin.FormShow(Sender: TObject);
