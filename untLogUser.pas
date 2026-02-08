@@ -11,14 +11,22 @@ type
     pnPrincipal: TPanel;
     Label1: TLabel;
     edtSenha: TEdit;
-    btnOk: TButton;
-    btnCancelar: TButton;
     Label2: TLabel;
     cbUsuario: TComboBox;
-    procedure btnCancelarClick(Sender: TObject);
+    pnConfirmar: TPanel;
+    pnCancelar: TPanel;
+    lbStatus: TLabel;
+    Panel1: TPanel;
     procedure FormShow(Sender: TObject);
     procedure btnOkClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure Validar();
+    procedure pnConfirmarClick(Sender: TObject);
+    procedure pnCancelarClick(Sender: TObject);
+    procedure pnConfirmarMouseEnter(Sender: TObject);
+    procedure pnConfirmarMouseLeave(Sender: TObject);
+    procedure pnCancelarMouseEnter(Sender: TObject);
+    procedure pnCancelarMouseLeave(Sender: TObject);
   private
 
   public
@@ -33,11 +41,6 @@ implementation
 {$R *.dfm}
 
 uses dmconexao, untLocalizaCli;
-
-procedure TfrmLogin.btnCancelarClick(Sender: TObject);
-begin
-  Application.Terminate;
-end;
 
 procedure TfrmLogin.btnOkClick(Sender: TObject);
 var
@@ -113,6 +116,101 @@ begin
     );
     dmConexoes.qrUsuario.Next;
   end;
+end;
+
+procedure TfrmLogin.pnConfirmarClick(Sender: TObject);
+begin
+  Validar();
+end;
+
+procedure TfrmLogin.pnConfirmarMouseEnter(Sender: TObject);
+begin
+  pnConfirmar.Color := clGreen;
+  pnConfirmar.Font.Color := clBlack;
+end;
+
+procedure TfrmLogin.pnConfirmarMouseLeave(Sender: TObject);
+begin
+  pnConfirmar.Color := $00333333;
+  pnConfirmar.Font.Color := clWhite;
+end;
+
+procedure TfrmLogin.pnCancelarClick(Sender: TObject);
+begin
+  Application.Terminate;
+end;
+
+procedure TfrmLogin.pnCancelarMouseEnter(Sender: TObject);
+begin
+  pnCancelar.Color := clRed;
+  pnCancelar.Font.Color := clWhite;
+end;
+
+procedure TfrmLogin.pnCancelarMouseLeave(Sender: TObject);
+begin
+  pnCancelar.Color := $00333333;
+  pnCancelar.Font.Color := clWhite;
+end;
+
+procedure TfrmLogin.Validar;
+var
+  IdUsuario: Integer;
+begin
+  // Validação básica
+  if cbUsuario.ItemIndex < 0 then
+  begin
+    // ShowMessage('Selecione um usuário.');
+    lbStatus.Caption := 'Selecione um usuário.';
+    lbStatus.Font.Color := clRed;
+    Application.ProcessMessages;
+    Exit;
+  end;
+
+  if Trim(edtSenha.Text) = '' then
+  begin
+    //ShowMessage('Informe a senha.');
+    lbStatus.Caption := 'Informe a senha.';
+    lbStatus.Font.Color := clRed;
+    Application.ProcessMessages;
+
+    edtSenha.SetFocus;
+    Exit;
+  end;
+
+  // Recupera o ID real do ComboBox
+  IdUsuario := NativeInt(cbUsuario.Items.Objects[cbUsuario.ItemIndex]);
+
+  // Reutiliza a mesma query, trocando o SQL
+  dmConexoes.qrUsuario.Close;
+  dmConexoes.qrUsuario.SQL.Clear;
+  dmConexoes.qrUsuario.SQL.Add(
+    'SELECT * FROM [LojaNova].[dbo].[Usuarios] ' +
+    'WHERE id = :id AND Senha = :senha'
+  );
+
+  dmConexoes.qrUsuario.Parameters.ParamByName('id').value := IdUsuario;
+dmConexoes.qrUsuario.Parameters.ParamByName('senha').value := edtSenha.Text;
+  dmConexoes.qrUsuario.Open;
+
+  // Valida resultado
+  if dmConexoes.qrUsuario.RecordCount = 0 then
+  begin
+    // ShowMessage('Usuário ou senha inválidos.');
+    lbStatus.Caption := 'Usuário ou senha inválidos.';
+    lbStatus.Font.Color := clRed;
+    Application.ProcessMessages;
+
+    edtSenha.SetFocus;
+    Exit;
+  end;
+
+  // Login OK
+  // ShowMessage('Login realizado com sucesso!');
+  lbStatus.Caption := 'Login realizado com sucesso!';
+  lbStatus.Font.Color := clGreen;
+  Application.ProcessMessages;
+  Sleep(2000);
+  ModalResult := mrOk;
 end;
 
 end.

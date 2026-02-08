@@ -1,9 +1,10 @@
 object frmLogin: TfrmLogin
   Left = 0
   Top = 0
+  BorderStyle = bsSingle
   Caption = 'frmLogin'
-  ClientHeight = 216
-  ClientWidth = 325
+  ClientHeight = 204
+  ClientWidth = 287
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,10 +18,12 @@ object frmLogin: TfrmLogin
   object pnPrincipal: TPanel
     Left = 0
     Top = 0
-    Width = 325
-    Height = 216
+    Width = 287
+    Height = 204
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 325
+    ExplicitHeight = 216
     object Label1: TLabel
       Left = 69
       Top = 72
@@ -35,23 +38,20 @@ object frmLogin: TfrmLogin
       Height = 15
       Caption = 'Nome:'
     end
-    object btnOk: TButton
-      Left = 48
-      Top = 136
-      Width = 75
-      Height = 25
-      Caption = 'Ok'
-      TabOrder = 0
-      OnClick = btnOkClick
-    end
-    object btnCancelar: TButton
-      Left = 160
-      Top = 136
-      Width = 75
-      Height = 25
-      Caption = 'Cancelar'
-      TabOrder = 1
-      OnClick = btnCancelarClick
+    object lbStatus: TLabel
+      Left = 1
+      Top = 147
+      Width = 285
+      Height = 15
+      Align = alBottom
+      Alignment = taCenter
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = [fsBold]
+      ParentFont = False
+      ExplicitWidth = 3
     end
     object cbUsuario: TComboBox
       Left = 72
@@ -59,15 +59,76 @@ object frmLogin: TfrmLogin
       Width = 145
       Height = 23
       Style = csDropDownList
-      TabOrder = 2
+      TabOrder = 0
     end
     object edtSenha: TEdit
       Left = 69
       Top = 93
-      Width = 121
+      Width = 148
       Height = 23
       PasswordChar = '*'
-      TabOrder = 3
+      TabOrder = 1
+    end
+    object Panel1: TPanel
+      Left = 1
+      Top = 162
+      Width = 285
+      Height = 41
+      Align = alBottom
+      BevelOuter = bvNone
+      Caption = 'Panel1'
+      TabOrder = 2
+      ExplicitLeft = -72
+      ExplicitTop = 8
+      ExplicitWidth = 185
+      object pnConfirmar: TPanel
+        Left = 0
+        Top = 0
+        Width = 242
+        Height = 41
+        Align = alClient
+        BevelOuter = bvNone
+        Caption = 'ENTRAR'
+        Color = 3355443
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentBackground = False
+        ParentFont = False
+        TabOrder = 0
+        OnClick = pnConfirmarClick
+        OnMouseEnter = pnConfirmarMouseEnter
+        OnMouseLeave = pnConfirmarMouseLeave
+        ExplicitLeft = 1
+        ExplicitTop = 155
+        ExplicitWidth = 285
+        ExplicitHeight = 48
+      end
+      object pnCancelar: TPanel
+        Left = 242
+        Top = 0
+        Width = 43
+        Height = 41
+        Align = alRight
+        BevelOuter = bvNone
+        Caption = 'X'
+        Color = 3355443
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentBackground = False
+        ParentFont = False
+        TabOrder = 1
+        OnClick = pnCancelarClick
+        OnMouseEnter = pnCancelarMouseEnter
+        OnMouseLeave = pnCancelarMouseLeave
+        ExplicitLeft = 240
+        ExplicitHeight = 39
+      end
     end
   end
 end
