@@ -19,7 +19,7 @@ object dmConexoes: TdmConexoes
     CursorType = ctStatic
     Parameters = <>
     SQL.Strings = (
-      'select * from PRODUTO')
+      'select * from PRODUTOS')
     Left = 21
     Top = 144
     object qrEstoquecodigo: TAutoIncField

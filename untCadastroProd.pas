@@ -38,6 +38,7 @@ type
     edtTipo: TComboBox;
     edtDatacri: TDatePicker;
     edtCodProd: TDBEdit;
+    PnLocaliza: TPanel;
     procedure PnNovoMouseLeave(Sender: TObject);
     procedure PnNovoMouseEnter(Sender: TObject);
     procedure PnNovoClick(Sender: TObject);
@@ -73,6 +74,7 @@ type
     procedure PnSairMouseEnter(Sender: TObject);
     procedure PnSairMouseLeave(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure PnLocalizaClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -86,7 +88,7 @@ implementation
 
 {$R *.dfm}
 
-uses dmconexao, untRelatorioProd;
+uses dmconexao, untRelatorioProd, untLocalizaProd;
 
 procedure TfrmCadastroProdutos.FormMouseLeave(Sender: TObject);
 begin
@@ -319,6 +321,16 @@ procedure TfrmCadastroProdutos.PnGravarMouseLeave(Sender: TObject);
 begin
   Tpanel(sender).Color :=$00666666;
   TPanel(sender).Font.Color :=0;
+end;
+
+procedure TfrmCadastroProdutos.PnLocalizaClick(Sender: TObject);
+begin
+   dmConexoes.qrEstoque.First;
+
+   Application.CreateForm(TfrmLozalizaprod,frmLozalizaprod);  //CRIA A TELA
+   frmLozalizaprod.showmodal;                           //CHAMA O FORMULARIO CADASTRO
+   frmLozalizaprod.Free;
+   PnLocaliza.ParentDoubleBuffered := False;
 end;
 
 procedure TfrmCadastroProdutos.PnNovoClick(Sender: TObject);

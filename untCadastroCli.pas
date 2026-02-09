@@ -315,7 +315,7 @@ procedure TfrmCadastroCliente.PnLocalizaClick(Sender: TObject);
 begin
     dmConexoes.qrCliente.First;
 
-    Application.CreateForm(TfrmLozalizaCli,frmLozalizaCli);  //CRIA A TELA
+   Application.CreateForm(TfrmLozalizaCli,frmLozalizaCli);  //CRIA A TELA
    frmLozalizaCli.showmodal;                           //CHAMA O FORMULARIO CADASTRO
    frmLozalizaCli.Free;
 

@@ -4,10 +4,19 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids,
+  Vcl.StdCtrls, Vcl.ExtCtrls;
 
 type
   TfrmLozalizaCli = class(TForm)
+    Panel1: TPanel;
+    lbNomeCliente: TLabel;
+    edtPesquisaCLiente: TEdit;
+    GridCLiente: TDBGrid;
+    dsConsultaCliente: TDataSource;
+    procedure edtPesquisaCLienteChange(Sender: TObject);
+     procedure LocalizaCliente();
+    procedure GridCLienteKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
   public
@@ -16,9 +25,48 @@ type
 
 var
   frmLozalizaCli: TfrmLozalizaCli;
+  LocalizaCodigoCli : string ;
 
 implementation
 
 {$R *.dfm}
+uses dmconexao;
+
+procedure TfrmLozalizaCli.edtPesquisaCLienteChange(Sender: TObject);
+begin
+LocalizaCliente;
+end;
+
+procedure TfrmLozalizaCli.GridCLienteKeyPress(Sender: TObject; var Key: Char);
+begin
+    if key = #13 then
+   begin
+     LocalizaCodigoCli   := dmconexoes.qrCliente.FieldByName('codigo').AsString;
+     edtPesquisaCLiente.Text := '';
+     frmLozalizaCli.Close;
+
+   end;
+end;
+
+procedure TfrmLozalizaCli.LocalizaCliente;
+begin
+  with dmConexoes.qrCliente do
+    begin
+      Close;
+      sql.Clear;
+      sql.Add('SELECT * FROM Cliente WHERE (CODIGO IS NOT NULL) ');
+
+      //*** Filtrar Clientes ***//
+      if (trim(edtPesquisaCLiente.Text) <> '') then
+        begin
+          SQL.Append(' AND ((Nome LIKE :pNome) OR (Cpf LIKE :pCpf) OR (Rg LIKE :pRg) OR (Telefone LIKE :pTelefone)  ) ');
+          Parameters.ParamByName('pNome').Value      := '%'+edtPesquisaCLiente.Text+'%';
+          Parameters.ParamByName('pCpf').Value       := '%'+edtPesquisaCLiente.Text+'%';
+          Parameters.ParamByName('pTelefone').Value  := '%'+edtPesquisaCLiente.Text+'%';
+        end;
+
+      Open;
+    end;
+end;
 
 end.

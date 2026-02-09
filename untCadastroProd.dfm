@@ -244,6 +244,24 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseEnter = PnRelatorioMouseEnter
       OnMouseLeave = PnRelatorioMouseLeave
     end
+    object PnLocaliza: TPanel
+      Left = 378
+      Top = 53
+      Width = 80
+      Height = 52
+      Caption = 'Localiza'
+      Color = 6710886
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 11
+      OnClick = PnLocalizaClick
+      OnMouseLeave = PnNovoMouseLeave
+    end
   end
   object PnCentro: TPanel
     Left = 0
