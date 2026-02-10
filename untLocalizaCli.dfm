@@ -59,8 +59,6 @@ object frmLozalizaCli: TfrmLozalizaCli
       item
         Expanded = False
         FieldName = 'codigo'
-        ImeName = 'Codigo'
-        Title.Caption = 'C'#243'digo'
         Visible = True
       end
       item
@@ -70,19 +68,22 @@ object frmLozalizaCli: TfrmLozalizaCli
       end
       item
         Expanded = False
-        FieldName = 'cpf'
-        Title.Caption = 'CPF'
-        Width = 196
-        Visible = True
-      end
-      item
-        Expanded = False
         FieldName = 'telefone'
         Visible = True
       end
       item
         Expanded = False
-        FieldName = 'endereco'
+        FieldName = 'produto'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'valor'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'valorfiado'
         Visible = True
       end
       item

@@ -1,0 +1,269 @@
+object dmConexoes: TdmConexoes
+  Height = 716
+  Width = 777
+  object conRobson: TADOConnection
+    Connected = True
+    ConnectionString = 
+      'Provider=SQLOLEDB.1;Password=@66E$Y$;Persist Security Info=True;' +
+      'User ID=sa;Initial Catalog=LojaNova;Data Source=DESKTOP-N0H3V0A;' +
+      'Use Procedure for Prepare=1;Auto Translate=True;Packet Size=4096' +
+      ';Workstation ID=DEV3;Use Encryption for Data=False;Tag with colu' +
+      'mn collation when possible=False'
+    LoginPrompt = False
+    Provider = 'SQLOLEDB.1'
+    Left = 40
+    Top = 16
+  end
+  object qrEstoque: TADOQuery
+    Connection = conRobson
+    CursorType = ctStatic
+    Parameters = <>
+    SQL.Strings = (
+      'select * from PRODUTOS')
+    Left = 21
+    Top = 144
+    object qrEstoquecodigo: TAutoIncField
+      FieldName = 'codigo'
+      ReadOnly = True
+    end
+    object qrEstoquequantidade: TIntegerField
+      FieldName = 'quantidade'
+    end
+    object qrEstoquedescricao: TWideStringField
+      FieldName = 'descricao'
+      FixedChar = True
+      Size = 100
+    end
+    object qrEstoquedata: TDateTimeField
+      FieldName = 'data'
+    end
+    object qrEstoquevalorvenda: TBCDField
+      FieldName = 'valorvenda'
+      Precision = 10
+      Size = 2
+    end
+    object qrEstoquetipo: TStringField
+      FieldName = 'tipo'
+      Size = 10
+    end
+    object qrEstoquevalorcusto: TBCDField
+      FieldName = 'valorcusto'
+      Precision = 10
+      Size = 2
+    end
+    object qrEstoqueCodBarras: TIntegerField
+      FieldName = 'CodBarras'
+    end
+  end
+  object vwGerarNumCliente: TADOQuery
+    Parameters = <>
+    Left = 240
+    Top = 16
+  end
+  object qrComanda: TADOQuery
+    Connection = conRobson
+    CursorType = ctStatic
+    Parameters = <>
+    SQL.Strings = (
+      'SELECT *   FROM [Controle_Comanda].[dbo].[StatusComanda]')
+    Left = 309
+    Top = 408
+    object qrComandaCod_Comanda: TIntegerField
+      FieldName = 'Cod_Comanda'
+    end
+    object qrComandaNom_Comanda: TStringField
+      FieldName = 'Nom_Comanda'
+      Size = 50
+    end
+    object qrComandaStatus_Comanda: TStringField
+      FieldName = 'Status_Comanda'
+      Size = 10
+    end
+    object qrComandaEstad_Comanda: TStringField
+      FieldName = 'Estad_Comanda'
+      Size = 3
+    end
+  end
+  object qrVendas: TADOQuery
+    Connection = conRobson
+    CursorType = ctStatic
+    Parameters = <>
+    SQL.Strings = (
+      'SELECT *FROM [Controle_Comanda].[dbo].[Vendas]')
+    Left = 29
+    Top = 80
+    object qrVendasCodCli: TIntegerField
+      FieldName = 'CodCli'
+    end
+    object qrVendasData: TWideStringField
+      FieldName = 'Data'
+      FixedChar = True
+      Size = 10
+    end
+    object qrVendasValorTotal: TBCDField
+      FieldName = 'ValorTotal'
+      currency = True
+      Precision = 10
+      Size = 2
+    end
+    object qrVendasValorRestante: TBCDField
+      FieldName = 'ValorRestante'
+      Precision = 10
+      Size = 2
+    end
+    object qrVendasValorPago: TBCDField
+      FieldName = 'ValorPago'
+      Precision = 10
+      Size = 2
+    end
+    object qrVendasDataVenda: TDateTimeField
+      FieldName = 'DataVenda'
+    end
+    object qrVendasCodVenda: TIntegerField
+      FieldName = 'CodVenda'
+    end
+    object qrVendasDescriProd: TStringField
+      FieldName = 'DescriProd'
+      Size = 50
+    end
+    object qrVendasQuantidade: TIntegerField
+      FieldName = 'Quantidade'
+    end
+    object qrVendasValorProdUni: TBCDField
+      FieldName = 'ValorProdUni'
+      Precision = 10
+      Size = 2
+    end
+  end
+  object qrItensVenda: TADOQuery
+    Connection = conRobson
+    CursorType = ctStatic
+    Parameters = <>
+    SQL.Strings = (
+      'SELECT *FROM [Controle_Comanda].[dbo].[ItensVenda]')
+    Left = 93
+    Top = 80
+    object qrItensVendaCodigo: TIntegerField
+      FieldName = 'Codigo'
+    end
+    object qrItensVendaCodItem: TIntegerField
+      FieldName = 'CodItem'
+    end
+    object qrItensVendaCodVenda: TIntegerField
+      FieldName = 'CodVenda'
+    end
+    object qrItensVendaDescricao: TStringField
+      FieldName = 'Descricao'
+      Size = 50
+    end
+    object qrItensVendaValorTotal: TBCDField
+      FieldName = 'ValorTotal'
+      Precision = 10
+      Size = 2
+    end
+    object qrItensVendaQuantidade: TIntegerField
+      FieldName = 'Quantidade'
+    end
+    object qrItensVendaValorProdUni: TBCDField
+      FieldName = 'ValorProdUni'
+      Precision = 10
+      Size = 2
+    end
+    object qrItensVendaDataVenda: TDateTimeField
+      FieldName = 'DataVenda'
+    end
+  end
+  object dsEstoque: TDataSource
+    DataSet = qrEstoque
+    Left = 96
+    Top = 144
+  end
+  object dsCliente: TDataSource
+    DataSet = qrCliente
+    Left = 112
+    Top = 280
+  end
+  object dsProduto: TDataSource
+    DataSet = qrEstoque
+    Left = 296
+    Top = 97
+  end
+  object qrCaixa: TADOQuery
+    Connection = conRobson
+    Parameters = <>
+    SQL.Strings = (
+      
+        'qrCaixa.SQL.Add('#39'SELECT TOP 1 CodigoCaixa FROM Caixa WHERE Statu' +
+        's = :Status'#39');')
+    Left = 24
+    Top = 208
+  end
+  object qrCliente: TADOQuery
+    Connection = conRobson
+    CursorType = ctStatic
+    Parameters = <>
+    SQL.Strings = (
+      'SELECT * FROM [LojaNova].[dbo].[Cliente]'
+      ''
+      '')
+    Left = 21
+    Top = 280
+    object qrClientecodigo: TAutoIncField
+      FieldName = 'codigo'
+      ReadOnly = True
+    end
+    object qrClientenome: TWideStringField
+      FieldName = 'nome'
+      Size = 100
+    end
+    object qrClienteendereco: TWideStringField
+      FieldName = 'endereco'
+      Size = 100
+    end
+    object qrClientenumeroresidencia: TWideStringField
+      FieldName = 'numeroresidencia'
+      Size = 50
+    end
+    object qrClientetelefone: TStringField
+      FieldName = 'telefone'
+      Size = 50
+    end
+    object qrClientecpf: TStringField
+      FieldName = 'cpf'
+      Size = 50
+    end
+    object qrClienterg: TStringField
+      FieldName = 'rg'
+      Size = 50
+    end
+    object qrClienteproduto: TWideStringField
+      FieldName = 'produto'
+      Size = 10
+    end
+    object qrClientevalor: TIntegerField
+      FieldName = 'valor'
+    end
+    object qrClientevalorfiado: TBCDField
+      FieldName = 'valorfiado'
+      Precision = 10
+      Size = 2
+    end
+    object qrClientedatacadastrocliente: TDateTimeField
+      FieldName = 'datacadastrocliente'
+    end
+  end
+  object qrUsuario: TADOQuery
+    Connection = conRobson
+    CursorType = ctStatic
+    Parameters = <>
+    SQL.Strings = (
+      'SELECT * FROM [LojaNova].[dbo].[Usuarios]')
+    Left = 21
+    Top = 352
+  end
+  object dsUsuario: TDataSource
+    DataSet = qrUsuario
+    Left = 104
+    Top = 352
+  end
+end

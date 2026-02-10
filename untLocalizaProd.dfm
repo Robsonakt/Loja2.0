@@ -2,7 +2,7 @@ object frmLozalizaProd: TfrmLozalizaProd
   Left = 0
   Top = 0
   Caption = 'frmLozalizaProd'
-  ClientHeight = 454
+  ClientHeight = 488
   ClientWidth = 818
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -13,13 +13,11 @@ object frmLozalizaProd: TfrmLozalizaProd
   TextHeight = 15
   object Panel1: TPanel
     Left = 0
-    Top = 404
+    Top = 424
     Width = 818
-    Height = 50
+    Height = 64
     Align = alBottom
     TabOrder = 0
-    ExplicitTop = 381
-    ExplicitWidth = 786
     object lbConsultaProduto: TLabel
       Left = 16
       Top = 7
@@ -29,24 +27,22 @@ object frmLozalizaProd: TfrmLozalizaProd
     end
     object edtPesquisaProduto: TEdit
       Left = 16
-      Top = 26
+      Top = 28
       Width = 390
       Height = 23
       TabOrder = 0
       OnChange = edtPesquisaProdutoChange
-      OnKeyPress = edtPesquisaProdutoKeyPress
     end
   end
   object Panel2: TPanel
     Left = 0
     Top = 0
     Width = 818
-    Height = 404
+    Height = 424
     Align = alClient
     Caption = 'Panel2'
     TabOrder = 1
-    ExplicitWidth = 786
-    ExplicitHeight = 381
+    ExplicitHeight = 404
     object gridProduto: TDBGrid
       Left = 0
       Top = 0
@@ -59,6 +55,7 @@ object frmLozalizaProd: TfrmLozalizaProd
       TitleFont.Height = -12
       TitleFont.Name = 'Segoe UI'
       TitleFont.Style = []
+      OnKeyPress = gridProdutoKeyPress
       Columns = <
         item
           Expanded = False
@@ -84,6 +81,7 @@ object frmLozalizaProd: TfrmLozalizaProd
         item
           Expanded = False
           FieldName = 'valorvenda'
+          Width = 64
           Visible = True
         end
         item
@@ -94,6 +92,7 @@ object frmLozalizaProd: TfrmLozalizaProd
         item
           Expanded = False
           FieldName = 'valorcusto'
+          Width = 64
           Visible = True
         end
         item

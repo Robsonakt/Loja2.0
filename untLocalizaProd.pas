@@ -17,7 +17,7 @@ type
     Panel2: TPanel;
     procedure edtPesquisaProdutoChange(Sender: TObject);
     procedure LocalizaProduto();
-    procedure edtPesquisaProdutoKeyPress(Sender: TObject; var Key: Char);
+    procedure gridProdutoKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
   public
@@ -39,10 +39,9 @@ begin
   LocalizaProduto;
 end;
 
-procedure TfrmLozalizaProd.edtPesquisaProdutoKeyPress(Sender: TObject;
-  var Key: Char);
+procedure TfrmLozalizaProd.gridProdutoKeyPress(Sender: TObject; var Key: Char);
 begin
-    if key = #13 then
+       if key = #13 then
    begin
      LocalizaCodigoProd  := dmconexoes.qrEstoque.FieldByName('codigo').AsString;
      edtPesquisaProduto.Text := '';
@@ -62,7 +61,8 @@ begin
       //*** Filtrar Produtos ***//
       if (trim(edtPesquisaProduto.Text) <> '') then
         begin
-          SQL.Append(' AND ((Descricao LIKE :pDescricao) OR (CodBarras LIKE :pCodBarras)) ');
+          SQL.Add('AND (Descricao LIKE :pDescricao');
+          SQL.Add('OR CAST(CodBarras AS VARCHAR(50)) LIKE :pCodBarras)');
           Parameters.ParamByName('pDescricao').Value      := '%'+edtPesquisaProduto.Text+'%';
           Parameters.ParamByName('pCodBarras').Value       := '%'+edtPesquisaProduto.Text+'%';
         end;
