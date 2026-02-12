@@ -28,7 +28,6 @@ type
     RLDBText4: TRLDBText;
     RLDBText5: TRLDBText;
     RLDBText6: TRLDBText;
-    RLSubDetail1: TRLSubDetail;
   private
     { Private declarations }
   public

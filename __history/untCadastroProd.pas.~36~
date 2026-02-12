@@ -38,6 +38,7 @@ type
     edtTipo: TComboBox;
     edtDatacri: TDatePicker;
     edtCodProd: TDBEdit;
+    PnLocaliza: TPanel;
     procedure PnNovoMouseLeave(Sender: TObject);
     procedure PnNovoMouseEnter(Sender: TObject);
     procedure PnNovoClick(Sender: TObject);
@@ -51,6 +52,29 @@ type
     procedure PnUltimoClick(Sender: TObject);
     procedure PnRelatorioClick(Sender: TObject);
     procedure PnSairClick(Sender: TObject);
+    procedure FormMouseLeave(Sender: TObject);
+    procedure PnCancelarMouseEnter(Sender: TObject);
+    procedure PnExcluirMouseEnter(Sender: TObject);
+    procedure PnGravarMouseEnter(Sender: TObject);
+    procedure PnEditarMouseEnter(Sender: TObject);
+    procedure PnEditarMouseLeave(Sender: TObject);
+    procedure PnCancelarMouseLeave(Sender: TObject);
+    procedure PnExcluirMouseLeave(Sender: TObject);
+    procedure PnGravarMouseLeave(Sender: TObject);
+    procedure PnPrimeiroMouseEnter(Sender: TObject);
+    procedure PnPrimeiroMouseLeave(Sender: TObject);
+    procedure PnAnteriorMouseEnter(Sender: TObject);
+    procedure PnAnteriorMouseLeave(Sender: TObject);
+    procedure PnProximoMouseEnter(Sender: TObject);
+    procedure PnProximoMouseLeave(Sender: TObject);
+    procedure PnUltimoMouseEnter(Sender: TObject);
+    procedure PnUltimoMouseLeave(Sender: TObject);
+    procedure PnRelatorioMouseEnter(Sender: TObject);
+    procedure PnRelatorioMouseLeave(Sender: TObject);
+    procedure PnSairMouseEnter(Sender: TObject);
+    procedure PnSairMouseLeave(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure PnLocalizaClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -64,7 +88,27 @@ implementation
 
 {$R *.dfm}
 
-uses dmconexao, untRelatorioProd;
+uses dmconexao, untRelatorioProd, untLocalizaProd;
+
+procedure TfrmCadastroProdutos.FormMouseLeave(Sender: TObject);
+begin
+  TPanel(Sender).Color := $00333333;
+  TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TfrmCadastroProdutos.FormShow(Sender: TObject);
+begin
+      with dmConexoes do
+  begin
+    qrEstoque.close;
+    qrEstoque.sql.clear;
+    qrEstoque.sql.Add('SELECT * FROM [LojaNova].[dbo].[PRODUTOS]');
+    qrEstoque.open;
+    qrEstoque.First;
+
+  end;
+
+end;
 
 procedure TfrmCadastroProdutos.PnAnteriorClick(Sender: TObject);
 begin
@@ -75,6 +119,18 @@ begin
     else
       ShowMessage('Primeiro registro!');
   end;
+end;
+
+procedure TfrmCadastroProdutos.PnAnteriorMouseEnter(Sender: TObject);
+begin
+   TPanel(sender).Color :=$00333333;
+ TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TfrmCadastroProdutos.PnAnteriorMouseLeave(Sender: TObject);
+begin
+    Tpanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
 end;
 
 procedure TfrmCadastroProdutos.PnCancelarClick(Sender: TObject);
@@ -124,6 +180,18 @@ begin
           edtDatacri.Enabled       := false;
 end;
 
+procedure TfrmCadastroProdutos.PnCancelarMouseEnter(Sender: TObject);
+begin
+   TPanel(sender).Color :=$00333333;
+ TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TfrmCadastroProdutos.PnCancelarMouseLeave(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
+end;
+
 procedure TfrmCadastroProdutos.PnEditarClick(Sender: TObject);
 begin
   // Habilita/Desabilita campos
@@ -160,6 +228,18 @@ begin
   PnRelatorio.Enabled := false;
 end;
 
+procedure TfrmCadastroProdutos.PnEditarMouseEnter(Sender: TObject);
+begin
+   TPanel(sender).Color :=$00333333;
+ TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TfrmCadastroProdutos.PnEditarMouseLeave(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
+end;
+
 procedure TfrmCadastroProdutos.PnExcluirClick(Sender: TObject);
 begin
    if MessageDlg('Deseja excluir este registro?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
@@ -173,6 +253,18 @@ begin
         ShowMessage('Erro ao excluir: ' + E.Message);
     end;
   end;
+end;
+
+procedure TfrmCadastroProdutos.PnExcluirMouseEnter(Sender: TObject);
+begin
+ TPanel(sender).Color :=$00333333;
+ TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TfrmCadastroProdutos.PnExcluirMouseLeave(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
 end;
 
 procedure TfrmCadastroProdutos.PnGravarClick(Sender: TObject);
@@ -217,6 +309,28 @@ end;
   PnUltimo.Enabled    := true;
   PnRelatorio.Enabled := true;
   PnSair.Enabled      := true;
+end;
+
+procedure TfrmCadastroProdutos.PnGravarMouseEnter(Sender: TObject);
+begin
+  TPanel(sender).Color :=$00333333;
+  TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TfrmCadastroProdutos.PnGravarMouseLeave(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
+end;
+
+procedure TfrmCadastroProdutos.PnLocalizaClick(Sender: TObject);
+begin
+   dmConexoes.qrEstoque.First;
+
+   Application.CreateForm(TfrmLozalizaprod,frmLozalizaprod);  //CRIA A TELA
+   frmLozalizaprod.showmodal;                           //CHAMA O FORMULARIO CADASTRO
+   frmLozalizaprod.Free;
+   PnLocaliza.ParentDoubleBuffered := False;
 end;
 
 procedure TfrmCadastroProdutos.PnNovoClick(Sender: TObject);
@@ -288,6 +402,19 @@ begin
    dmConexoes.qrEstoque.First;
 end;
 
+procedure TfrmCadastroProdutos.PnPrimeiroMouseEnter(Sender: TObject);
+begin
+   TPanel(sender).Color :=$00333333;
+ TPanel(sender).Font.Color :=clWhite;
+
+end;
+
+procedure TfrmCadastroProdutos.PnPrimeiroMouseLeave(Sender: TObject);
+begin
+    Tpanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
+end;
+
 procedure TfrmCadastroProdutos.PnProximoClick(Sender: TObject);
 begin
    with dmConexoes.qrEstoque do
@@ -297,6 +424,18 @@ begin
     else
       ShowMessage('Último registro!');
   end;
+end;
+
+procedure TfrmCadastroProdutos.PnProximoMouseEnter(Sender: TObject);
+begin
+   TPanel(sender).Color :=$00333333;
+ TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TfrmCadastroProdutos.PnProximoMouseLeave(Sender: TObject);
+begin
+   Tpanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
 end;
 
 procedure TfrmCadastroProdutos.PnRelatorioClick(Sender: TObject);
@@ -310,7 +449,21 @@ begin
 
    FrmRelatorioProd := TFrmRelatorioProd.Create(self);
    FrmRelatorioProd.rlr_RelatorioProdutos.Preview();
+
+
   end;
+end;
+
+procedure TfrmCadastroProdutos.PnRelatorioMouseEnter(Sender: TObject);
+begin
+    TPanel(sender).Color :=$00333333;
+ TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TfrmCadastroProdutos.PnRelatorioMouseLeave(Sender: TObject);
+begin
+    Tpanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
 end;
 
 procedure TfrmCadastroProdutos.PnSairClick(Sender: TObject);
@@ -318,9 +471,34 @@ begin
  close;
 end;
 
+procedure TfrmCadastroProdutos.PnSairMouseEnter(Sender: TObject);
+begin
+  TPanel(sender).Color :=$00333333;
+ TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TfrmCadastroProdutos.PnSairMouseLeave(Sender: TObject);
+begin
+    Tpanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
+end;
+
 procedure TfrmCadastroProdutos.PnUltimoClick(Sender: TObject);
 begin
    dmConexoes.qrEstoque.Last;
+end;
+
+procedure TfrmCadastroProdutos.PnUltimoMouseEnter(Sender: TObject);
+begin
+   TPanel(sender).Color :=$00333333;
+ TPanel(sender).Font.Color :=clWhite;
+
+end;
+
+procedure TfrmCadastroProdutos.PnUltimoMouseLeave(Sender: TObject);
+begin
+   Tpanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0
 end;
 
 end.

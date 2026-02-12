@@ -20,15 +20,15 @@ type
     RLLabel3: TRLLabel;
     RLLabel4: TRLLabel;
     RLLabel5: TRLLabel;
-    RLLabel6: TRLLabel;
+    RLSubDetail1: TRLSubDetail;
     RLBand2: TRLBand;
-    RLDBText1: TRLDBText;
     RLDBText2: TRLDBText;
+    RLDBText1: TRLDBText;
     RLDBText3: TRLDBText;
     RLDBText4: TRLDBText;
     RLDBText5: TRLDBText;
-    RLDBText6: TRLDBText;
-    RLSubDetail1: TRLSubDetail;
+    tipo: TRLDBText;
+    RLLabel6: TRLLabel;
   private
     { Private declarations }
   public

@@ -15,6 +15,7 @@ object dmConexoes: TdmConexoes
     Top = 16
   end
   object qrEstoque: TADOQuery
+    Active = True
     Connection = conRobson
     CursorType = ctStatic
     Parameters = <>

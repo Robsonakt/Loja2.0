@@ -442,13 +442,18 @@ procedure TfrmCadastroProdutos.PnRelatorioClick(Sender: TObject);
 begin
   with dmconexoes do
   begin
-   qrEstoque.Close  ;
-   qrEstoque.SQL.Clear;
-   qrEstoque.SQL.Add('SELECT * FROM [LojaNova].[dbo].[PRODUTOS]');
-   qrEstoque.Open;
+    qrEstoque.Close;
+    qrEstoque.SQL.Clear;
+    qrEstoque.SQL.Add('SELECT * FROM PRODUTOS');
+    qrEstoque.Open;   // <<<<< FALTAVA ISSO
 
-   FrmRelatorioProd := TFrmRelatorioProd.Create(self);
-   FrmRelatorioProd.rlr_RelatorioProdutos.Preview();
+    FrmRelatorioProd := TFrmRelatorioProd.Create(Self);
+    try
+      FrmRelatorioProd.rlr_RelatorioProdutos.Preview;
+    finally
+      FrmRelatorioProd.Free;
+    end;
+
   end;
 end;
 

@@ -1,4 +1,4 @@
-object CadastroProduto: TCadastroProduto
+object FrmRelatorioProd: TFrmRelatorioProd
   Left = 0
   Top = 0
   Caption = 'Cadastro de Produto'
@@ -178,6 +178,13 @@ object CadastroProduto: TCadastroProduto
           Text = ''
         end
       end
+    end
+    object RLDBText6: TRLDBText
+      Left = 56
+      Top = 200
+      Width = 70
+      Height = 16
+      Text = ''
     end
   end
 end
