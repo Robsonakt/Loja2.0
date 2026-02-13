@@ -105,7 +105,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnExcluirMouseLeave
     end
     object PnGravar: TPanel
-      Left = 312
+      Left = 304
       Top = -1
       Width = 80
       Height = 52
@@ -386,6 +386,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       DataSource = dmConexoes.dsEstoque
       Enabled = False
       TabOrder = 0
+      OnKeyPress = edtDescricaoProdKeyPress
     end
     object edtBarras: TDBEdit
       Left = 24
@@ -396,6 +397,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       DataSource = dmConexoes.dsEstoque
       Enabled = False
       TabOrder = 1
+      OnKeyPress = edtBarrasKeyPress
     end
     object edtValorCusto: TDBEdit
       Left = 191
@@ -406,6 +408,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       DataSource = dmConexoes.dsEstoque
       Enabled = False
       TabOrder = 2
+      OnKeyPress = edtValorCustoKeyPress
     end
     object EdtValorVend: TDBEdit
       Left = 302
@@ -416,6 +419,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       DataSource = dmConexoes.dsEstoque
       Enabled = False
       TabOrder = 3
+      OnKeyPress = EdtValorVendKeyPress
     end
     object edtQuantProd: TDBEdit
       Left = 21
@@ -426,6 +430,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       DataSource = dmConexoes.dsEstoque
       Enabled = False
       TabOrder = 4
+      OnKeyPress = edtQuantProdKeyPress
     end
     object edtTipo: TComboBox
       Left = 432
@@ -436,6 +441,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       ItemIndex = 0
       TabOrder = 5
       Text = 'UN'
+      OnKeyPress = edtTipoKeyPress
       Items.Strings = (
         'UN'
         'LT')

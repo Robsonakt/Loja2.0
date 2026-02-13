@@ -361,6 +361,7 @@ object frmCadastroCliente: TfrmCadastroCliente
       DataSource = dmConexoes.dsCliente
       Enabled = False
       TabOrder = 0
+      OnKeyPress = edtNomeClienteKeyPress
     end
     object edtEndereco: TDBEdit
       Left = 25
@@ -371,6 +372,7 @@ object frmCadastroCliente: TfrmCadastroCliente
       DataSource = dmConexoes.dsCliente
       Enabled = False
       TabOrder = 1
+      OnKeyPress = edtEnderecoKeyPress
     end
     object edtTel: TDBEdit
       Left = 23
@@ -391,6 +393,7 @@ object frmCadastroCliente: TfrmCadastroCliente
       DataSource = dmConexoes.dsCliente
       Enabled = False
       TabOrder = 3
+      OnKeyPress = edtNResidenteKeyPress
     end
     object DBEdit6: TDBEdit
       Left = 24

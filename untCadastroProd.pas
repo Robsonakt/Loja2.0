@@ -75,6 +75,12 @@ type
     procedure PnSairMouseLeave(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PnLocalizaClick(Sender: TObject);
+    procedure edtBarrasKeyPress(Sender: TObject; var Key: Char);
+    procedure edtDescricaoProdKeyPress(Sender: TObject; var Key: Char);
+    procedure edtQuantProdKeyPress(Sender: TObject; var Key: Char);
+    procedure edtValorCustoKeyPress(Sender: TObject; var Key: Char);
+    procedure EdtValorVendKeyPress(Sender: TObject; var Key: Char);
+    procedure edtTipoKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
   public
@@ -89,6 +95,48 @@ implementation
 {$R *.dfm}
 
 uses dmconexao, untRelatorioProd, untLocalizaProd;
+
+procedure TfrmCadastroProdutos.edtBarrasKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+    if Key = #13 then
+    edtDescricaoProd.SetFocus;
+end;
+
+procedure TfrmCadastroProdutos.edtDescricaoProdKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+   if Key = #13 then
+      edtQuantProd.SetFocus;
+end;
+
+procedure TfrmCadastroProdutos.edtQuantProdKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+   if Key = #13 then
+      edtValorCusto.SetFocus;
+end;
+
+procedure TfrmCadastroProdutos.edtTipoKeyPress(Sender: TObject; var Key: Char);
+begin
+   if Key = #13 then
+    PnGravar.SetFocus;
+    pnGravar.Color := clMoneyGreen;
+end;
+
+procedure TfrmCadastroProdutos.edtValorCustoKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+   if Key = #13 then
+    EdtValorVend.SetFocus;
+end;
+
+procedure TfrmCadastroProdutos.EdtValorVendKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+   if Key = #13 then
+    edtTipo.SetFocus;
+end;
 
 procedure TfrmCadastroProdutos.FormMouseLeave(Sender: TObject);
 begin
@@ -269,7 +317,7 @@ end;
 
 procedure TfrmCadastroProdutos.PnGravarClick(Sender: TObject);
 begin
-    application.MessageBox('Deseja gravar o produto ?','Cadastro  ',mb_ok+MB_ICONINFORMATION);
+//    application.MessageBox('Produto gravado com Sucesso','Cadastro  ',mb_ok+MB_ICONINFORMATION);
     edtBarras.Enabled := false;
     edtDescricaoProd.Enabled := false;
     edtValorCusto.Enabled := false;
@@ -291,7 +339,7 @@ end;
   // Configura botões de ação
   PnGravar.Enabled := false;
   PnCancelar.Enabled := true;
-  PnGravar.Font.Color := 0; // Preto
+  PnGravar.Font.Color := $00333333; // Preto
   PnCancelar.Font.Color := 0; // Preto
   PnPrimeiro.Font.Color := 0; // Preto
   PnAnterior.Font.Color := 0; // Preto
@@ -313,8 +361,8 @@ end;
 
 procedure TfrmCadastroProdutos.PnGravarMouseEnter(Sender: TObject);
 begin
-  TPanel(sender).Color :=$00333333;
-  TPanel(sender).Font.Color :=clWhite;
+  TPanel(sender).Color := clMoneyGreen;
+  TPanel(sender).Font.Color := clWhite;
 end;
 
 procedure TfrmCadastroProdutos.PnGravarMouseLeave(Sender: TObject);

@@ -68,6 +68,9 @@ type
     procedure PnSairMouseLeave(Sender: TObject);
     procedure PnPrimeiroMouseEnter(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure edtNomeClienteKeyPress(Sender: TObject; var Key: Char);
+    procedure edtEnderecoKeyPress(Sender: TObject; var Key: Char);
+    procedure edtNResidenteKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
   public
@@ -82,6 +85,27 @@ implementation
 {$R *.dfm}
 
 uses dmconexao, untLocalizaCli;
+
+procedure TfrmCadastroCliente.edtEnderecoKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if Key = #13 then
+  edtNResidente.SetFocus;
+end;
+
+procedure TfrmCadastroCliente.edtNomeClienteKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if Key = #13 then
+  edtEndereco.SetFocus;
+end;
+
+procedure TfrmCadastroCliente.edtNResidenteKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if Key = #13 then
+  edtTel.SetFocus;
+end;
 
 procedure TfrmCadastroCliente.FormShow(Sender: TObject);
 begin
@@ -307,7 +331,7 @@ end;
 procedure TfrmCadastroCliente.PnGravarMouseEnter(Sender: TObject);
 begin
 
- TPanel(sender).Color :=$00333333;
+ TPanel(sender).Color := clMoneyGreen;
  TPanel(sender).Font.Color :=clWhite;
 end;
 
@@ -385,7 +409,7 @@ end;
 
 procedure TfrmCadastroCliente.PnNovoMouseLeave(Sender: TObject);
 begin
-  Tpanel(sender).Color :=$00666666;
+  Tpanel(sender).Color := clMoneyGreen;;
    TPanel(sender).Font.Color :=0;
 end;
 
