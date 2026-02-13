@@ -2,7 +2,7 @@ object frmLogin: TfrmLogin
   Left = 0
   Top = 0
   BorderStyle = bsSingle
-  Caption = 'frmLogin'
+  Caption = 'Login'
   ClientHeight = 204
   ClientWidth = 287
   Color = clBtnFace
@@ -22,8 +22,6 @@ object frmLogin: TfrmLogin
     Height = 204
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 325
-    ExplicitHeight = 216
     object Label1: TLabel
       Left = 69
       Top = 72
@@ -60,6 +58,7 @@ object frmLogin: TfrmLogin
       Height = 23
       Style = csDropDownList
       TabOrder = 0
+      OnKeyPress = cbUsuarioKeyPress
     end
     object edtSenha: TEdit
       Left = 69
@@ -68,6 +67,7 @@ object frmLogin: TfrmLogin
       Height = 23
       PasswordChar = '*'
       TabOrder = 1
+      OnKeyPress = edtSenhaKeyPress
     end
     object Panel1: TPanel
       Left = 1
@@ -78,9 +78,6 @@ object frmLogin: TfrmLogin
       BevelOuter = bvNone
       Caption = 'Panel1'
       TabOrder = 2
-      ExplicitLeft = -72
-      ExplicitTop = 8
-      ExplicitWidth = 185
       object pnConfirmar: TPanel
         Left = 0
         Top = 0
@@ -101,10 +98,6 @@ object frmLogin: TfrmLogin
         OnClick = pnConfirmarClick
         OnMouseEnter = pnConfirmarMouseEnter
         OnMouseLeave = pnConfirmarMouseLeave
-        ExplicitLeft = 1
-        ExplicitTop = 155
-        ExplicitWidth = 285
-        ExplicitHeight = 48
       end
       object pnCancelar: TPanel
         Left = 242
@@ -126,8 +119,6 @@ object frmLogin: TfrmLogin
         OnClick = pnCancelarClick
         OnMouseEnter = pnCancelarMouseEnter
         OnMouseLeave = pnCancelarMouseLeave
-        ExplicitLeft = 240
-        ExplicitHeight = 39
       end
     end
   end

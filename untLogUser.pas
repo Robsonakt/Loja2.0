@@ -27,6 +27,8 @@ type
     procedure pnConfirmarMouseLeave(Sender: TObject);
     procedure pnCancelarMouseEnter(Sender: TObject);
     procedure pnCancelarMouseLeave(Sender: TObject);
+    procedure cbUsuarioKeyPress(Sender: TObject; var Key: Char);
+    procedure edtSenhaKeyPress(Sender: TObject; var Key: Char);
   private
 
   public
@@ -88,6 +90,18 @@ dmConexoes.qrUsuario.Parameters.ParamByName('senha').value := edtSenha.Text;
   ModalResult := mrOk;
 end;
 
+procedure TfrmLogin.cbUsuarioKeyPress(Sender: TObject; var Key: Char);
+begin
+if Key = #13 then
+ edtSenha.SetFocus;
+end;
+
+procedure TfrmLogin.edtSenhaKeyPress(Sender: TObject; var Key: Char);
+begin
+if Key = #13 then
+ Validar();
+end;
+
 procedure TfrmLogin.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   // Se ainda não houve login
@@ -120,6 +134,7 @@ end;
 
 procedure TfrmLogin.pnConfirmarClick(Sender: TObject);
 begin
+
   Validar();
 end;
 
@@ -156,6 +171,7 @@ procedure TfrmLogin.Validar;
 var
   IdUsuario: Integer;
 begin
+
   // Validação básica
   if cbUsuario.ItemIndex < 0 then
   begin
