@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.WinXPickers, Vcl.StdCtrls, Vcl.Mask,
-  Vcl.ExtCtrls, Vcl.DBCtrls;
+  Vcl.ExtCtrls, Vcl.DBCtrls, Vcl.ComCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids;
 
 type
   TfrmCadastroProdutos = class(TForm)
@@ -22,23 +22,29 @@ type
     PnSair: TPanel;
     PnRelatorio: TPanel;
     PnCentro: TPanel;
+    PnLocaliza: TPanel;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    Label1: TLabel;
     LbCodProd: TLabel;
     Lbdatacadastroproduto: TLabel;
     Lbnomeproduto: TLabel;
     lbQuant: TLabel;
-    lbTipo: TLabel;
     lbvalorproduto: TLabel;
-    Label1: TLabel;
     Label2: TLabel;
-    edtDescricaoProd: TDBEdit;
+    lbTipo: TLabel;
+    lbCustTotal: TLabel;
     edtBarras: TDBEdit;
-    edtValorCusto: TDBEdit;
-    EdtValorVend: TDBEdit;
+    edtCodProd: TDBEdit;
+    edtDatacri: TDatePicker;
+    edtDescricaoProd: TDBEdit;
     edtQuantProd: TDBEdit;
     edtTipo: TComboBox;
-    edtDatacri: TDatePicker;
-    edtCodProd: TDBEdit;
-    PnLocaliza: TPanel;
+    edtValorCusto: TDBEdit;
+    EdtValorVend: TDBEdit;
+    DBGridVALORES: TDBGrid;
+    edtCustoTotal: TDBEdit;
+    TabSheet2: TTabSheet;
     procedure PnNovoMouseLeave(Sender: TObject);
     procedure PnNovoMouseEnter(Sender: TObject);
     procedure PnNovoClick(Sender: TObject);
@@ -81,6 +87,13 @@ type
     procedure edtValorCustoKeyPress(Sender: TObject; var Key: Char);
     procedure EdtValorVendKeyPress(Sender: TObject; var Key: Char);
     procedure edtTipoKeyPress(Sender: TObject; var Key: Char);
+    procedure DBGridVALORESKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure DBGridVALORESMouseWheelDown(Sender: TObject; Shift: TShiftState;
+      MousePos: TPoint; var Handled: Boolean);
+    procedure DBGridVALORESMouseWheelUp(Sender: TObject; Shift: TShiftState;
+      MousePos: TPoint; var Handled: Boolean);
+
   private
     { Private declarations }
   public
@@ -95,6 +108,33 @@ implementation
 {$R *.dfm}
 
 uses dmconexao, untRelatorioProd, untLocalizaProd;
+
+
+
+procedure TfrmCadastroProdutos.DBGridVALORESKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if Key in [VK_UP, VK_DOWN, VK_PRIOR, VK_NEXT] then
+    Key := 0;
+
+  // Quando pressionar Enter força o recálculo
+  if Key = VK_RETURN then
+  begin
+    dmConexoes.qrEstoquemarkupChange(dmConexoes.qrEstoquemarkup);
+  end;
+end;
+
+procedure TfrmCadastroProdutos.DBGridVALORESMouseWheelDown(Sender: TObject;
+  Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+begin
+ Handled := True; // Bloqueia scroll para baixo
+end;
+
+procedure TfrmCadastroProdutos.DBGridVALORESMouseWheelUp(Sender: TObject;
+  Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+begin
+    Handled := True; // Bloqueia scroll para cima
+end;
 
 procedure TfrmCadastroProdutos.edtBarrasKeyPress(Sender: TObject;
   var Key: Char);
@@ -123,6 +163,9 @@ begin
     PnGravar.SetFocus;
     pnGravar.Color := clMoneyGreen;
 end;
+
+
+
 
 procedure TfrmCadastroProdutos.edtValorCustoKeyPress(Sender: TObject;
   var Key: Char);
@@ -208,6 +251,7 @@ begin
           PnCancelar.Enabled   := true  ;
           PnSair.Enabled       := true  ;
           PnGravar.Enabled     := false ;
+          DBGridVALORES.Enabled:= false;
 
           PnEditar.Font.Color      := 0;
           PnExcluir.Font.Color     := 0;
@@ -250,6 +294,7 @@ begin
   EdtValorVend.Enabled := true;
   edtTipo.Enabled := true;
   edtDataCri.Enabled := true;
+  DBGridVALORES.Enabled    := true;
 
   // Configura botões de ação
   PnGravar.Enabled := true;
@@ -427,6 +472,7 @@ begin
   EdtValorVend.Enabled     := not EdtValorVend.Enabled ;
   edtTipo.Enabled          := not edtTipo.Enabled ;
   edtDataCri.Enabled       := not edtDataCri.Enabled ;
+  DBGridVALORES.Enabled    := not DBGridVALORES.Enabled;
 
   begin
     edtBarras.SetFocus;
