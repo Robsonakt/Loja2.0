@@ -1,13 +1,14 @@
-﻿unit untInicial;
+unit untInicial;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf, FireDAC.Stan.Option,
-  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
-  FireDAC.DApt.Intf, Vcl.Imaging.pngimage, Vcl.ExtCtrls, Data.DB,
-  FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.Menus, Vcl.StdCtrls;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  Vcl.Imaging.pngimage, Vcl.ExtCtrls, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, Vcl.Menus, Vcl.StdCtrls;
 
 type
   TFormularioPrincipal = class(TForm)
@@ -37,11 +38,20 @@ type
     DateField2: TDateField;
     CurrencyField2: TCurrencyField;
     DataSource1: TDataSource;
-
     lblTextoAbertura: TLabel;
     lblCaixa: TLabel;
     Usurio1: TMenuItem;
     Cadastro2: TMenuItem;
+    pnlTopoInicial: TPanel;
+    lblTituloInicial: TLabel;
+    pnlMenuEsq: TPanel;
+    lblMenuTitulo: TLabel;
+    AtualizarStatusCaixaPanel: TPanel;
+    lblTituloStatus: TLabel;
+    lblCaixaLabel: TLabel;
+    lblRodapeInicial: TLabel;
+    lblRRJ: TLabel;
+
     procedure PnAberturaMouseEnter(Sender: TObject);
     procedure PnAberturaMouseLeave(Sender: TObject);
     procedure Estoque1Click(Sender: TObject);
@@ -51,13 +61,11 @@ type
     procedure FormShow(Sender: TObject);
     procedure Cadastro2Click(Sender: TObject);
 
-
   private
     { Private declarations }
   public
     { Public declarations }
     procedure AtualizarStatusCaixa;
-
   end;
 
 var
@@ -65,13 +73,11 @@ var
 
 implementation
 
-Uses
-untCadastroProd, untCadastroCli, untConsultavendas, untRelatorioProd, untVenda, untRelatorioVenda, dmconexao,
-  untCadastroUsuario, untLogUser;
+uses
+  untCadastroProd, untCadastroCli, untConsultavendas, untRelatorioProd,
+  untVenda, untRelatorioVenda, dmconexao, untCadastroUsuario, untLogUser;
 
 {$R *.dfm}
-
-
 
 procedure TFormularioPrincipal.AtualizarStatusCaixa;
 begin
@@ -79,34 +85,28 @@ begin
   begin
     lblCaixa.Caption := 'Caixa Aberto';
     lblCaixa.Font.Color := clGreen;
-
     lblTextoAbertura.Caption := 'Iniciar Vendas';
-
   end
   else
   begin
     lblCaixa.Caption := 'Caixa Fechado';
     lblCaixa.Font.Color := clRed;
-
     lblTextoAbertura.Caption := 'Abrir Caixa';
-
   end;
 end;
 
 procedure TFormularioPrincipal.Cadastro2Click(Sender: TObject);
 begin
-             Application.CreateForm(TFrmCadastroUsuario,FrmCadastroUsuario);  //CRIA A TELA
-             FrmCadastroUsuario.showmodal;                           //CHAMA O FORMULARIO
-             FrmCadastroUsuario.Free;
-
+  Application.CreateForm(TFrmCadastroUsuario, FrmCadastroUsuario);
+  FrmCadastroUsuario.ShowModal;
+  FrmCadastroUsuario.Free;
 end;
 
 procedure TFormularioPrincipal.Cliente1Click(Sender: TObject);
 begin
-               Application.CreateForm(TfrmCadastroCliente,frmCadastroCliente);  //CRIA A TELA
-             frmCadastroCliente.showmodal;                           //CHAMA O FORMULARIO
-             frmCadastroCliente.Free;
-
+  Application.CreateForm(TfrmCadastroCliente, frmCadastroCliente);
+  frmCadastroCliente.ShowModal;
+  frmCadastroCliente.Free;
 end;
 
 procedure TFormularioPrincipal.PnFechamentoClick(Sender: TObject);
@@ -116,18 +116,13 @@ var
 begin
   if not dmConexoes.CaixaAberto then
   begin
-    ShowMessage('Não existe caixa aberto para fechamento.');
+    ShowMessage('N'#227'o existe caixa aberto para fechamento.');
     Exit;
   end;
 
   ValorStr := '0,00';
 
-  // 👉 SE CLICAR EM CANCELAR → ABORTA TUDO
-  if not InputQuery(
-    'Fechamento de Caixa',
-    'Informe o valor final em caixa:',
-    ValorStr
-  ) then
+  if not InputQuery('Fechamento de Caixa', 'Informe o valor final em caixa:', ValorStr) then
     Exit;
 
   if ValorStr.Trim = '' then
@@ -136,54 +131,44 @@ begin
   try
     ValorFinal := StrToCurr(ValorStr);
   except
-    ShowMessage('Valor inválido.');
+    ShowMessage('Valor inv'#225'lido.');
     Exit;
   end;
 
   if dmConexoes.FecharCaixa(ValorFinal) then
   begin
     ShowMessage('Caixa fechado com sucesso!');
-
-    // 🔄 ATUALIZA STATUS VISUAL
     AtualizarStatusCaixa;
   end
   else
     ShowMessage('Erro ao fechar o caixa.');
 end;
 
-
 procedure TFormularioPrincipal.PnAberturaMouseEnter(Sender: TObject);
 begin
-
- TPanel(sender).Color :=$00333333;
- TPanel(sender).Font.Color :=clWhite;
+  TPanel(Sender).Color := $00333333;
+  TPanel(Sender).Font.Color := clWhite;
 end;
 
 procedure TFormularioPrincipal.PnAberturaMouseLeave(Sender: TObject);
 begin
-  Tpanel(sender).Color :=$00666666;
-   TPanel(sender).Font.Color :=0;
+  TPanel(Sender).Color := $00666666;
+  TPanel(Sender).Font.Color := clWhite;
 end;
-
 
 procedure TFormularioPrincipal.Estoque1Click(Sender: TObject);
 begin
-             Application.CreateForm(TfrmCadastroProdutos,frmCadastroProdutos);  //CRIA A TELA
-             frmCadastroProdutos.showmodal;                           //CHAMA O FORMULARIO
-             frmCadastroProdutos.Free;
-
-//             PnAbertura.ParentDoubleBuffered := False;
+  Application.CreateForm(TfrmCadastroProdutos, frmCadastroProdutos);
+  frmCadastroProdutos.ShowModal;
+  frmCadastroProdutos.Free;
 end;
 
 procedure TFormularioPrincipal.FormShow(Sender: TObject);
 begin
   AtualizarStatusCaixa;
-  begin
-             Application.CreateForm(TfrmLogin,frmLogin);  //CRIA A TELA
-             frmLogin.showmodal;                           //CHAMA O FORMULARIO
-             frmLogin.Free;
-  end;
-
+  Application.CreateForm(TfrmLogin, frmLogin);
+  frmLogin.ShowModal;
+  frmLogin.Free;
 end;
 
 procedure TFormularioPrincipal.PnAberturaClick(Sender: TObject);
@@ -191,7 +176,6 @@ var
   ValorStr: string;
   ValorInicial: Currency;
 begin
-  // 🔓 Caixa já aberto → entra direto
   if dmConexoes.CaixaAberto then
   begin
     Application.CreateForm(TfrmCaixaVendas, frmCaixaVendas);
@@ -203,22 +187,16 @@ begin
     Exit;
   end;
 
-  // 🔒 Caixa fechado
   MessageBox(
     Handle,
-    'Caixa fechado.'#13#10'É necessário abrir o caixa para iniciar as vendas.',
+    'Caixa fechado.'#13#10''#201' necess'#225'rio abrir o caixa para iniciar as vendas.',
     'Caixa',
     MB_OK or MB_ICONWARNING
   );
 
   ValorStr := '0,00';
 
-  // 👉 SE CLICAR EM CANCELAR → ABORTA
-  if not InputQuery(
-    'Abertura de Caixa',
-    'Informe o valor inicial do caixa:',
-    ValorStr
-  ) then
+  if not InputQuery('Abertura de Caixa', 'Informe o valor inicial do caixa:', ValorStr) then
     Exit;
 
   if ValorStr.Trim = '' then
@@ -227,22 +205,21 @@ begin
   try
     ValorInicial := StrToCurr(ValorStr);
   except
-    ShowMessage('Valor inválido.');
+    ShowMessage('Valor inv'#225'lido.');
     Exit;
   end;
 
- if dmConexoes.AbrirCaixa(ValorInicial) then
-begin
-  ShowMessage('Caixa aberto com sucesso!');
-
-  AtualizarStatusCaixa; // AGORA FUNCIONA
-
-  Application.CreateForm(TfrmCaixaVendas, frmCaixaVendas);
-  try
-    frmCaixaVendas.ShowModal;
-  finally
-    frmCaixaVendas.Free;
+  if dmConexoes.AbrirCaixa(ValorInicial) then
+  begin
+    ShowMessage('Caixa aberto com sucesso!');
+    AtualizarStatusCaixa;
+    Application.CreateForm(TfrmCaixaVendas, frmCaixaVendas);
+    try
+      frmCaixaVendas.ShowModal;
+    finally
+      frmCaixaVendas.Free;
+    end;
   end;
 end;
-end;
+
 end.

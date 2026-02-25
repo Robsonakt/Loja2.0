@@ -5,9 +5,9 @@ object frmLogin: TfrmLogin
   Caption = 'Login'
   ClientHeight = 204
   ClientWidth = 287
-  Color = clBtnFace
+  Color = 3289650
   Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
+  Font.Color = clWhite
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
@@ -21,20 +21,27 @@ object frmLogin: TfrmLogin
     Width = 287
     Height = 204
     Align = alClient
+    BevelOuter = bvNone
+    Color = 3289650
+    ParentBackground = False
     TabOrder = 0
-    object Label1: TLabel
-      Left = 69
-      Top = 72
-      Width = 77
-      Height = 15
-      Caption = 'Digite a senha:'
-    end
     object Label2: TLabel
       Left = 72
       Top = 22
       Width = 36
       Height = 15
       Caption = 'Nome:'
+      Font.Color = clSilver
+      ParentFont = False
+    end
+    object Label1: TLabel
+      Left = 69
+      Top = 72
+      Width = 77
+      Height = 15
+      Caption = 'Digite a senha:'
+      Font.Color = clSilver
+      ParentFont = False
     end
     object lbStatus: TLabel
       Left = 1
@@ -44,7 +51,7 @@ object frmLogin: TfrmLogin
       Align = alBottom
       Alignment = taCenter
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
+      Font.Color = clSilver
       Font.Height = -12
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
@@ -56,6 +63,9 @@ object frmLogin: TfrmLogin
       Top = 43
       Width = 145
       Height = 23
+      Color = 2171170
+      Font.Color = clWhite
+      ParentFont = False
       Style = csDropDownList
       TabOrder = 0
       OnKeyPress = cbUsuarioKeyPress
@@ -65,6 +75,9 @@ object frmLogin: TfrmLogin
       Top = 93
       Width = 148
       Height = 23
+      Color = 2171170
+      Font.Color = clWhite
+      ParentFont = False
       PasswordChar = '*'
       TabOrder = 1
       OnKeyPress = edtSenhaKeyPress
@@ -76,7 +89,8 @@ object frmLogin: TfrmLogin
       Height = 41
       Align = alBottom
       BevelOuter = bvNone
-      Caption = 'Panel1'
+      Color = 3289650
+      ParentBackground = False
       TabOrder = 2
       object pnConfirmar: TPanel
         Left = 0
@@ -86,12 +100,12 @@ object frmLogin: TfrmLogin
         Align = alClient
         BevelOuter = bvNone
         Caption = 'ENTRAR'
-        Color = 3355443
+        Color = 2236962
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
         Font.Height = -12
         Font.Name = 'Segoe UI'
-        Font.Style = []
+        Font.Style = [fsBold]
         ParentBackground = False
         ParentFont = False
         TabOrder = 0
@@ -107,12 +121,12 @@ object frmLogin: TfrmLogin
         Align = alRight
         BevelOuter = bvNone
         Caption = 'X'
-        Color = 3355443
+        Color = 2236962
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
         Font.Height = -12
         Font.Name = 'Segoe UI'
-        Font.Style = []
+        Font.Style = [fsBold]
         ParentBackground = False
         ParentFont = False
         TabOrder = 1

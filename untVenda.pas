@@ -3,43 +3,73 @@ unit untVenda;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, FireDAC.Stan.Intf,
-  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
-  FireDAC.Phys.Intf, FireDAC.DApt.Intf, ACBrBase, ACBrPosPrinter,
-  FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.Buttons, Vcl.StdCtrls,
-  Vcl.Mask, Vcl.ExtCtrls, Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  Data.DB, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  ACBrBase, ACBrPosPrinter, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
+  Vcl.Buttons, Vcl.StdCtrls, Vcl.Mask, Vcl.ExtCtrls, Vcl.DBCtrls,
+  Vcl.Grids, Vcl.DBGrids, Vcl.ComCtrls;
 
 type
   TfrmCaixaVendas = class(TForm)
-    Panel1: TPanel;
-    pnbotvenda: TPanel;
-    Panel3: TPanel;
+    // Paineis principais
+    pnlTopo: TPanel;
+    pnlRodape: TPanel;
+    pnlCliente: TPanel;
+
+    // Labels do topo e rodape
+    lblTitulo: TLabel;
+    lblRodapeTop: TLabel;
+    lblStatus: TLabel;
+    lblRodape: TLabel;
+
+    // Grupo Identificacao
+    grpIdentificacao: TGroupBox;
     Label1: TLabel;
+    EdtNameCliente: TEdit;
     lbNomeCli: TLabel;
+    Label2: TLabel;
+    edtCodVenda: TEdit;
+    lbDataVenda: TLabel;
+    edtDataVenda: TMaskEdit;
+
+    // Grupo Itens
+    grpItens: TGroupBox;
+    DBGrid1: TDBGrid;
+
+    // Grupo Produto
+    grpProduto: TGroupBox;
     edtprod: TLabel;
+    edtCodProd: TEdit;
     lbNomeProd: TLabel;
     lbValorUni: TLabel;
+    edtValorProd: TDBEdit;
     lbquant: TLabel;
+    edtQuant: TEdit;
     lbValTotal: TLabel;
+    edtValorTotal: TEdit;
+    lbQuantRest: TLabel;
+    edtQuantRest: TDBEdit;
+
+    // Painel direito
+    pnlDireito: TPanel;
+    pnlTotal: TPanel;
     lbTotalVend: TLabel;
     lbvalorDinheiro: TLabel;
-    lbDataVenda: TLabel;
-    lbQuantRest: TLabel;
-    Label2: TLabel;
-    EdtNameCliente: TEdit;
-    DBGrid1: TDBGrid;
-    edtQuant: TEdit;
-    edtValorTotal: TEdit;
-    edtValorProd: TDBEdit;
-    edtCodProd: TEdit;
-    edtDataVenda: TMaskEdit;
-    edtQuantRest: TDBEdit;
+
+    // Observacoes
+    grpObs: TGroupBox;
     Memo1: TMemo;
-    btnVendas: TBitBtn;
+
+    // Acoes
+    grpAcoes: TGroupBox;
     btnConfirmar: TBitBtn;
+    btnVendas: TBitBtn;
     btnFiados: TBitBtn;
-    edtCodVenda: TEdit;
+    btnImpressora: TBitBtn;
+
+    // Componentes nao visuais
     DSItensVenda: TDataSource;
     fdProduto: TFDMemTable;
     fdProdutoCodProd: TIntegerField;
@@ -50,6 +80,7 @@ type
     fdProdutoCodVenda: TIntegerField;
     fdProdutoCodCli: TStringField;
     ACBrPosPrinter1: TACBrPosPrinter;
+
   private
     { Private declarations }
   public
@@ -59,9 +90,7 @@ type
 var
   frmCaixaVendas: TfrmCaixaVendas;
   quantidade: Integer;
-
   totalvalor: Currency;
-
   cfg_Empresa: string;
   cfg_Endereco: string;
   cfg_Telefone: string;
@@ -71,7 +100,5 @@ implementation
 {$R *.dfm}
 
 uses dmConexao, untInicial, untCadastroProd;
-
-
 
 end.

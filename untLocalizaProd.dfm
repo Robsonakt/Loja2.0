@@ -3,7 +3,7 @@ object frmLozalizaProd: TfrmLozalizaProd
   Top = 0
   Caption = 'frmLozalizaProd'
   ClientHeight = 488
-  ClientWidth = 818
+  ClientWidth = 829
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,10 +14,11 @@ object frmLozalizaProd: TfrmLozalizaProd
   object Panel1: TPanel
     Left = 0
     Top = 424
-    Width = 818
+    Width = 829
     Height = 64
     Align = alBottom
     TabOrder = 0
+    ExplicitWidth = 818
     object lbConsultaProduto: TLabel
       Left = 16
       Top = 7
@@ -37,12 +38,12 @@ object frmLozalizaProd: TfrmLozalizaProd
   object Panel2: TPanel
     Left = 0
     Top = 0
-    Width = 818
+    Width = 829
     Height = 424
     Align = alClient
     Caption = 'Panel2'
     TabOrder = 1
-    ExplicitHeight = 404
+    ExplicitWidth = 818
     object gridProduto: TDBGrid
       Left = 0
       Top = 0
@@ -81,7 +82,6 @@ object frmLozalizaProd: TfrmLozalizaProd
         item
           Expanded = False
           FieldName = 'valorvenda'
-          Width = 64
           Visible = True
         end
         item
@@ -92,7 +92,6 @@ object frmLozalizaProd: TfrmLozalizaProd
         item
           Expanded = False
           FieldName = 'valorcusto'
-          Width = 64
           Visible = True
         end
         item

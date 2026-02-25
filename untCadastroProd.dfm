@@ -278,7 +278,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       Top = 6
       Width = 914
       Height = 595
-      ActivePage = TabSheet2
+      ActivePage = TabSheet1
       TabOrder = 0
       object TabSheet1: TTabSheet
         Caption = 'Produto'
@@ -505,17 +505,24 @@ object frmCadastroProdutos: TfrmCadastroProdutos
         object DBGridVALORES: TDBGrid
           Left = 19
           Top = 280
-          Width = 494
-          Height = 46
+          Width = 534
+          Height = 49
+          Align = alCustom
           DataSource = dmConexoes.dsProduto
           Enabled = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
           Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
+          ParentFont = False
           TabOrder = 8
           TitleFont.Charset = DEFAULT_CHARSET
           TitleFont.Color = clWindowText
-          TitleFont.Height = -12
+          TitleFont.Height = -13
           TitleFont.Name = 'Segoe UI'
-          TitleFont.Style = []
+          TitleFont.Style = [fsBold]
           OnKeyDown = DBGridVALORESKeyDown
           OnMouseWheelDown = DBGridVALORESMouseWheelDown
           OnMouseWheelUp = DBGridVALORESMouseWheelUp
@@ -524,7 +531,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
               Expanded = False
               FieldName = 'quantidade'
               Title.Caption = 'Quantidade'
-              Width = 76
+              Width = 83
               Visible = True
             end
             item

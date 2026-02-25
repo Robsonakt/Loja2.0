@@ -3,7 +3,7 @@ object frmLozalizaCli: TfrmLozalizaCli
   Top = 0
   Caption = 'frmLozalizaCli'
   ClientHeight = 490
-  ClientWidth = 844
+  ClientWidth = 966
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,10 +14,11 @@ object frmLozalizaCli: TfrmLozalizaCli
   object Panel1: TPanel
     Left = 0
     Top = 440
-    Width = 844
+    Width = 966
     Height = 50
     Align = alBottom
     TabOrder = 0
+    ExplicitWidth = 844
     object lbNomeCliente: TLabel
       Left = 16
       Top = 7
@@ -37,7 +38,7 @@ object frmLozalizaCli: TfrmLozalizaCli
   object GridCLiente: TDBGrid
     Left = 0
     Top = 0
-    Width = 844
+    Width = 966
     Height = 440
     Align = alClient
     DataSource = dsConsultaCliente
@@ -69,26 +70,6 @@ object frmLozalizaCli: TfrmLozalizaCli
       item
         Expanded = False
         FieldName = 'telefone'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'produto'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'valor'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'valorfiado'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'datacadastrocliente'
         Visible = True
       end>
   end
