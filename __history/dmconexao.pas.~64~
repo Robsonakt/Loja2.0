@@ -3,9 +3,7 @@ unit dmconexao;
 interface
 
 uses
-  Data.DB, Data.Win.ADODB,Vcl.Dialogs, Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.WinXPickers, Vcl.StdCtrls, Vcl.Mask,
-  Vcl.ExtCtrls, Vcl.DBCtrls, Vcl.ComCtrls, Vcl.Grids, Vcl.DBGrids;
+  System.SysUtils, System.Classes, Data.DB, Data.Win.ADODB, Vcl.Dialogs;
 
 type
   TdmConexoes = class(TDataModule)
@@ -134,15 +132,27 @@ type
     BCDField14: TBCDField;
     CalculoProdutosmarkup: TBCDField;
     qrEstoquemarkup: TBCDField;
+    qrEstoquecfop: TStringField;
+    qrEstoqueorigem: TStringField;
+    qrEstoqueun_trib: TStringField;
+    qrEstoquecsosn: TStringField;
+    qrEstoquealiq_icms: TBCDField;
+    qrEstoquebc_icms: TBCDField;
+    qrEstoquecst_pis: TStringField;
+    qrEstoquealiq_pis: TBCDField;
+    qrEstoquecst_cofins: TStringField;
+    qrEstoquealiq_cofins: TBCDField;
+
     procedure qrEstoqueCalcFields(DataSet: TDataSet);
     procedure CalculoProdutosAfterScroll(DataSet: TDataSet);
+    procedure qrEstoquemarkupChange(Sender: TField);
+
   private
     { Private declarations }
   public
-  function CaixaAberto: Boolean;
-  function AbrirCaixa(AValorInicial: Currency): Boolean;
-  function FecharCaixa(AValorFinal: Currency): Boolean;
-
+    function CaixaAberto: Boolean;
+    function AbrirCaixa(AValorInicial: Currency): Boolean;
+    function FecharCaixa(AValorFinal: Currency): Boolean;
   end;
 
 var
@@ -154,6 +164,10 @@ implementation
 
 {$R *.dfm}
 
+// ============================================================
+// CAIXA
+// ============================================================
+
 function TdmConexoes.CaixaAberto: Boolean;
 begin
   qrCaixa.Close;
@@ -161,7 +175,6 @@ begin
   qrCaixa.SQL.Add('SELECT TOP 1 1 FROM Caixa WHERE Status = :Status');
   qrCaixa.Parameters.ParamByName('Status').Value := 'A';
   qrCaixa.Open;
-
   Result := not qrCaixa.IsEmpty;
 end;
 
@@ -212,20 +225,29 @@ begin
   Result := True;
 end;
 
-
+// ============================================================
+// ESTOQUE - CALCFIELDS
+// Calcula custo_total e valorvenda automaticamente ao navegar
+// ============================================================
 
 procedure TdmConexoes.qrEstoqueCalcFields(DataSet: TDataSet);
 var
   Qtde, Custo, Markup, Denominador: Double;
 begin
+  // Nao calcula durante edicao para evitar conflito com o OnChange do Markup
+  if DataSet.State in [dsEdit, dsInsert] then
+    Exit;
+
   try
     Qtde   := DataSet.FieldByName('quantidade').AsFloat;
     Custo  := DataSet.FieldByName('valorcusto').AsFloat;
     Markup := DataSet.FieldByName('markup').AsFloat;
 
-    Denominador := 1 - (Markup / 100);
-
+    // Custo Total
     DataSet.FieldByName('custo_total').AsFloat := Qtde * Custo;
+
+    // Preco de Venda pelo Markup
+    Denominador := 1 - (Markup / 100);
 
     if (Custo > 0) and (Denominador > 0) then
       DataSet.FieldByName('valorvenda').AsFloat := Custo / Denominador
@@ -234,20 +256,50 @@ begin
 
   except
     on E: Exception do
-    begin
-      DataSet.DisableControls;
-      Application.MessageBox(PChar('Erro: ' + E.Message), 'CalcFields', MB_OK);
-      DataSet.EnableControls;
-    end;
+      ShowMessage('Erro no CalcFields: ' + E.Message);
   end;
 end;
 
+// ============================================================
+// ESTOQUE - ONCHANGE DO MARKUP
+// Recalcula o valor de venda em tempo real quando o usuario
+// digita um novo markup na DBGrid e pressiona Enter
+// ============================================================
+
+procedure TdmConexoes.qrEstoquemarkupChange(Sender: TField);
+var
+  Custo, Markup, Denominador: Double;
+begin
+  try
+    Custo  := qrEstoquevalorcusto.AsFloat;
+    Markup := qrEstoquemarkup.AsFloat;
+
+    Denominador := 1 - (Markup / 100);
+
+    if (Custo > 0) and (Denominador > 0) then
+      qrEstoquevalorvenda.AsFloat := Custo / Denominador
+    else
+      qrEstoquevalorvenda.AsFloat := 0;
+
+    // Atualiza tambem o custo total
+    qrEstoquecusto_total.AsFloat := qrEstoquequantidade.AsFloat * Custo;
+
+  except
+    on E: Exception do
+      ShowMessage('Erro no calculo do Markup: ' + E.Message);
+  end;
+end;
+
+// ============================================================
+// CALCULO PRODUTOS - AFTERSCROLL
+// ============================================================
+
 procedure TdmConexoes.CalculoProdutosAfterScroll(DataSet: TDataSet);
 begin
-    dmConexoes.ADOQueryGrid.Close;
-    dmConexoes.ADOQueryGrid.Parameters.ParamByName('pcodigo').Value :=
+  dmConexoes.ADOQueryGrid.Close;
+  dmConexoes.ADOQueryGrid.Parameters.ParamByName('pcodigo').Value :=
     dmConexoes.CalculoProdutos.FieldByName('codigo').AsInteger;
-    dmConexoes.ADOQueryGrid.Open;
+  dmConexoes.ADOQueryGrid.Open;
 end;
 
 end.

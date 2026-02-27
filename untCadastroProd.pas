@@ -24,6 +24,7 @@ type
     PnCentro: TPanel;
     PnLocaliza: TPanel;
     PageControl1: TPageControl;
+    // Aba Produto
     TabSheet1: TTabSheet;
     Label1: TLabel;
     LbCodProd: TLabel;
@@ -44,7 +45,34 @@ type
     EdtValorVend: TDBEdit;
     DBGridVALORES: TDBGrid;
     edtCustoTotal: TDBEdit;
+    // Aba Tributacoes
     TabSheet2: TTabSheet;
+    grpFiscal: TGroupBox;
+    lbNCM: TLabel;
+    lbCFOP: TLabel;
+    lbOrigem: TLabel;
+    lbUnTrib: TLabel;
+    edtNCM: TDBEdit;
+    edtCFOP: TDBEdit;
+    cmbOrigem: TComboBox;
+    cmbUnTrib: TComboBox;
+    grpICMS: TGroupBox;
+    lbCSOSN: TLabel;
+    lbAliqICMS: TLabel;
+    lbBCICMS: TLabel;
+    cmbCSOSN: TComboBox;
+    edtAliqICMS: TDBEdit;
+    edtBCICMS: TDBEdit;
+    grpPISCOFINS: TGroupBox;
+    lbCSTPIS: TLabel;
+    lbAliqPIS: TLabel;
+    lbCSTCOFINS: TLabel;
+    lbAliqCOFINS: TLabel;
+    cmbCSTPIS: TComboBox;
+    edtAliqPIS: TDBEdit;
+    cmbCSTCOFINS: TComboBox;
+    edtAliqCOFINS: TDBEdit;
+
     procedure PnNovoMouseLeave(Sender: TObject);
     procedure PnNovoMouseEnter(Sender: TObject);
     procedure PnNovoClick(Sender: TObject);
@@ -96,7 +124,7 @@ type
     procedure PnLocalizaMouseEnter(Sender: TObject);
 
   private
-    { Private declarations }
+    procedure HabilitarCampos(habilitar: Boolean);
   public
     { Public declarations }
   end;
@@ -110,238 +138,271 @@ implementation
 
 uses dmconexao, untRelatorioProd, untLocalizaProd;
 
+// -------------------------------------------------------
+// Habilita/desabilita todos os campos de edicao
+// -------------------------------------------------------
+procedure TfrmCadastroProdutos.HabilitarCampos(habilitar: Boolean);
+begin
+  // Aba Produto
+  edtDescricaoProd.Enabled := habilitar;
+  edtBarras.Enabled        := habilitar;
+  edtQuantProd.Enabled     := habilitar;
+  edtValorCusto.Enabled    := habilitar;
+  EdtValorVend.Enabled     := habilitar;
+  edtTipo.Enabled          := habilitar;
+  edtDataCri.Enabled       := habilitar;
+  DBGridVALORES.Enabled    := habilitar;
+  // Aba Tributacoes
+  edtNCM.Enabled           := habilitar;
+  edtCFOP.Enabled          := habilitar;
+  cmbOrigem.Enabled        := habilitar;
+  cmbUnTrib.Enabled        := habilitar;
+  cmbCSOSN.Enabled         := habilitar;
+  edtAliqICMS.Enabled      := habilitar;
+  edtBCICMS.Enabled        := habilitar;
+  cmbCSTPIS.Enabled        := habilitar;
+  edtAliqPIS.Enabled       := habilitar;
+  cmbCSTCOFINS.Enabled     := habilitar;
+  edtAliqCOFINS.Enabled    := habilitar;
+end;
 
-
+// -------------------------------------------------------
+// Eventos do DBGrid
+// -------------------------------------------------------
 procedure TfrmCadastroProdutos.DBGridVALORESKeyDown(Sender: TObject;
   var Key: Word; Shift: TShiftState);
 begin
   if Key in [VK_UP, VK_DOWN, VK_PRIOR, VK_NEXT] then
     Key := 0;
-
-  // Quando pressionar Enter força o recálculo
   if Key = VK_RETURN then
-  begin
     dmConexoes.qrEstoquemarkupChange(dmConexoes.qrEstoquemarkup);
-  end;
 end;
 
 procedure TfrmCadastroProdutos.DBGridVALORESMouseWheelDown(Sender: TObject;
   Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
 begin
- Handled := True; // Bloqueia scroll para baixo
+  Handled := True;
 end;
 
 procedure TfrmCadastroProdutos.DBGridVALORESMouseWheelUp(Sender: TObject;
   Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
 begin
-    Handled := True; // Bloqueia scroll para cima
+  Handled := True;
 end;
 
-procedure TfrmCadastroProdutos.edtBarrasKeyPress(Sender: TObject;
-  var Key: Char);
+// -------------------------------------------------------
+// KeyPress dos campos - navegacao por Enter
+// -------------------------------------------------------
+procedure TfrmCadastroProdutos.edtBarrasKeyPress(Sender: TObject; var Key: Char);
 begin
-    if Key = #13 then
-    edtDescricaoProd.SetFocus;
+  if Key = #13 then edtDescricaoProd.SetFocus;
 end;
 
-procedure TfrmCadastroProdutos.edtDescricaoProdKeyPress(Sender: TObject;
-  var Key: Char);
+procedure TfrmCadastroProdutos.edtDescricaoProdKeyPress(Sender: TObject; var Key: Char);
 begin
-   if Key = #13 then
-      edtQuantProd.SetFocus;
+  if Key = #13 then edtQuantProd.SetFocus;
 end;
 
-procedure TfrmCadastroProdutos.edtQuantProdKeyPress(Sender: TObject;
-  var Key: Char);
+procedure TfrmCadastroProdutos.edtQuantProdKeyPress(Sender: TObject; var Key: Char);
 begin
-   if Key = #13 then
-      edtValorCusto.SetFocus;
+  if Key = #13 then edtValorCusto.SetFocus;
+end;
+
+procedure TfrmCadastroProdutos.edtValorCustoKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then EdtValorVend.SetFocus;
+end;
+
+procedure TfrmCadastroProdutos.EdtValorVendKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then edtTipo.SetFocus;
 end;
 
 procedure TfrmCadastroProdutos.edtTipoKeyPress(Sender: TObject; var Key: Char);
 begin
-   if Key = #13 then
+  if Key = #13 then
+  begin
     PnGravar.SetFocus;
-    pnGravar.Color := clMoneyGreen;
+    PnGravar.Color := clMoneyGreen;
+  end;
 end;
 
-
-
-
-procedure TfrmCadastroProdutos.edtValorCustoKeyPress(Sender: TObject;
-  var Key: Char);
-begin
-   if Key = #13 then
-    EdtValorVend.SetFocus;
-end;
-
-procedure TfrmCadastroProdutos.EdtValorVendKeyPress(Sender: TObject;
-  var Key: Char);
-begin
-   if Key = #13 then
-    edtTipo.SetFocus;
-end;
-
+// -------------------------------------------------------
+// FormMouseLeave - usado como MouseLeave generico dos botoes
+// -------------------------------------------------------
 procedure TfrmCadastroProdutos.FormMouseLeave(Sender: TObject);
 begin
   TPanel(Sender).Color := $00333333;
-  TPanel(sender).Font.Color :=clWhite;
+  TPanel(Sender).Font.Color := clWhite;
 end;
 
+// -------------------------------------------------------
+// FormShow
+// -------------------------------------------------------
 procedure TfrmCadastroProdutos.FormShow(Sender: TObject);
 begin
-      with dmConexoes do
+  with dmConexoes do
   begin
-    qrEstoque.close;
-    qrEstoque.sql.clear;
-    qrEstoque.sql.Add('SELECT * FROM [LojaNova].[dbo].[PRODUTOS]');
-    qrEstoque.open;
+    qrEstoque.Close;
+    qrEstoque.SQL.Clear;
+    qrEstoque.SQL.Add('SELECT * FROM [LojaNova].[dbo].[PRODUTOS]');
+    qrEstoque.Open;
     qrEstoque.First;
-
   end;
+end;
 
+// -------------------------------------------------------
+// Navegacao
+// -------------------------------------------------------
+procedure TfrmCadastroProdutos.PnPrimeiroClick(Sender: TObject);
+begin
+  dmConexoes.qrEstoque.First;
 end;
 
 procedure TfrmCadastroProdutos.PnAnteriorClick(Sender: TObject);
 begin
-     with dmConexoes.qrEstoque do
-  begin
-    if not Bof then
-      Prior // Retrocede para o registro anterior
-    else
-      ShowMessage('Primeiro registro!');
-  end;
+  with dmConexoes.qrEstoque do
+    if not Bof then Prior
+    else ShowMessage('Primeiro registro!');
 end;
 
-procedure TfrmCadastroProdutos.PnAnteriorMouseEnter(Sender: TObject);
+procedure TfrmCadastroProdutos.PnProximoClick(Sender: TObject);
 begin
-   TPanel(sender).Color :=$00333333;
- TPanel(sender).Font.Color :=clWhite;
+  with dmConexoes.qrEstoque do
+    if not Eof then Next
+    else ShowMessage('Ultimo registro!');
 end;
 
-procedure TfrmCadastroProdutos.PnAnteriorMouseLeave(Sender: TObject);
+procedure TfrmCadastroProdutos.PnUltimoClick(Sender: TObject);
 begin
-    Tpanel(sender).Color :=$00666666;
-  TPanel(sender).Font.Color :=0;
+  dmConexoes.qrEstoque.Last;
 end;
 
-procedure TfrmCadastroProdutos.PnCancelarClick(Sender: TObject);
+// -------------------------------------------------------
+// Novo
+// -------------------------------------------------------
+procedure TfrmCadastroProdutos.PnNovoClick(Sender: TObject);
 begin
-
   with dmConexoes do
-    begin
-      qrEstoque.close;
-      qrEstoque.sql.clear;
-      qrEstoque.sql.Add('SELECT * FROM [LojaNova].[dbo].[ProdutoS]');
-      qrEstoque.open;
-      qrEstoque.First;
+  begin
+    qrEstoque.Close;
+    qrEstoque.SQL.Clear;
+    qrEstoque.SQL.Add('SELECT * FROM [LojaNova].[dbo].[PRODUTOS]');
+    qrEstoque.Open;
+    qrEstoque.First;
+    qrEstoque.Insert;
+  end;
 
-    end;
+  PnEditar.Enabled    := False;
+  PnExcluir.Enabled   := False;
+  PnPrimeiro.Enabled  := False;
+  PnAnterior.Enabled  := False;
+  PnProximo.Enabled   := False;
+  PnUltimo.Enabled    := False;
+  PnSair.Enabled      := False;
+  PnRelatorio.Enabled := False;
+  PnGravar.Enabled    := True;
+  PnCancelar.Enabled  := True;
 
-    begin
-       MessageDlg('Cadastro cancelado', mtInformation, [mbOK], 0);
-    end;
+  PnEditar.Font.Color    := $00333333;
+  PnExcluir.Font.Color   := $00333333;
+  PnPrimeiro.Font.Color  := $00333333;
+  PnAnterior.Font.Color  := $00333333;
+  PnProximo.Font.Color   := $00333333;
+  PnUltimo.Font.Color    := $00333333;
+  PnSair.Font.Color      := $00333333;
+  PnRelatorio.Font.Color := $00333333;
+  PnCancelar.Font.Color  := 0;
+  PnGravar.Font.Color    := 0;
 
-          PnEditar.Enabled     := true  ;
-          PnExcluir.Enabled    := true  ;
-          PnPrimeiro.Enabled   := true  ;
-          PnAnterior.Enabled   := true  ;
-          PnProximo.Enabled    := true  ;
-          PnUltimo.Enabled     := true  ;
-          PnRelatorio.Enabled  := true  ;
-          PnCancelar.Enabled   := true  ;
-          PnSair.Enabled       := true  ;
-          PnGravar.Enabled     := false ;
-          DBGridVALORES.Enabled:= false;
-
-          PnEditar.Font.Color      := 0;
-          PnExcluir.Font.Color     := 0;
-          PnPrimeiro.Font.Color    := 0;
-          PnAnterior.Font.Color    := 0;
-          PnProximo.Font.Color     := 0;
-          PnUltimo.Font.Color      := 0;
-          PnSair.Font.Color        := 0;
-          PnRelatorio.Font.Color   := 0;
-          PnGravar.Font.Color      := $00333333;
-
-          edtDescricaoProd.Enabled := false;
-          edtBarras.Enabled        := false;
-          edtValorCusto.Enabled    := false;
-          EdtValorVend.Enabled     := false;
-          edtTipo.Enabled          := false;
-          edtQuantProd.Enabled     := false;
-          edtDatacri.Enabled       := false;
+  HabilitarCampos(True);
+  edtBarras.SetFocus;
 end;
 
-procedure TfrmCadastroProdutos.PnCancelarMouseEnter(Sender: TObject);
-begin
-   TPanel(sender).Color :=$00333333;
- TPanel(sender).Font.Color :=clWhite;
-end;
-
-procedure TfrmCadastroProdutos.PnCancelarMouseLeave(Sender: TObject);
-begin
-  Tpanel(sender).Color :=$00666666;
-  TPanel(sender).Font.Color :=0;
-end;
-
+// -------------------------------------------------------
+// Editar
+// -------------------------------------------------------
 procedure TfrmCadastroProdutos.PnEditarClick(Sender: TObject);
 begin
-  // Habilita/Desabilita campos
-  edtDescricaoProd.Enabled := true;
-  edtBarras.Enabled := true;
-  edtQuantProd.Enabled := true;
-  edtValorCusto.Enabled := true;
-  EdtValorVend.Enabled := true;
-  edtTipo.Enabled := true;
-  edtDataCri.Enabled := true;
-  DBGridVALORES.Enabled    := true;
+  dmConexoes.qrEstoque.Edit;
 
-  // Configura botões de ação
-  PnGravar.Enabled := true;
-  PnCancelar.Enabled := true;
-  PnGravar.Font.Color := 0; // Preto
-  PnCancelar.Font.Color := 0; // Preto
+  PnEditar.Enabled    := False;
+  PnExcluir.Enabled   := False;
+  PnPrimeiro.Enabled  := False;
+  PnAnterior.Enabled  := False;
+  PnProximo.Enabled   := False;
+  PnUltimo.Enabled    := False;
+  PnSair.Enabled      := False;
+  PnRelatorio.Enabled := False;
+  PnGravar.Enabled    := True;
+  PnCancelar.Enabled  := True;
 
-  // Desabilita PnEditar e configura cores
-  PnEditar.Font.Color     := $00333333;
-  PnExcluir.Font.Color    := $00333333;
-  PnPrimeiro.Font.Color   := $00333333;
-  PnAnterior.Font.Color   := $00333333;
-  PnProximo.Font.Color    := $00333333;
-  PnUltimo.Font.Color     := $00333333;
-  PnRelatorio.Font.color  := $00333333; // Depois desabilita
+  PnEditar.Font.Color    := $00333333;
+  PnExcluir.Font.Color   := $00333333;
+  PnPrimeiro.Font.Color  := $00333333;
+  PnAnterior.Font.Color  := $00333333;
+  PnProximo.Font.Color   := $00333333;
+  PnUltimo.Font.Color    := $00333333;
+  PnSair.Font.Color      := $00333333;
+  PnRelatorio.Font.Color := $00333333;
+  PnCancelar.Font.Color  := 0;
+  PnGravar.Font.Color    := 0;
 
-  // Outros componentes (verifique se há lógica faltando aqui)
-  PnEditar.Enabled    := false;
-  PnExcluir.Enabled   := false;
-  PnPrimeiro.Enabled  := false;
-  PnAnterior.Enabled  := false;
-  PnProximo.Enabled   := false;
-  PnUltimo.Enabled    := false;
-  PnRelatorio.Enabled := false;
+  HabilitarCampos(True);
 end;
 
-procedure TfrmCadastroProdutos.PnEditarMouseEnter(Sender: TObject);
+// -------------------------------------------------------
+// Cancelar
+// -------------------------------------------------------
+procedure TfrmCadastroProdutos.PnCancelarClick(Sender: TObject);
 begin
-   TPanel(sender).Color :=$00333333;
- TPanel(sender).Font.Color :=clWhite;
+  with dmConexoes do
+  begin
+    qrEstoque.Cancel;
+    qrEstoque.Close;
+    qrEstoque.SQL.Clear;
+    qrEstoque.SQL.Add('SELECT * FROM [LojaNova].[dbo].[PRODUTOS]');
+    qrEstoque.Open;
+    qrEstoque.First;
+  end;
+
+  MessageDlg('Cadastro cancelado', mtInformation, [mbOK], 0);
+
+  PnEditar.Enabled    := True;
+  PnExcluir.Enabled   := True;
+  PnPrimeiro.Enabled  := True;
+  PnAnterior.Enabled  := True;
+  PnProximo.Enabled   := True;
+  PnUltimo.Enabled    := True;
+  PnSair.Enabled      := True;
+  PnRelatorio.Enabled := True;
+  PnGravar.Enabled    := False;
+  PnCancelar.Enabled  := True;
+
+  PnEditar.Font.Color    := 0;
+  PnExcluir.Font.Color   := 0;
+  PnPrimeiro.Font.Color  := 0;
+  PnAnterior.Font.Color  := 0;
+  PnProximo.Font.Color   := 0;
+  PnUltimo.Font.Color    := 0;
+  PnSair.Font.Color      := 0;
+  PnRelatorio.Font.Color := 0;
+  PnGravar.Font.Color    := $00333333;
+
+  HabilitarCampos(False);
+  DBGridVALORES.Enabled := False;
 end;
 
-procedure TfrmCadastroProdutos.PnEditarMouseLeave(Sender: TObject);
-begin
-  Tpanel(sender).Color :=$00666666;
-  TPanel(sender).Font.Color :=0;
-end;
-
+// -------------------------------------------------------
+// Excluir
+// -------------------------------------------------------
 procedure TfrmCadastroProdutos.PnExcluirClick(Sender: TObject);
 begin
-   if MessageDlg('Deseja excluir este registro?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+  if MessageDlg('Deseja excluir este registro?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
   begin
     try
-      // Exclui o registro atual diretamente
       dmConexoes.qrEstoque.Delete;
-      ShowMessage('Registro excluído com sucesso!');
+      ShowMessage('Registro excluido com sucesso!');
     except
       on E: Exception do
         ShowMessage('Erro ao excluir: ' + E.Message);
@@ -349,260 +410,151 @@ begin
   end;
 end;
 
-procedure TfrmCadastroProdutos.PnExcluirMouseEnter(Sender: TObject);
-begin
- TPanel(sender).Color :=$00333333;
- TPanel(sender).Font.Color :=clWhite;
-end;
-
-procedure TfrmCadastroProdutos.PnExcluirMouseLeave(Sender: TObject);
-begin
-  Tpanel(sender).Color :=$00666666;
-  TPanel(sender).Font.Color :=0;
-end;
-
+// -------------------------------------------------------
+// Gravar - grava produto + tributacoes
+// -------------------------------------------------------
 procedure TfrmCadastroProdutos.PnGravarClick(Sender: TObject);
 begin
-//    application.MessageBox('Produto gravado com Sucesso','Cadastro  ',mb_ok+MB_ICONINFORMATION);
-    edtBarras.Enabled := false;
-    edtDescricaoProd.Enabled := false;
-    edtValorCusto.Enabled := false;
-    EdtValorVend.Enabled := false;
-    edtQuantProd.Enabled := false;
-    edtTipo.Enabled := false;
-
- with dmConexoes do
+  with dmConexoes do
   begin
+    // Campos da aba Produto
+    qrEstoque.FieldByName('tipo').AsString    := Trim(edtTipo.Text);
+    qrEstoque.FieldByName('data').AsDateTime  := edtDatacri.Date;
+    // Campos da aba Tributacoes
+    qrEstoque.FieldByName('ncm').AsString        := Trim(edtNCM.Text);
+    qrEstoque.FieldByName('cfop').AsString       := Trim(edtCFOP.Text);
+    qrEstoque.FieldByName('origem').AsString     := Copy(cmbOrigem.Text, 1, 1);
+    qrEstoque.FieldByName('un_trib').AsString    := Trim(cmbUnTrib.Text);
+    qrEstoque.FieldByName('csosn').AsString      := Copy(cmbCSOSN.Text, 1, 3);
+    qrEstoque.FieldByName('cst_pis').AsString    := Copy(cmbCSTPIS.Text, 1, 2);
+    qrEstoque.FieldByName('cst_cofins').AsString := Copy(cmbCSTCOFINS.Text, 1, 2);
+    qrEstoque.Post;
+  end;
 
-              qrEstoque.FieldByName('tipo').asstring                              := trim(edtTipo.Text);
-              qrEstoque.FieldByName('data').AsDateTime                            := edtDatacri.Date;
-              qrEstoque.post;
+  application.MessageBox('Produto Cadastrado com Sucesso', 'Cadastro', mb_ok + MB_ICONINFORMATION);
 
-              application.MessageBox('Produto Cadastrado com Sucesso','Cadastro  ',mb_ok+MB_ICONINFORMATION);
+  HabilitarCampos(False);
+  DBGridVALORES.Enabled := False;
 
+  PnGravar.Enabled    := False;
+  PnCancelar.Enabled  := True;
+  PnEditar.Enabled    := True;
+  PnExcluir.Enabled   := True;
+  PnPrimeiro.Enabled  := True;
+  PnAnterior.Enabled  := True;
+  PnProximo.Enabled   := True;
+  PnUltimo.Enabled    := True;
+  PnRelatorio.Enabled := True;
+  PnSair.Enabled      := True;
+
+  PnGravar.Font.Color    := $00333333;
+  PnCancelar.Font.Color  := 0;
+  PnPrimeiro.Font.Color  := 0;
+  PnAnterior.Font.Color  := 0;
+  PnProximo.Font.Color   := 0;
+  PnUltimo.Font.Color    := 0;
+  PnRelatorio.Font.Color := 0;
 end;
 
-  // Configura botões de ação
-  PnGravar.Enabled := false;
-  PnCancelar.Enabled := true;
-  PnGravar.Font.Color := $00333333; // Preto
-  PnCancelar.Font.Color := 0; // Preto
-  PnPrimeiro.Font.Color := 0; // Preto
-  PnAnterior.Font.Color := 0; // Preto
-  PnProximo.Font.Color := 0; // Preto
-  PnUltimo.Font.Color := 0; // Preto
-  PnRelatorio.Font.Color := 0; // Preto
-
-
-  // Outros componentes (verifique se há lógica faltando aqui)
-  PnEditar.Enabled    := true;
-  PnExcluir.Enabled   := true;
-  PnPrimeiro.Enabled  := true;
-  PnAnterior.Enabled  := true;
-  PnProximo.Enabled   := true;
-  PnUltimo.Enabled    := true;
-  PnRelatorio.Enabled := true;
-  PnSair.Enabled      := true;
-end;
-
-procedure TfrmCadastroProdutos.PnGravarMouseEnter(Sender: TObject);
-begin
-  TPanel(sender).Color := clMoneyGreen;
-  TPanel(sender).Font.Color := clWhite;
-end;
-
-procedure TfrmCadastroProdutos.PnGravarMouseLeave(Sender: TObject);
-begin
-  Tpanel(sender).Color :=$00666666;
-  TPanel(sender).Font.Color :=0;
-end;
-
+// -------------------------------------------------------
+// Localiza
+// -------------------------------------------------------
 procedure TfrmCadastroProdutos.PnLocalizaClick(Sender: TObject);
 begin
-   dmConexoes.qrEstoque.First;
-
-   Application.CreateForm(TfrmLozalizaprod,frmLozalizaprod);  //CRIA A TELA
-   frmLozalizaprod.showmodal;                           //CHAMA O FORMULARIO CADASTRO
-   frmLozalizaprod.Free;
-   PnLocaliza.ParentDoubleBuffered := False;
+  dmConexoes.qrEstoque.First;
+  Application.CreateForm(TfrmLozalizaprod, frmLozalizaprod);
+  frmLozalizaprod.ShowModal;
+  frmLozalizaprod.Free;
+  PnLocaliza.ParentDoubleBuffered := False;
 end;
 
-procedure TfrmCadastroProdutos.PnLocalizaMouseEnter(Sender: TObject);
-begin
-  Tpanel(sender).Color :=$00333333;
-  TPanel(sender).Font.Color :=0;
-end;
-
-procedure TfrmCadastroProdutos.PnNovoClick(Sender: TObject);
-begin
-      with dmConexoes do
-  begin
-    qrEstoque.close;
-    qrEstoque.sql.clear;
-    qrEstoque.sql.Add('SELECT * FROM [LojaNova].[dbo].[PRODUTOS]');
-    qrEstoque.open;
-    qrEstoque.First;
-
-
-    qrEstoque.Insert;
-  end;
-
-
-  PnEditar.Enabled      := not PnEditar.Enabled ;
-  PnExcluir.Enabled     := not PnExcluir.Enabled ;
-  PnPrimeiro.Enabled    := not PnPrimeiro.Enabled ;
-  PnAnterior.Enabled    := not PnAnterior.Enabled ;
-  PnProximo.Enabled     := not PnProximo.Enabled ;
-  PnUltimo.Enabled      := not PnUltimo.Enabled ;
-  PnSair.Enabled        := not PnSair.Enabled ;
-  PnRelatorio.Enabled   := not PnRelatorio.Enabled ;
-  PnGravar.Enabled      := not PnGravar.Enabled ;
-  PnCancelar.Enabled    := True;
-
-
-  PnEditar.Font.Color      := $00333333;
-  PnExcluir.Font.Color     := $00333333;
-  PnPrimeiro.Font.Color    := $00333333;
-  PnAnterior.Font.Color    := $00333333;
-  PnProximo.Font.Color     := $00333333;
-  PnUltimo.Font.Color      := $00333333;
-  PnSair.Font.Color        := $00333333;
-  PnRelatorio.Font.Color   := $00333333;
-  PnCancelar.Font.Color    :=0;
-  PnGravar.Font.Color      :=0;
-
-
-  edtDescricaoProd.Enabled := not edtDescricaoProd.Enabled ;
-  edtBarras.Enabled        := not edtBarras.Enabled ;
-  edtQuantProd.Enabled     := not edtQuantProd.Enabled ;
-  edtValorCusto.Enabled    := not edtValorCusto.Enabled ;
-  EdtValorVend.Enabled     := not EdtValorVend.Enabled ;
-  edtTipo.Enabled          := not edtTipo.Enabled ;
-  edtDataCri.Enabled       := not edtDataCri.Enabled ;
-  DBGridVALORES.Enabled    := not DBGridVALORES.Enabled;
-
-  begin
-    edtBarras.SetFocus;
-  end;
-end;
-
-procedure TfrmCadastroProdutos.PnNovoMouseEnter(Sender: TObject);
-begin
- TPanel(sender).Color :=$00333333;
- TPanel(sender).Font.Color :=clWhite;
-end;
-
-procedure TfrmCadastroProdutos.PnNovoMouseLeave(Sender: TObject);
-begin
-  Tpanel(sender).Color :=$00666666;
-  TPanel(sender).Font.Color :=0;
-end;
-
-procedure TfrmCadastroProdutos.PnPrimeiroClick(Sender: TObject);
-begin
-   dmConexoes.qrEstoque.First;
-end;
-
-procedure TfrmCadastroProdutos.PnPrimeiroMouseEnter(Sender: TObject);
-begin
-   TPanel(sender).Color :=$00333333;
- TPanel(sender).Font.Color :=clWhite;
-
-end;
-
-procedure TfrmCadastroProdutos.PnPrimeiroMouseLeave(Sender: TObject);
-begin
-    Tpanel(sender).Color :=$00666666;
-  TPanel(sender).Font.Color :=0;
-end;
-
-procedure TfrmCadastroProdutos.PnProximoClick(Sender: TObject);
-begin
-   with dmConexoes.qrEstoque do
-  begin
-    if not Eof then
-      Next // Move para o próximo registro
-    else
-      ShowMessage('Último registro!');
-  end;
-end;
-
-procedure TfrmCadastroProdutos.PnProximoMouseEnter(Sender: TObject);
-begin
-   TPanel(sender).Color :=$00333333;
- TPanel(sender).Font.Color :=clWhite;
-end;
-
-procedure TfrmCadastroProdutos.PnProximoMouseLeave(Sender: TObject);
-begin
-   Tpanel(sender).Color :=$00666666;
-  TPanel(sender).Font.Color :=0;
-end;
-
+// -------------------------------------------------------
+// Relatorio
+// -------------------------------------------------------
 procedure TfrmCadastroProdutos.PnRelatorioClick(Sender: TObject);
 begin
-  with dmconexoes do
+  with dmConexoes do
   begin
     qrEstoque.Close;
     qrEstoque.SQL.Clear;
     qrEstoque.SQL.Add('SELECT * FROM PRODUTOS');
-    qrEstoque.Open;   // <<<<< FALTAVA ISSO
-
+    qrEstoque.Open;
     FrmRelatorioProd := TFrmRelatorioProd.Create(Self);
     try
       FrmRelatorioProd.rlr_RelatorioProdutos.Preview;
     finally
       FrmRelatorioProd.Free;
     end;
-
   end;
 end;
 
-procedure TfrmCadastroProdutos.PnRelatorioMouseEnter(Sender: TObject);
-begin
-    TPanel(sender).Color :=$00333333;
- TPanel(sender).Font.Color :=clWhite;
-end;
-
-procedure TfrmCadastroProdutos.PnRelatorioMouseLeave(Sender: TObject);
-begin
-    Tpanel(sender).Color :=$00666666;
-  TPanel(sender).Font.Color :=0;
-end;
-
+// -------------------------------------------------------
+// Sair
+// -------------------------------------------------------
 procedure TfrmCadastroProdutos.PnSairClick(Sender: TObject);
 begin
- close;
+  Close;
 end;
 
-procedure TfrmCadastroProdutos.PnSairMouseEnter(Sender: TObject);
-begin
-  TPanel(sender).Color :=$00333333;
- TPanel(sender).Font.Color :=clWhite;
-end;
+// -------------------------------------------------------
+// Mouse Enter / Leave dos botoes
+// -------------------------------------------------------
+procedure TfrmCadastroProdutos.PnNovoMouseEnter(Sender: TObject);
+begin TPanel(Sender).Color := $00333333; TPanel(Sender).Font.Color := clWhite; end;
+procedure TfrmCadastroProdutos.PnNovoMouseLeave(Sender: TObject);
+begin TPanel(Sender).Color := $00666666; TPanel(Sender).Font.Color := 0; end;
 
-procedure TfrmCadastroProdutos.PnSairMouseLeave(Sender: TObject);
-begin
-    Tpanel(sender).Color :=$00666666;
-  TPanel(sender).Font.Color :=0;
-end;
+procedure TfrmCadastroProdutos.PnEditarMouseEnter(Sender: TObject);
+begin TPanel(Sender).Color := $00333333; TPanel(Sender).Font.Color := clWhite; end;
+procedure TfrmCadastroProdutos.PnEditarMouseLeave(Sender: TObject);
+begin TPanel(Sender).Color := $00666666; TPanel(Sender).Font.Color := 0; end;
 
-procedure TfrmCadastroProdutos.PnUltimoClick(Sender: TObject);
-begin
-   dmConexoes.qrEstoque.Last;
-end;
+procedure TfrmCadastroProdutos.PnCancelarMouseEnter(Sender: TObject);
+begin TPanel(Sender).Color := $00333333; TPanel(Sender).Font.Color := clWhite; end;
+procedure TfrmCadastroProdutos.PnCancelarMouseLeave(Sender: TObject);
+begin TPanel(Sender).Color := $00666666; TPanel(Sender).Font.Color := 0; end;
+
+procedure TfrmCadastroProdutos.PnExcluirMouseEnter(Sender: TObject);
+begin TPanel(Sender).Color := $00333333; TPanel(Sender).Font.Color := clWhite; end;
+procedure TfrmCadastroProdutos.PnExcluirMouseLeave(Sender: TObject);
+begin TPanel(Sender).Color := $00666666; TPanel(Sender).Font.Color := 0; end;
+
+procedure TfrmCadastroProdutos.PnGravarMouseEnter(Sender: TObject);
+begin TPanel(Sender).Color := clMoneyGreen; TPanel(Sender).Font.Color := clWhite; end;
+procedure TfrmCadastroProdutos.PnGravarMouseLeave(Sender: TObject);
+begin TPanel(Sender).Color := $00666666; TPanel(Sender).Font.Color := 0; end;
+
+procedure TfrmCadastroProdutos.PnPrimeiroMouseEnter(Sender: TObject);
+begin TPanel(Sender).Color := $00333333; TPanel(Sender).Font.Color := clWhite; end;
+procedure TfrmCadastroProdutos.PnPrimeiroMouseLeave(Sender: TObject);
+begin TPanel(Sender).Color := $00666666; TPanel(Sender).Font.Color := 0; end;
+
+procedure TfrmCadastroProdutos.PnAnteriorMouseEnter(Sender: TObject);
+begin TPanel(Sender).Color := $00333333; TPanel(Sender).Font.Color := clWhite; end;
+procedure TfrmCadastroProdutos.PnAnteriorMouseLeave(Sender: TObject);
+begin TPanel(Sender).Color := $00666666; TPanel(Sender).Font.Color := 0; end;
+
+procedure TfrmCadastroProdutos.PnProximoMouseEnter(Sender: TObject);
+begin TPanel(Sender).Color := $00333333; TPanel(Sender).Font.Color := clWhite; end;
+procedure TfrmCadastroProdutos.PnProximoMouseLeave(Sender: TObject);
+begin TPanel(Sender).Color := $00666666; TPanel(Sender).Font.Color := 0; end;
 
 procedure TfrmCadastroProdutos.PnUltimoMouseEnter(Sender: TObject);
-begin
-   TPanel(sender).Color :=$00333333;
- TPanel(sender).Font.Color :=clWhite;
-
-end;
-
+begin TPanel(Sender).Color := $00333333; TPanel(Sender).Font.Color := clWhite; end;
 procedure TfrmCadastroProdutos.PnUltimoMouseLeave(Sender: TObject);
-begin
-   Tpanel(sender).Color :=$00666666;
-  TPanel(sender).Font.Color :=0
-end;
+begin TPanel(Sender).Color := $00666666; TPanel(Sender).Font.Color := 0; end;
+
+procedure TfrmCadastroProdutos.PnRelatorioMouseEnter(Sender: TObject);
+begin TPanel(Sender).Color := $00333333; TPanel(Sender).Font.Color := clWhite; end;
+procedure TfrmCadastroProdutos.PnRelatorioMouseLeave(Sender: TObject);
+begin TPanel(Sender).Color := $00666666; TPanel(Sender).Font.Color := 0; end;
+
+procedure TfrmCadastroProdutos.PnSairMouseEnter(Sender: TObject);
+begin TPanel(Sender).Color := $00333333; TPanel(Sender).Font.Color := clWhite; end;
+procedure TfrmCadastroProdutos.PnSairMouseLeave(Sender: TObject);
+begin TPanel(Sender).Color := $00666666; TPanel(Sender).Font.Color := 0; end;
+
+procedure TfrmCadastroProdutos.PnLocalizaMouseEnter(Sender: TObject);
+begin TPanel(Sender).Color := $00333333; TPanel(Sender).Font.Color := 0; end;
 
 end.

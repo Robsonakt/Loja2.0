@@ -52,9 +52,6 @@ object dmConexoes: TdmConexoes
       Precision = 10
       Size = 2
     end
-    object qrEstoqueCodBarras: TIntegerField
-      FieldName = 'CodBarras'
-    end
     object qrEstoquelinha: TStringField
       FieldName = 'linha'
       Size = 100
@@ -130,6 +127,54 @@ object dmConexoes: TdmConexoes
       Precision = 18
       Size = 2
     end
+    object qrEstoquecfop: TStringField
+      FieldName = 'cfop'
+      Size = 5
+    end
+    object qrEstoqueorigem: TStringField
+      FieldName = 'origem'
+      FixedChar = True
+      Size = 1
+    end
+    object qrEstoqueun_trib: TStringField
+      FieldName = 'un_trib'
+      Size = 5
+    end
+    object qrEstoquecsosn: TStringField
+      FieldName = 'csosn'
+      Size = 3
+    end
+    object qrEstoquealiq_icms: TBCDField
+      FieldName = 'aliq_icms'
+      Precision = 5
+      Size = 2
+    end
+    object qrEstoquebc_icms: TBCDField
+      FieldName = 'bc_icms'
+      Precision = 5
+      Size = 2
+    end
+    object qrEstoquecst_pis: TStringField
+      FieldName = 'cst_pis'
+      Size = 2
+    end
+    object qrEstoquealiq_pis: TBCDField
+      FieldName = 'aliq_pis'
+      Precision = 5
+      Size = 2
+    end
+    object qrEstoquecst_cofins: TStringField
+      FieldName = 'cst_cofins'
+      Size = 2
+    end
+    object qrEstoquealiq_cofins: TBCDField
+      FieldName = 'aliq_cofins'
+      Precision = 5
+      Size = 2
+    end
+    object qrEstoqueCodBarras: TStringField
+      FieldName = 'CodBarras'
+    end
   end
   object vwGerarNumCliente: TADOQuery
     Parameters = <>
@@ -142,8 +187,8 @@ object dmConexoes: TdmConexoes
     Parameters = <>
     SQL.Strings = (
       'SELECT *   FROM [Controle_Comanda].[dbo].[StatusComanda]')
-    Left = 309
-    Top = 408
+    Left = 21
+    Top = 432
     object qrComandaCod_Comanda: TIntegerField
       FieldName = 'Cod_Comanda'
     end
@@ -261,8 +306,8 @@ object dmConexoes: TdmConexoes
   end
   object dsProduto: TDataSource
     DataSet = qrEstoque
-    Left = 296
-    Top = 89
+    Left = 240
+    Top = 81
   end
   object qrCaixa: TADOQuery
     Connection = conRobson
@@ -466,15 +511,136 @@ object dmConexoes: TdmConexoes
       Size = 2
     end
   end
+  object Estoquemarkup: TADOQuery
+    Connection = conRobson
+    CursorType = ctStatic
+    OnCalcFields = qrEstoqueCalcFields
+    Parameters = <>
+    SQL.Strings = (
+      'SELECT * FROM PRODUTOS'
+      '')
+    Left = 373
+    Top = 144
+    object IntegerField11: TIntegerField
+      FieldName = 'quantidade'
+    end
+    object WideStringField5: TWideStringField
+      FieldName = 'descricao'
+      FixedChar = True
+      Size = 100
+    end
+    object DateTimeField3: TDateTimeField
+      FieldName = 'data'
+    end
+    object BCDField15: TBCDField
+      FieldName = 'valorvenda'
+      Precision = 10
+      Size = 2
+    end
+    object StringField19: TStringField
+      FieldName = 'tipo'
+      Size = 10
+    end
+    object BCDField16: TBCDField
+      FieldName = 'valorcusto'
+      Precision = 10
+      Size = 2
+    end
+    object IntegerField12: TIntegerField
+      FieldName = 'CodBarras'
+    end
+    object StringField20: TStringField
+      FieldName = 'linha'
+      Size = 100
+    end
+    object StringField21: TStringField
+      FieldName = 'grupo'
+      Size = 100
+    end
+    object StringField22: TStringField
+      FieldName = 'ncm'
+    end
+    object StringField23: TStringField
+      FieldName = 'modelo'
+      Size = 100
+    end
+    object StringField24: TStringField
+      FieldName = 'unidade'
+      Size = 10
+    end
+    object BCDField17: TBCDField
+      FieldName = 'pesogramas'
+      Precision = 10
+      Size = 3
+    end
+    object StringField25: TStringField
+      FieldName = 'fornecedor'
+      Size = 150
+    end
+    object WideStringField6: TWideStringField
+      FieldName = 'data_compra'
+      Size = 10
+    end
+    object IntegerField13: TIntegerField
+      FieldName = 'estoque_inicial'
+    end
+    object BCDField18: TBCDField
+      FieldName = 'custo_unitario'
+      Precision = 18
+      Size = 2
+    end
+    object BCDField19: TBCDField
+      FieldKind = fkCalculated
+      FieldName = 'custo_total'
+      Precision = 18
+      Size = 2
+      Calculated = True
+    end
+    object StringField26: TStringField
+      FieldName = 'tamanho'
+    end
+    object StringField27: TStringField
+      FieldName = 'cor'
+      Size = 50
+    end
+    object IntegerField14: TIntegerField
+      FieldName = 'cod_tamanho'
+    end
+    object IntegerField15: TIntegerField
+      FieldName = 'qtde_minima'
+    end
+    object BCDField20: TBCDField
+      FieldName = 'margem_lucro'
+      Precision = 5
+      Size = 2
+    end
+    object BCDField21: TBCDField
+      FieldName = 'preco_de'
+      Precision = 18
+      Size = 2
+    end
+  end
   object CalculoProdutos: TADOQuery
     Connection = conRobson
     CursorType = ctStatic
     AfterScroll = CalculoProdutosAfterScroll
     OnCalcFields = qrEstoqueCalcFields
-    Parameters = <>
+    Parameters = <
+      item
+        Name = 'pcodigo'
+        Attributes = [paSigned]
+        DataType = ftInteger
+        Precision = 10
+        Size = 4
+        Value = Null
+      end>
     SQL.Strings = (
-      'SELECT * FROM [LojaNova].[dbo].[Produtos]')
-    Left = 285
+      'SELECT quantidade, valorcusto,'
+      '       (quantidade * valorcusto) AS custo_total,'
+      '       valorvenda'
+      'FROM PRODUTOS'
+      'WHERE codigo = :pcodigo')
+    Left = 269
     Top = 144
     object AutoIncField2: TAutoIncField
       FieldName = 'codigo'
@@ -582,130 +748,6 @@ object dmConexoes: TdmConexoes
     end
     object CalculoProdutosmarkup: TBCDField
       FieldName = 'markup'
-      Precision = 18
-      Size = 2
-    end
-  end
-  object Estoquevalorvenda: TADOQuery
-    Connection = conRobson
-    CursorType = ctStatic
-    OnCalcFields = qrEstoqueCalcFields
-    Parameters = <
-      item
-        Name = 'pcodigo'
-        Attributes = [paSigned]
-        DataType = ftInteger
-        Precision = 10
-        Size = 4
-        Value = Null
-      end>
-    SQL.Strings = (
-      'SELECT quantidade, valorcusto,'
-      '       (quantidade * valorcusto) AS custo_total,'
-      '       valorvenda'
-      'FROM PRODUTOS'
-      'WHERE codigo = :pcodigo')
-    Left = 405
-    Top = 152
-    object AutoIncField3: TAutoIncField
-      FieldName = 'codigo'
-      ReadOnly = True
-    end
-    object IntegerField11: TIntegerField
-      FieldName = 'quantidade'
-    end
-    object WideStringField5: TWideStringField
-      FieldName = 'descricao'
-      FixedChar = True
-      Size = 100
-    end
-    object DateTimeField3: TDateTimeField
-      FieldName = 'data'
-    end
-    object BCDField15: TBCDField
-      FieldName = 'valorvenda'
-      Precision = 10
-      Size = 2
-    end
-    object StringField19: TStringField
-      FieldName = 'tipo'
-      Size = 10
-    end
-    object BCDField16: TBCDField
-      FieldName = 'valorcusto'
-      Precision = 10
-      Size = 2
-    end
-    object IntegerField12: TIntegerField
-      FieldName = 'CodBarras'
-    end
-    object StringField20: TStringField
-      FieldName = 'linha'
-      Size = 100
-    end
-    object StringField21: TStringField
-      FieldName = 'grupo'
-      Size = 100
-    end
-    object StringField22: TStringField
-      FieldName = 'ncm'
-    end
-    object StringField23: TStringField
-      FieldName = 'modelo'
-      Size = 100
-    end
-    object StringField24: TStringField
-      FieldName = 'unidade'
-      Size = 10
-    end
-    object BCDField17: TBCDField
-      FieldName = 'pesogramas'
-      Precision = 10
-      Size = 3
-    end
-    object StringField25: TStringField
-      FieldName = 'fornecedor'
-      Size = 150
-    end
-    object WideStringField6: TWideStringField
-      FieldName = 'data_compra'
-      Size = 10
-    end
-    object IntegerField13: TIntegerField
-      FieldName = 'estoque_inicial'
-    end
-    object BCDField18: TBCDField
-      FieldName = 'custo_unitario'
-      Precision = 18
-      Size = 2
-    end
-    object BCDField19: TBCDField
-      FieldKind = fkCalculated
-      FieldName = 'custo_total'
-      Precision = 18
-      Size = 2
-      Calculated = True
-    end
-    object StringField26: TStringField
-      FieldName = 'tamanho'
-    end
-    object StringField27: TStringField
-      FieldName = 'cor'
-      Size = 50
-    end
-    object IntegerField14: TIntegerField
-      FieldName = 'cod_tamanho'
-    end
-    object IntegerField15: TIntegerField
-      FieldName = 'qtde_minima'
-    end
-    object BCDField20: TBCDField
-      FieldName = 'margem_lucro'
-      Precision = 5
-      Size = 2
-    end
-    object BCDField21: TBCDField
-      FieldName = 'preco_de'
       Precision = 18
       Size = 2
     end

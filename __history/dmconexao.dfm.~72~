@@ -49,11 +49,11 @@ object dmConexoes: TdmConexoes
     end
     object qrEstoquevalorcusto: TBCDField
       FieldName = 'valorcusto'
+      DisplayFormat = #39'"R$" #,##0.00'#39
+      EditFormat = #39'#,##0.00'#39
+      currency = True
       Precision = 10
       Size = 2
-    end
-    object qrEstoqueCodBarras: TIntegerField
-      FieldName = 'CodBarras'
     end
     object qrEstoquelinha: TStringField
       FieldName = 'linha'
@@ -130,6 +130,54 @@ object dmConexoes: TdmConexoes
       Precision = 18
       Size = 2
     end
+    object qrEstoquecfop: TStringField
+      FieldName = 'cfop'
+      Size = 5
+    end
+    object qrEstoqueorigem: TStringField
+      FieldName = 'origem'
+      FixedChar = True
+      Size = 1
+    end
+    object qrEstoqueun_trib: TStringField
+      FieldName = 'un_trib'
+      Size = 5
+    end
+    object qrEstoquecsosn: TStringField
+      FieldName = 'csosn'
+      Size = 3
+    end
+    object qrEstoquealiq_icms: TBCDField
+      FieldName = 'aliq_icms'
+      Precision = 5
+      Size = 2
+    end
+    object qrEstoquebc_icms: TBCDField
+      FieldName = 'bc_icms'
+      Precision = 5
+      Size = 2
+    end
+    object qrEstoquecst_pis: TStringField
+      FieldName = 'cst_pis'
+      Size = 2
+    end
+    object qrEstoquealiq_pis: TBCDField
+      FieldName = 'aliq_pis'
+      Precision = 5
+      Size = 2
+    end
+    object qrEstoquecst_cofins: TStringField
+      FieldName = 'cst_cofins'
+      Size = 2
+    end
+    object qrEstoquealiq_cofins: TBCDField
+      FieldName = 'aliq_cofins'
+      Precision = 5
+      Size = 2
+    end
+    object qrEstoqueCodBarras: TStringField
+      FieldName = 'CodBarras'
+    end
   end
   object vwGerarNumCliente: TADOQuery
     Parameters = <>
@@ -142,8 +190,8 @@ object dmConexoes: TdmConexoes
     Parameters = <>
     SQL.Strings = (
       'SELECT *   FROM [Controle_Comanda].[dbo].[StatusComanda]')
-    Left = 309
-    Top = 408
+    Left = 21
+    Top = 432
     object qrComandaCod_Comanda: TIntegerField
       FieldName = 'Cod_Comanda'
     end
@@ -466,31 +514,16 @@ object dmConexoes: TdmConexoes
       Size = 2
     end
   end
-  object Estoquevalorvenda: TADOQuery
+  object Estoquemarkup: TADOQuery
     Connection = conRobson
     CursorType = ctStatic
     OnCalcFields = qrEstoqueCalcFields
-    Parameters = <
-      item
-        Name = 'pcodigo'
-        Attributes = [paSigned]
-        DataType = ftInteger
-        Precision = 10
-        Size = 4
-        Value = Null
-      end>
+    Parameters = <>
     SQL.Strings = (
-      'SELECT quantidade, valorcusto,'
-      '       (quantidade * valorcusto) AS custo_total,'
-      '       valorvenda'
-      'FROM PRODUTOS'
-      'WHERE codigo = :pcodigo')
+      'SELECT * FROM PRODUTOS'
+      '')
     Left = 373
     Top = 144
-    object AutoIncField3: TAutoIncField
-      FieldName = 'codigo'
-      ReadOnly = True
-    end
     object IntegerField11: TIntegerField
       FieldName = 'quantidade'
     end
@@ -595,9 +628,21 @@ object dmConexoes: TdmConexoes
     CursorType = ctStatic
     AfterScroll = CalculoProdutosAfterScroll
     OnCalcFields = qrEstoqueCalcFields
-    Parameters = <>
+    Parameters = <
+      item
+        Name = 'pcodigo'
+        Attributes = [paSigned]
+        DataType = ftInteger
+        Precision = 10
+        Size = 4
+        Value = Null
+      end>
     SQL.Strings = (
-      'SELECT * FROM [LojaNova].[dbo].[Produtos]')
+      'SELECT quantidade, valorcusto,'
+      '       (quantidade * valorcusto) AS custo_total,'
+      '       valorvenda'
+      'FROM PRODUTOS'
+      'WHERE codigo = :pcodigo')
     Left = 269
     Top = 144
     object AutoIncField2: TAutoIncField
