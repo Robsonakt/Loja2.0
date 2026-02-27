@@ -174,7 +174,8 @@ procedure TfrmCadastroProdutos.DBGridVALORESKeyDown(Sender: TObject;
 begin
   if Key in [VK_UP, VK_DOWN, VK_PRIOR, VK_NEXT] then
     Key := 0;
-
+  if Key = VK_RETURN then
+    dmConexoes.qrEstoquemarkupChange(dmConexoes.qrEstoquemarkup);
 end;
 
 procedure TfrmCadastroProdutos.DBGridVALORESMouseWheelDown(Sender: TObject;
@@ -323,32 +324,47 @@ end;
 // -------------------------------------------------------
 procedure TfrmCadastroProdutos.PnEditarClick(Sender: TObject);
 begin
-  dmConexoes.qrEstoque.Edit;
+dmConexoes.qrEstoque.Edit;
 
-  PnEditar.Enabled    := False;
-  PnExcluir.Enabled   := False;
-  PnPrimeiro.Enabled  := False;
-  PnAnterior.Enabled  := False;
-  PnProximo.Enabled   := False;
-  PnUltimo.Enabled    := False;
-  PnSair.Enabled      := False;
-  PnRelatorio.Enabled := False;
-  PnGravar.Enabled    := True;
-  PnCancelar.Enabled  := True;
-  DBGridVALORES.Enabled    := true;
+// Botoes desabilitados durante edicao
+PnEditar.Enabled    := False;
+PnExcluir.Enabled   := False;
+PnPrimeiro.Enabled  := False;
+PnAnterior.Enabled  := False;
+PnProximo.Enabled   := False;
+PnUltimo.Enabled    := False;
+PnSair.Enabled      := False;
+PnRelatorio.Enabled := False;
 
-  PnEditar.Font.Color    := $00333333;
-  PnExcluir.Font.Color   := $00333333;
-  PnPrimeiro.Font.Color  := $00333333;
-  PnAnterior.Font.Color  := $00333333;
-  PnProximo.Font.Color   := $00333333;
-  PnUltimo.Font.Color    := $00333333;
-  PnSair.Font.Color      := $00333333;
-  PnRelatorio.Font.Color := $00333333;
-  PnCancelar.Font.Color  := 0;
-  PnGravar.Font.Color    := 0;
+// Botoes ativos durante edicao
+PnGravar.Enabled   := True;
+PnCancelar.Enabled := True;
 
-  HabilitarCampos(True);
+// Visual dos botoes desabilitados - cor de fundo indica estado
+PnEditar.Color    := $000066CC; // azul = "este botao iniciou a edicao"
+PnExcluir.Color   := $00444444; // cinza escuro padrao desabilitado
+PnPrimeiro.Color  := $00444444;
+PnAnterior.Color  := $00444444;
+PnProximo.Color   := $00444444;
+PnUltimo.Color    := $00444444;
+PnSair.Color      := $00444444;
+PnRelatorio.Color := $00444444;
+
+// Fonte dos botoes desabilitados (o Delphi vai sobrescrever,
+// mas deixamos registrado para quando reabilitarem)
+PnExcluir.Font.Color   := $00333333;
+PnPrimeiro.Font.Color  := $00333333;
+PnAnterior.Font.Color  := $00333333;
+PnProximo.Font.Color   := $00333333;
+PnUltimo.Font.Color    := $00333333;
+PnSair.Font.Color      := $00333333;
+PnRelatorio.Font.Color := $00333333;
+
+// Fonte dos botoes ativos
+PnCancelar.Font.Color := 0;
+PnGravar.Font.Color   := 0;
+
+HabilitarCampos(True);
 end;
 
 // -------------------------------------------------------
@@ -368,17 +384,16 @@ begin
 
   MessageDlg('Cadastro cancelado', mtInformation, [mbOK], 0);
 
-  PnEditar.Enabled      := True;
-  PnExcluir.Enabled     := True;
-  PnPrimeiro.Enabled    := True;
-  PnAnterior.Enabled    := True;
-  PnProximo.Enabled     := True;
-  PnUltimo.Enabled      := True;
-  PnSair.Enabled        := True;
-  PnRelatorio.Enabled   := True;
-  PnGravar.Enabled      := False;
-  PnCancelar.Enabled    := True;
-  DBGridVALORES.Enabled := False;
+  PnEditar.Enabled    := True;
+  PnExcluir.Enabled   := True;
+  PnPrimeiro.Enabled  := True;
+  PnAnterior.Enabled  := True;
+  PnProximo.Enabled   := True;
+  PnUltimo.Enabled    := True;
+  PnSair.Enabled      := True;
+  PnRelatorio.Enabled := True;
+  PnGravar.Enabled    := False;
+  PnCancelar.Enabled  := True;
 
   PnEditar.Font.Color    := 0;
   PnExcluir.Font.Color   := 0;
@@ -391,7 +406,7 @@ begin
   PnGravar.Font.Color    := $00333333;
 
   HabilitarCampos(False);
-
+  DBGridVALORES.Enabled := False;
 end;
 
 // -------------------------------------------------------
@@ -418,8 +433,6 @@ procedure TfrmCadastroProdutos.PnGravarClick(Sender: TObject);
 begin
   with dmConexoes do
   begin
-    // Recalcula markup antes de gravar
-    qrEstoquemarkupChange(qrEstoquemarkup);
     // Campos da aba Produto
     qrEstoque.FieldByName('tipo').AsString    := Trim(edtTipo.Text);
     qrEstoque.FieldByName('data').AsDateTime  := edtDatacri.Date;
@@ -450,14 +463,13 @@ begin
   PnRelatorio.Enabled := True;
   PnSair.Enabled      := True;
 
-  PnGravar.Font.Color    := 0;
+  PnGravar.Font.Color    := $00333333;
   PnCancelar.Font.Color  := 0;
   PnPrimeiro.Font.Color  := 0;
   PnAnterior.Font.Color  := 0;
   PnProximo.Font.Color   := 0;
   PnUltimo.Font.Color    := 0;
   PnRelatorio.Font.Color := 0;
-  PnSair.Font.Color      := 0;
 end;
 
 // -------------------------------------------------------

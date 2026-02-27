@@ -47,14 +47,14 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnNovoMouseLeave
     end
     object PnEditar: TPanel
-      Left = 79
+      Left = 80
       Top = -1
       Width = 80
       Height = 52
       Caption = 'Editar'
       Color = 6710886
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
+      Font.Color = 3355443
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
@@ -66,9 +66,9 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnEditarMouseLeave
     end
     object PnCancelar: TPanel
-      Left = 152
+      Left = 157
       Top = -1
-      Width = 89
+      Width = 80
       Height = 52
       Caption = 'Cancelar'
       Color = 6710886
@@ -86,7 +86,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnCancelarMouseLeave
     end
     object PnExcluir: TPanel
-      Left = 232
+      Left = 237
       Top = -1
       Width = 80
       Height = 52
@@ -105,7 +105,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnExcluirMouseLeave
     end
     object PnGravar: TPanel
-      Left = 304
+      Left = 323
       Top = -1
       Width = 80
       Height = 52
@@ -185,7 +185,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnProximoMouseLeave
     end
     object PnUltimo: TPanel
-      Left = 836
+      Left = 834
       Top = 53
       Width = 80
       Height = 53
@@ -225,8 +225,8 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnSairMouseLeave
     end
     object PnRelatorio: TPanel
-      Left = 759
-      Top = 0
+      Left = 766
+      Top = -6
       Width = 80
       Height = 53
       Anchors = [akTop, akRight]
@@ -595,7 +595,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           object lbNCM: TLabel
             Left = 12
             Top = 16
-            Width = 28
+            Width = 25
             Height = 13
             Caption = 'NCM'
             Font.Charset = DEFAULT_CHARSET
@@ -621,7 +621,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           object lbOrigem: TLabel
             Left = 312
             Top = 16
-            Width = 79
+            Width = 83
             Height = 13
             Caption = 'Origem Produto'
             Font.Charset = DEFAULT_CHARSET
@@ -634,7 +634,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           object lbUnTrib: TLabel
             Left = 612
             Top = 16
-            Width = 88
+            Width = 97
             Height = 13
             Caption = 'Unidade Tribut'#225'vel'
             Font.Charset = DEFAULT_CHARSET
@@ -648,7 +648,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
             Left = 12
             Top = 33
             Width = 120
-            Height = 23
+            Height = 21
             DataField = 'ncm'
             DataSource = dmConexoes.dsEstoque
             Enabled = False
@@ -658,7 +658,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
             Left = 162
             Top = 33
             Width = 100
-            Height = 23
+            Height = 21
             DataField = 'cfop'
             DataSource = dmConexoes.dsEstoque
             Enabled = False
@@ -668,7 +668,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
             Left = 312
             Top = 33
             Width = 260
-            Height = 23
+            Height = 21
             Enabled = False
             ItemIndex = 0
             TabOrder = 2
@@ -682,7 +682,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
             Left = 612
             Top = 33
             Width = 120
-            Height = 23
+            Height = 21
             Enabled = False
             ItemIndex = 0
             TabOrder = 3
@@ -711,7 +711,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           object lbCSOSN: TLabel
             Left = 12
             Top = 16
-            Width = 34
+            Width = 36
             Height = 13
             Caption = 'CSOSN'
             Font.Charset = DEFAULT_CHARSET
@@ -724,7 +724,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           object lbAliqICMS: TLabel
             Left = 462
             Top = 16
-            Width = 74
+            Width = 85
             Height = 13
             Caption = 'Al'#237'quota ICMS %'
             Font.Charset = DEFAULT_CHARSET
@@ -737,7 +737,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           object lbBCICMS: TLabel
             Left = 612
             Top = 16
-            Width = 79
+            Width = 76
             Height = 13
             Caption = 'Base C'#225'lculo %'
             Font.Charset = DEFAULT_CHARSET
@@ -751,7 +751,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
             Left = 12
             Top = 33
             Width = 400
-            Height = 23
+            Height = 21
             Enabled = False
             ItemIndex = 0
             TabOrder = 0
@@ -766,7 +766,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
             Left = 462
             Top = 33
             Width = 100
-            Height = 23
+            Height = 21
             DataField = 'aliq_icms'
             DataSource = dmConexoes.dsEstoque
             Enabled = False
@@ -776,7 +776,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
             Left = 612
             Top = 33
             Width = 100
-            Height = 23
+            Height = 21
             DataField = 'bc_icms'
             DataSource = dmConexoes.dsEstoque
             Enabled = False
@@ -812,7 +812,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           object lbAliqPIS: TLabel
             Left = 362
             Top = 16
-            Width = 68
+            Width = 74
             Height = 13
             Caption = 'Al'#237'quota PIS %'
             Font.Charset = DEFAULT_CHARSET
@@ -823,7 +823,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
             ParentFont = False
           end
           object lbCSTCOFINS: TLabel
-            Left = 512
+            Left = 480
             Top = 16
             Width = 61
             Height = 13
@@ -838,7 +838,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           object lbAliqCOFINS: TLabel
             Left = 712
             Top = 16
-            Width = 86
+            Width = 98
             Height = 13
             Caption = 'Al'#237'quota COFINS %'
             Font.Charset = DEFAULT_CHARSET
@@ -852,7 +852,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
             Left = 12
             Top = 33
             Width = 300
-            Height = 23
+            Height = 21
             Enabled = False
             ItemIndex = 0
             TabOrder = 0
@@ -866,17 +866,17 @@ object frmCadastroProdutos: TfrmCadastroProdutos
             Left = 362
             Top = 33
             Width = 100
-            Height = 23
+            Height = 21
             DataField = 'aliq_pis'
             DataSource = dmConexoes.dsEstoque
             Enabled = False
             TabOrder = 1
           end
           object cmbCSTCOFINS: TComboBox
-            Left = 512
+            Left = 480
             Top = 33
-            Width = 160
-            Height = 23
+            Width = 208
+            Height = 21
             Enabled = False
             ItemIndex = 0
             TabOrder = 2
@@ -890,7 +890,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
             Left = 712
             Top = 33
             Width = 100
-            Height = 23
+            Height = 21
             DataField = 'aliq_cofins'
             DataSource = dmConexoes.dsEstoque
             Enabled = False

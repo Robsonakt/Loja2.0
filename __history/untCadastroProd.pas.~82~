@@ -457,7 +457,6 @@ begin
   PnProximo.Font.Color   := 0;
   PnUltimo.Font.Color    := 0;
   PnRelatorio.Font.Color := 0;
-  PnSair.Font.Color      := 0;
 end;
 
 // -------------------------------------------------------

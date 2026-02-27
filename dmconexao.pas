@@ -208,8 +208,8 @@ procedure TdmConexoes.qrEstoqueCalcFields(DataSet: TDataSet);
 var
   Qtde, Custo, Markup, Denominador: Double;
 begin
-  if DataSet.State in [dsEdit, dsInsert] then
-    Exit;
+  // Remova o Exit em dsEdit - deixa calcular sempre
+  // if DataSet.State in [dsEdit, dsInsert] then Exit;
 
   try
     Qtde   := DataSet.FieldByName('quantidade').AsFloat;
@@ -218,11 +218,8 @@ begin
 
     DataSet.FieldByName('custo_total').AsFloat := Qtde * Custo;
 
-    Denominador := 1 - (Markup / 100);
-    if (Custo > 0) and (Denominador > 0) then
-      DataSet.FieldByName('valorvenda').AsFloat := Custo / Denominador
-    else
-      DataSet.FieldByName('valorvenda').AsFloat := 0;
+    DataSet.FieldByName('custo_total').AsFloat := Qtde * Custo;
+    DataSet.FieldByName('valorvenda').AsFloat  := Custo * (1 + Markup / 100);
 
   except
     on E: Exception do
@@ -244,14 +241,8 @@ begin
     Custo  := qrEstoquevalorcusto.AsFloat;
     Markup := qrEstoquemarkup.AsFloat;
 
-    Denominador := 1 - (Markup / 100);
-
-    if (Custo > 0) and (Denominador > 0) then
-      qrEstoquevalorvenda.AsFloat := Custo / Denominador
-    else
-      qrEstoquevalorvenda.AsFloat := 0;
-
-    qrEstoquecusto_total.AsFloat := qrEstoquequantidade.AsFloat * Custo;
+     qrEstoquevalorvenda.AsFloat   := Custo * (1 + Markup / 100);
+     qrEstoquecusto_total.AsFloat  := qrEstoquequantidade.AsFloat * Custo;
 
   except
     on E: Exception do

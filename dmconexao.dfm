@@ -43,7 +43,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'valorvenda'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 10
       Size = 2
       Calculated = True
@@ -56,13 +56,12 @@ object dmConexoes: TdmConexoes
       FieldName = 'valorcusto'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 10
       Size = 2
     end
     object qrEstoqueCodBarras: TStringField
       FieldName = 'CodBarras'
-      Size = 20
     end
     object qrEstoquelinha: TStringField
       FieldName = 'linha'
@@ -74,7 +73,6 @@ object dmConexoes: TdmConexoes
     end
     object qrEstoquencm: TStringField
       FieldName = 'ncm'
-      Size = 20
     end
     object qrEstoquemodelo: TStringField
       FieldName = 'modelo'
@@ -104,7 +102,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'custo_unitario'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 18
       Size = 2
     end
@@ -113,7 +111,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'custo_total'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 18
       Size = 2
       Calculated = True
@@ -143,7 +141,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'preco_de'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 18
       Size = 2
     end
@@ -257,7 +255,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'ValorTotal'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 10
       Size = 2
     end
@@ -265,7 +263,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'ValorRestante'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 10
       Size = 2
     end
@@ -273,7 +271,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'ValorPago'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 10
       Size = 2
     end
@@ -294,7 +292,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'ValorProdUni'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 10
       Size = 2
     end
@@ -324,7 +322,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'ValorTotal'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 10
       Size = 2
     end
@@ -335,7 +333,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'ValorProdUni'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 10
       Size = 2
     end
@@ -421,7 +419,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'valorfiado'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 10
       Size = 2
     end
@@ -470,7 +468,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'valorcusto'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 10
       Size = 2
     end
@@ -479,7 +477,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'custo_total'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 18
       Size = 2
       Calculated = True
@@ -496,7 +494,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'valorvenda'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 10
       Size = 2
       Calculated = True
@@ -531,7 +529,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'valorcusto'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 10
       Size = 2
     end
@@ -540,7 +538,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'custo_total'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 18
       Size = 2
       Calculated = True
@@ -557,7 +555,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'valorvenda'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
-      Currency = True
+      currency = True
       Precision = 10
       Size = 2
       Calculated = True
