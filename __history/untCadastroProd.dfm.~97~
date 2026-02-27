@@ -47,14 +47,14 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnNovoMouseLeave
     end
     object PnEditar: TPanel
-      Left = 79
+      Left = 80
       Top = -1
       Width = 80
       Height = 52
       Caption = 'Editar'
       Color = 6710886
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
+      Font.Color = clBlack
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
@@ -66,9 +66,9 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnEditarMouseLeave
     end
     object PnCancelar: TPanel
-      Left = 152
+      Left = 157
       Top = -1
-      Width = 89
+      Width = 80
       Height = 52
       Caption = 'Cancelar'
       Color = 6710886
@@ -86,7 +86,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnCancelarMouseLeave
     end
     object PnExcluir: TPanel
-      Left = 232
+      Left = 237
       Top = -1
       Width = 80
       Height = 52
@@ -105,7 +105,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnExcluirMouseLeave
     end
     object PnGravar: TPanel
-      Left = 304
+      Left = 316
       Top = -1
       Width = 80
       Height = 52
@@ -165,7 +165,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnAnteriorMouseLeave
     end
     object PnProximo: TPanel
-      Left = 759
+      Left = 758
       Top = 53
       Width = 80
       Height = 52
@@ -185,8 +185,8 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnProximoMouseLeave
     end
     object PnUltimo: TPanel
-      Left = 836
-      Top = 53
+      Left = 834
+      Top = 52
       Width = 80
       Height = 53
       Anchors = [akTop, akRight]
@@ -205,7 +205,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnUltimoMouseLeave
     end
     object PnSair: TPanel
-      Left = 836
+      Left = 834
       Top = 0
       Width = 80
       Height = 53
@@ -225,7 +225,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnSairMouseLeave
     end
     object PnRelatorio: TPanel
-      Left = 759
+      Left = 758
       Top = 0
       Width = 80
       Height = 53
@@ -279,7 +279,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       Top = 6
       Width = 914
       Height = 595
-      ActivePage = TabSheet2
+      ActivePage = TabSheet1
       TabOrder = 0
       object TabSheet1: TTabSheet
         Caption = 'Produto'

@@ -261,7 +261,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       TabOrder = 11
       OnClick = PnLocalizaClick
       OnMouseEnter = PnLocalizaMouseEnter
-      OnMouseLeave = PnNovoMouseLeave
+      OnMouseLeave = PnLocalizaMouseLeave
     end
   end
   object PnCentro: TPanel
@@ -335,50 +335,6 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object lbQuant: TLabel
-          Left = 21
-          Top = 218
-          Width = 23
-          Height = 14
-          Caption = 'Qtd'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlack
-          Font.Height = -12
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-          Visible = False
-        end
-        object lbvalorproduto: TLabel
-          Left = 103
-          Top = 218
-          Width = 71
-          Height = 14
-          Caption = 'Valor Custo'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlack
-          Font.Height = -12
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-          Visible = False
-        end
-        object Label2: TLabel
-          Left = 310
-          Top = 218
-          Width = 73
-          Height = 14
-          Caption = 'Valor Venda'
-          Color = clBlack
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlack
-          Font.Height = -12
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentColor = False
-          ParentFont = False
-          Visible = False
-        end
         object lbTipo: TLabel
           Left = 21
           Top = 169
@@ -391,20 +347,6 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
-        end
-        object lbCustTotal: TLabel
-          Left = 197
-          Top = 218
-          Width = 71
-          Height = 14
-          Caption = 'Custo Total'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlack
-          Font.Height = -12
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-          Visible = False
         end
         object edtBarras: TDBEdit
           Left = 21
@@ -444,7 +386,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
         end
         object edtDescricaoProd: TDBEdit
           Left = 197
-          Top = 120
+          Top = 121
           Width = 369
           Height = 23
           DataField = 'descricao'
@@ -453,18 +395,6 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           TabOrder = 3
           OnKeyPress = edtDescricaoProdKeyPress
         end
-        object edtQuantProd: TDBEdit
-          Left = 21
-          Top = 238
-          Width = 50
-          Height = 23
-          DataField = 'quantidade'
-          DataSource = dmConexoes.dsEstoque
-          Enabled = False
-          TabOrder = 4
-          Visible = False
-          OnKeyPress = edtQuantProdKeyPress
-        end
         object edtTipo: TComboBox
           Left = 21
           Top = 189
@@ -472,36 +402,12 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           Height = 23
           Enabled = False
           ItemIndex = 0
-          TabOrder = 5
+          TabOrder = 4
           Text = 'UN'
           OnKeyPress = edtTipoKeyPress
           Items.Strings = (
             'UN'
             'LT')
-        end
-        object edtValorCusto: TDBEdit
-          Left = 103
-          Top = 238
-          Width = 50
-          Height = 23
-          DataField = 'valorcusto'
-          DataSource = dmConexoes.dsEstoque
-          Enabled = False
-          TabOrder = 6
-          Visible = False
-          OnKeyPress = edtValorCustoKeyPress
-        end
-        object EdtValorVend: TDBEdit
-          Left = 310
-          Top = 238
-          Width = 50
-          Height = 23
-          DataField = 'valorvenda'
-          DataSource = dmConexoes.dsEstoque
-          Enabled = False
-          TabOrder = 7
-          Visible = False
-          OnKeyPress = EdtValorVendKeyPress
         end
         object DBGridVALORES: TDBGrid
           Left = 19
@@ -518,7 +424,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           Font.Style = []
           Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
           ParentFont = False
-          TabOrder = 8
+          TabOrder = 5
           TitleFont.Charset = DEFAULT_CHARSET
           TitleFont.Color = clWindowText
           TitleFont.Height = -13
@@ -562,18 +468,6 @@ object frmCadastroProdutos: TfrmCadastroProdutos
               Width = 91
               Visible = True
             end>
-        end
-        object edtCustoTotal: TDBEdit
-          Left = 197
-          Top = 238
-          Width = 50
-          Height = 23
-          DataField = 'custo_total'
-          DataSource = dmConexoes.dsEstoque
-          Enabled = False
-          TabOrder = 9
-          Visible = False
-          OnKeyPress = EdtValorVendKeyPress
         end
       end
       object TabSheet2: TTabSheet

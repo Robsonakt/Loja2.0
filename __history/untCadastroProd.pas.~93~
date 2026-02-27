@@ -30,21 +30,13 @@ type
     LbCodProd: TLabel;
     Lbdatacadastroproduto: TLabel;
     Lbnomeproduto: TLabel;
-    lbQuant: TLabel;
-    lbvalorproduto: TLabel;
-    Label2: TLabel;
     lbTipo: TLabel;
-    lbCustTotal: TLabel;
     edtBarras: TDBEdit;
     edtCodProd: TDBEdit;
     edtDatacri: TDatePicker;
     edtDescricaoProd: TDBEdit;
-    edtQuantProd: TDBEdit;
     edtTipo: TComboBox;
-    edtValorCusto: TDBEdit;
-    EdtValorVend: TDBEdit;
     DBGridVALORES: TDBGrid;
-    edtCustoTotal: TDBEdit;
     // Aba Tributacoes
     TabSheet2: TTabSheet;
     grpFiscal: TGroupBox;
@@ -110,10 +102,6 @@ type
     procedure FormShow(Sender: TObject);
     procedure PnLocalizaClick(Sender: TObject);
     procedure edtBarrasKeyPress(Sender: TObject; var Key: Char);
-    procedure edtDescricaoProdKeyPress(Sender: TObject; var Key: Char);
-    procedure edtQuantProdKeyPress(Sender: TObject; var Key: Char);
-    procedure edtValorCustoKeyPress(Sender: TObject; var Key: Char);
-    procedure EdtValorVendKeyPress(Sender: TObject; var Key: Char);
     procedure edtTipoKeyPress(Sender: TObject; var Key: Char);
     procedure DBGridVALORESKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -122,6 +110,9 @@ type
     procedure DBGridVALORESMouseWheelUp(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
     procedure PnLocalizaMouseEnter(Sender: TObject);
+    procedure edtDescricaoProdKeyPress(Sender: TObject; var Key: Char);
+ 
+  
 
   private
     procedure HabilitarCampos(habilitar: Boolean);
@@ -146,9 +137,6 @@ begin
   // Aba Produto
   edtDescricaoProd.Enabled := habilitar;
   edtBarras.Enabled        := habilitar;
-  edtQuantProd.Enabled     := habilitar;
-  edtValorCusto.Enabled    := habilitar;
-  EdtValorVend.Enabled     := habilitar;
   edtTipo.Enabled          := habilitar;
   edtDataCri.Enabled       := habilitar;
   DBGridVALORES.Enabled    := habilitar;
@@ -174,8 +162,7 @@ procedure TfrmCadastroProdutos.DBGridVALORESKeyDown(Sender: TObject;
 begin
   if Key in [VK_UP, VK_DOWN, VK_PRIOR, VK_NEXT] then
     Key := 0;
-  if Key = VK_RETURN then
-    dmConexoes.qrEstoquemarkupChange(dmConexoes.qrEstoquemarkup);
+
 end;
 
 procedure TfrmCadastroProdutos.DBGridVALORESMouseWheelDown(Sender: TObject;
@@ -193,37 +180,25 @@ end;
 // -------------------------------------------------------
 // KeyPress dos campos - navegacao por Enter
 // -------------------------------------------------------
+
+
 procedure TfrmCadastroProdutos.edtBarrasKeyPress(Sender: TObject; var Key: Char);
 begin
   if Key = #13 then edtDescricaoProd.SetFocus;
 end;
 
-procedure TfrmCadastroProdutos.edtDescricaoProdKeyPress(Sender: TObject; var Key: Char);
-begin
-  if Key = #13 then edtQuantProd.SetFocus;
-end;
 
-procedure TfrmCadastroProdutos.edtQuantProdKeyPress(Sender: TObject; var Key: Char);
+procedure TfrmCadastroProdutos.edtDescricaoProdKeyPress(Sender: TObject;
+  var Key: Char);
 begin
-  if Key = #13 then edtValorCusto.SetFocus;
-end;
-
-procedure TfrmCadastroProdutos.edtValorCustoKeyPress(Sender: TObject; var Key: Char);
-begin
-  if Key = #13 then EdtValorVend.SetFocus;
-end;
-
-procedure TfrmCadastroProdutos.EdtValorVendKeyPress(Sender: TObject; var Key: Char);
-begin
-  if Key = #13 then edtTipo.SetFocus;
+   if Key = #13 then edtTipo.SetFocus;
 end;
 
 procedure TfrmCadastroProdutos.edtTipoKeyPress(Sender: TObject; var Key: Char);
 begin
   if Key = #13 then
   begin
-    PnGravar.SetFocus;
-    PnGravar.Color := clMoneyGreen;
+    if Key = #13 then DBGridVALORES.SetFocus;
   end;
 end;
 
@@ -336,6 +311,7 @@ begin
   PnRelatorio.Enabled := False;
   PnGravar.Enabled    := True;
   PnCancelar.Enabled  := True;
+  DBGridVALORES.Enabled    := true;
 
   PnEditar.Font.Color    := $00333333;
   PnExcluir.Font.Color   := $00333333;
@@ -348,7 +324,7 @@ begin
   PnCancelar.Font.Color  := 0;
   PnGravar.Font.Color    := 0;
 
- // HabilitarCampos(True);
+  HabilitarCampos(True);
 end;
 
 // -------------------------------------------------------
@@ -368,16 +344,17 @@ begin
 
   MessageDlg('Cadastro cancelado', mtInformation, [mbOK], 0);
 
-  PnEditar.Enabled    := True;
-  PnExcluir.Enabled   := True;
-  PnPrimeiro.Enabled  := True;
-  PnAnterior.Enabled  := True;
-  PnProximo.Enabled   := True;
-  PnUltimo.Enabled    := True;
-  PnSair.Enabled      := True;
-  PnRelatorio.Enabled := True;
-  PnGravar.Enabled    := False;
-  PnCancelar.Enabled  := True;
+  PnEditar.Enabled      := True;
+  PnExcluir.Enabled     := True;
+  PnPrimeiro.Enabled    := True;
+  PnAnterior.Enabled    := True;
+  PnProximo.Enabled     := True;
+  PnUltimo.Enabled      := True;
+  PnSair.Enabled        := True;
+  PnRelatorio.Enabled   := True;
+  PnGravar.Enabled      := False;
+  PnCancelar.Enabled    := True;
+  DBGridVALORES.Enabled := False;
 
   PnEditar.Font.Color    := 0;
   PnExcluir.Font.Color   := 0;
@@ -390,7 +367,7 @@ begin
   PnGravar.Font.Color    := $00333333;
 
   HabilitarCampos(False);
-  DBGridVALORES.Enabled := False;
+
 end;
 
 // -------------------------------------------------------
@@ -415,12 +392,32 @@ end;
 // -------------------------------------------------------
 procedure TfrmCadastroProdutos.PnGravarClick(Sender: TObject);
 begin
-  with dmConexoes do
+  // -------------------------------------------------------
+  // VALIDACOES - executadas antes de gravar
+  // -------------------------------------------------------
+  if Trim(edtBarras.Text) = '' then
   begin
-    // Campos da aba Produto
-    qrEstoque.FieldByName('tipo').AsString    := Trim(edtTipo.Text);
-    qrEstoque.FieldByName('data').AsDateTime  := edtDatacri.Date;
-    // Campos da aba Tributacoes
+    ShowMessage('Informe o código de barras!');
+    edtBarras.SetFocus;
+    Exit;
+  end;
+
+  if Trim(edtDescricaoProd.Text) = '' then
+  begin
+    ShowMessage('Informe a descrição do produto!');
+    edtDescricaoProd.SetFocus;
+    Exit;
+  end;
+
+  // -------------------------------------------------------
+  // GRAVACAO - só chega aqui se passou em todas validacoes
+  // -------------------------------------------------------
+  with dmConexoes do
+begin
+  if qrEstoque.State in [dsEdit, dsInsert] then
+    qrEstoquemarkupChange(qrEstoquemarkup);
+    qrEstoque.FieldByName('tipo').AsString       := Trim(edtTipo.Text);
+    qrEstoque.FieldByName('data').AsDateTime     := edtDatacri.Date;
     qrEstoque.FieldByName('ncm').AsString        := Trim(edtNCM.Text);
     qrEstoque.FieldByName('cfop').AsString       := Trim(edtCFOP.Text);
     qrEstoque.FieldByName('origem').AsString     := Copy(cmbOrigem.Text, 1, 1);
@@ -430,32 +427,9 @@ begin
     qrEstoque.FieldByName('cst_cofins').AsString := Copy(cmbCSTCOFINS.Text, 1, 2);
     qrEstoque.Post;
   end;
+   HabilitarCampos(False);
 
-  application.MessageBox('Produto Cadastrado com Sucesso', 'Cadastro', mb_ok + MB_ICONINFORMATION);
-
-  HabilitarCampos(False);
-  DBGridVALORES.Enabled := False;
-
-  PnGravar.Enabled    := False;
-  PnCancelar.Enabled  := True;
-  PnEditar.Enabled    := True;
-  PnExcluir.Enabled   := True;
-  PnPrimeiro.Enabled  := True;
-  PnAnterior.Enabled  := True;
-  PnProximo.Enabled   := True;
-  PnUltimo.Enabled    := True;
-  PnRelatorio.Enabled := True;
-  PnSair.Enabled      := True;
-
-  PnGravar.Font.Color    := $00333333;
-  PnCancelar.Font.Color  := 0;
-  PnPrimeiro.Font.Color  := 0;
-  PnAnterior.Font.Color  := 0;
-  PnProximo.Font.Color   := 0;
-  PnUltimo.Font.Color    := 0;
-  PnRelatorio.Font.Color := 0;
 end;
-
 // -------------------------------------------------------
 // Localiza
 // -------------------------------------------------------

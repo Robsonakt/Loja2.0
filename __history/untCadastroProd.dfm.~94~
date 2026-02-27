@@ -54,7 +54,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       Caption = 'Editar'
       Color = 6710886
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = 3355443
+      Font.Color = clBlack
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
@@ -105,7 +105,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnExcluirMouseLeave
     end
     object PnGravar: TPanel
-      Left = 323
+      Left = 316
       Top = -1
       Width = 80
       Height = 52
@@ -165,7 +165,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnAnteriorMouseLeave
     end
     object PnProximo: TPanel
-      Left = 759
+      Left = 758
       Top = 53
       Width = 80
       Height = 52
@@ -186,7 +186,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
     end
     object PnUltimo: TPanel
       Left = 834
-      Top = 53
+      Top = 52
       Width = 80
       Height = 53
       Anchors = [akTop, akRight]
@@ -205,7 +205,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnUltimoMouseLeave
     end
     object PnSair: TPanel
-      Left = 836
+      Left = 834
       Top = 0
       Width = 80
       Height = 53
@@ -225,8 +225,8 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseLeave = PnSairMouseLeave
     end
     object PnRelatorio: TPanel
-      Left = 766
-      Top = -6
+      Left = 758
+      Top = 0
       Width = 80
       Height = 53
       Anchors = [akTop, akRight]
@@ -415,6 +415,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           DataSource = dmConexoes.dsEstoque
           Enabled = False
           TabOrder = 0
+          OnChange = edtBarrasChange
           OnKeyPress = edtBarrasKeyPress
         end
         object edtCodProd: TDBEdit
@@ -451,6 +452,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           DataSource = dmConexoes.dsEstoque
           Enabled = False
           TabOrder = 3
+          OnChange = edtDescricaoProdChange
           OnKeyPress = edtDescricaoProdKeyPress
         end
         object edtQuantProd: TDBEdit
