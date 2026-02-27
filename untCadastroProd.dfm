@@ -260,6 +260,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       ParentFont = False
       TabOrder = 11
       OnClick = PnLocalizaClick
+      OnMouseEnter = PnLocalizaMouseEnter
       OnMouseLeave = PnNovoMouseLeave
     end
   end

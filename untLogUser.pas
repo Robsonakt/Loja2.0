@@ -14,9 +14,9 @@ type
     Label2: TLabel;
     cbUsuario: TComboBox;
     pnConfirmar: TPanel;
-    pnCancelar: TPanel;
     lbStatus: TLabel;
     Panel1: TPanel;
+    pnCancelar: TPanel;
     procedure FormShow(Sender: TObject);
     procedure btnOkClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);

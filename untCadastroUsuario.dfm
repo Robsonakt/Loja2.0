@@ -1,7 +1,7 @@
 object FrmCadastroUsuario: TFrmCadastroUsuario
   Left = 0
   Top = 0
-  Caption = 'FrmCadastroUsuario'
+  Caption = 'Cadastro Usuario'
   ClientHeight = 344
   ClientWidth = 493
   Color = clBtnFace
@@ -38,6 +38,8 @@ object FrmCadastroUsuario: TFrmCadastroUsuario
       ParentFont = False
       TabOrder = 0
       OnClick = PnNovoClick
+      OnMouseEnter = PnNovoMouseEnter
+      OnMouseLeave = PnNovoMouseLeave
     end
     object PnEditar: TPanel
       Left = 79
@@ -55,6 +57,8 @@ object FrmCadastroUsuario: TFrmCadastroUsuario
       ParentFont = False
       TabOrder = 1
       OnClick = PnEditarClick
+      OnMouseEnter = PnEditarMouseEnter
+      OnMouseLeave = PnEditarMouseLeave
     end
     object PnCancelar: TPanel
       Left = 154
@@ -73,6 +77,8 @@ object FrmCadastroUsuario: TFrmCadastroUsuario
       ParentFont = False
       TabOrder = 2
       OnClick = PnCancelarClick
+      OnMouseEnter = PnCancelarMouseEnter
+      OnMouseLeave = PnCancelarMouseLeave
     end
     object PnExcluir: TPanel
       Left = 232
@@ -90,6 +96,8 @@ object FrmCadastroUsuario: TFrmCadastroUsuario
       ParentFont = False
       TabOrder = 3
       OnClick = PnExcluirClick
+      OnMouseEnter = PnExcluirMouseEnter
+      OnMouseLeave = PnExcluirMouseLeave
     end
     object PnGravar: TPanel
       Left = 304
@@ -108,6 +116,8 @@ object FrmCadastroUsuario: TFrmCadastroUsuario
       ParentFont = False
       TabOrder = 4
       OnClick = PnGravarClick
+      OnMouseEnter = PnGravarMouseEnter
+      OnMouseLeave = PnGravarMouseLeave
     end
     object PnSair: TPanel
       Left = 413
@@ -125,6 +135,8 @@ object FrmCadastroUsuario: TFrmCadastroUsuario
       ParentFont = False
       TabOrder = 5
       OnClick = PnSairClick
+      OnMouseEnter = PnSairMouseEnter
+      OnMouseLeave = PnSairMouseLeave
     end
     object PnUltimo: TPanel
       Left = 412
@@ -142,6 +154,8 @@ object FrmCadastroUsuario: TFrmCadastroUsuario
       ParentFont = False
       TabOrder = 6
       OnClick = PnUltimoClick
+      OnMouseEnter = PnUltimoMouseEnter
+      OnMouseLeave = PnUltimoMouseLeave
     end
     object PnProximo: TPanel
       Left = 336
@@ -159,6 +173,8 @@ object FrmCadastroUsuario: TFrmCadastroUsuario
       ParentFont = False
       TabOrder = 7
       OnClick = PnProximoClick
+      OnMouseEnter = PnProximoMouseEnter
+      OnMouseLeave = PnProximoMouseLeave
     end
     object PnAnterior: TPanel
       Left = 257
@@ -176,9 +192,11 @@ object FrmCadastroUsuario: TFrmCadastroUsuario
       ParentFont = False
       TabOrder = 8
       OnClick = PnAnteriorClick
+      OnMouseEnter = PnAnteriorMouseEnter
+      OnMouseLeave = PnAnteriorMouseLeave
     end
     object PnPrimeiro: TPanel
-      Left = 186
+      Left = 179
       Top = 57
       Width = 80
       Height = 52
@@ -193,9 +211,11 @@ object FrmCadastroUsuario: TFrmCadastroUsuario
       ParentFont = False
       TabOrder = 9
       OnClick = PnPrimeiroClick
+      OnMouseEnter = PnPrimeiroMouseEnter
+      OnMouseLeave = PnPrimeiroMouseLeave
     end
     object PnLocaliza: TPanel
-      Left = 108
+      Left = 102
       Top = 57
       Width = 80
       Height = 52
@@ -209,6 +229,8 @@ object FrmCadastroUsuario: TFrmCadastroUsuario
       ParentBackground = False
       ParentFont = False
       TabOrder = 10
+      OnMouseEnter = PnLocalizaMouseEnter
+      OnMouseLeave = PnLocalizaMouseLeave
     end
   end
   object Panel2: TPanel

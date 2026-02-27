@@ -1,11 +1,11 @@
 object frmLogin: TfrmLogin
   Left = 0
   Top = 0
-  BorderStyle = bsSingle
+  BorderStyle = bsNone
   Caption = 'Login'
   ClientHeight = 204
   ClientWidth = 287
-  Color = 3289650
+  Color = clWhite
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWhite
   Font.Height = -12
@@ -14,39 +14,50 @@ object frmLogin: TfrmLogin
   Position = poScreenCenter
   OnCloseQuery = FormCloseQuery
   OnShow = FormShow
+  DesignSize = (
+    287
+    204)
   TextHeight = 15
   object pnPrincipal: TPanel
-    Left = 0
-    Top = 0
-    Width = 287
-    Height = 204
-    Align = alClient
+    Left = 2
+    Top = 2
+    Width = 283
+    Height = 200
+    Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     Color = 3289650
     ParentBackground = False
     TabOrder = 0
     object Label2: TLabel
       Left = 72
-      Top = 22
+      Top = 38
       Width = 36
       Height = 15
       Caption = 'Nome:'
+      Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
       ParentFont = False
     end
     object Label1: TLabel
       Left = 69
-      Top = 72
+      Top = 88
       Width = 77
       Height = 15
       Caption = 'Digite a senha:'
+      Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
       ParentFont = False
     end
     object lbStatus: TLabel
-      Left = 1
-      Top = 147
-      Width = 285
+      Left = 0
+      Top = 144
+      Width = 283
       Height = 15
       Align = alBottom
       Alignment = taCenter
@@ -60,32 +71,40 @@ object frmLogin: TfrmLogin
     end
     object cbUsuario: TComboBox
       Left = 72
-      Top = 43
+      Top = 59
       Width = 145
       Height = 23
-      Color = 2171170
-      Font.Color = clWhite
-      ParentFont = False
       Style = csDropDownList
+      Color = 2171170
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWhite
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 0
       OnKeyPress = cbUsuarioKeyPress
     end
     object edtSenha: TEdit
       Left = 69
-      Top = 93
+      Top = 109
       Width = 148
       Height = 23
       Color = 2171170
+      Font.Charset = DEFAULT_CHARSET
       Font.Color = clWhite
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
       ParentFont = False
       PasswordChar = '*'
       TabOrder = 1
       OnKeyPress = edtSenhaKeyPress
     end
     object Panel1: TPanel
-      Left = 1
-      Top = 162
-      Width = 285
+      Left = 0
+      Top = 159
+      Width = 283
       Height = 41
       Align = alBottom
       BevelOuter = bvNone
@@ -95,7 +114,7 @@ object frmLogin: TfrmLogin
       object pnConfirmar: TPanel
         Left = 0
         Top = 0
-        Width = 242
+        Width = 283
         Height = 41
         Align = alClient
         BevelOuter = bvNone
@@ -112,28 +131,28 @@ object frmLogin: TfrmLogin
         OnClick = pnConfirmarClick
         OnMouseEnter = pnConfirmarMouseEnter
         OnMouseLeave = pnConfirmarMouseLeave
+        ExplicitWidth = 240
       end
-      object pnCancelar: TPanel
-        Left = 242
-        Top = 0
-        Width = 43
-        Height = 41
-        Align = alRight
-        BevelOuter = bvNone
-        Caption = 'X'
-        Color = 2236962
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = [fsBold]
-        ParentBackground = False
-        ParentFont = False
-        TabOrder = 1
-        OnClick = pnCancelarClick
-        OnMouseEnter = pnCancelarMouseEnter
-        OnMouseLeave = pnCancelarMouseLeave
-      end
+    end
+    object pnCancelar: TPanel
+      Left = 248
+      Top = 0
+      Width = 35
+      Height = 25
+      BevelOuter = bvNone
+      Caption = 'X'
+      Color = 2236962
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWhite
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 3
+      OnClick = pnCancelarClick
+      OnMouseEnter = pnCancelarMouseEnter
+      OnMouseLeave = pnCancelarMouseLeave
     end
   end
 end

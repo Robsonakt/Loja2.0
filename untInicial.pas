@@ -146,7 +146,7 @@ end;
 
 procedure TFormularioPrincipal.PnAberturaMouseEnter(Sender: TObject);
 begin
-  TPanel(Sender).Color := $00333333;
+  TPanel(Sender).Color := $00E2E8E7;
   TPanel(Sender).Font.Color := clWhite;
 end;
 

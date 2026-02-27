@@ -13,63 +13,45 @@ uses
 
 type
   TfrmCaixaVendas = class(TForm)
-    // Paineis principais
     pnlTopo: TPanel;
-    pnlRodape: TPanel;
-    pnlCliente: TPanel;
-
-    // Labels do topo e rodape
     lblTitulo: TLabel;
-    lblRodapeTop: TLabel;
+    pnlRodape: TPanel;
     lblStatus: TLabel;
     lblRodape: TLabel;
-
-    // Grupo Identificacao
+    pnlCliente: TPanel;
     grpIdentificacao: TGroupBox;
     Label1: TLabel;
-    EdtNameCliente: TEdit;
     lbNomeCli: TLabel;
     Label2: TLabel;
-    edtCodVenda: TEdit;
     lbDataVenda: TLabel;
+    EdtNameCliente: TEdit;
+    edtCodVenda: TEdit;
     edtDataVenda: TMaskEdit;
-
-    // Grupo Itens
     grpItens: TGroupBox;
     DBGrid1: TDBGrid;
-
-    // Grupo Produto
     grpProduto: TGroupBox;
     edtprod: TLabel;
-    edtCodProd: TEdit;
     lbNomeProd: TLabel;
     lbValorUni: TLabel;
-    edtValorProd: TDBEdit;
     lbquant: TLabel;
-    edtQuant: TEdit;
     lbValTotal: TLabel;
-    edtValorTotal: TEdit;
     lbQuantRest: TLabel;
+    edtCodProd: TEdit;
+    edtValorProd: TDBEdit;
+    edtQuant: TEdit;
+    edtValorTotal: TEdit;
     edtQuantRest: TDBEdit;
-
-    // Painel direito
     pnlDireito: TPanel;
     pnlTotal: TPanel;
     lbTotalVend: TLabel;
     lbvalorDinheiro: TLabel;
-
-    // Observacoes
     grpObs: TGroupBox;
     Memo1: TMemo;
-
-    // Acoes
     grpAcoes: TGroupBox;
-    btnConfirmar: TBitBtn;
-    btnVendas: TBitBtn;
-    btnFiados: TBitBtn;
-    btnImpressora: TBitBtn;
-
-    // Componentes nao visuais
+    PnVenda: TPanel;
+    Pnfiado: TPanel;
+    PnImpressora: TPanel;
+    PnConfirmaItem: TPanel;
     DSItensVenda: TDataSource;
     fdProduto: TFDMemTable;
     fdProdutoCodProd: TIntegerField;
@@ -80,6 +62,19 @@ type
     fdProdutoCodVenda: TIntegerField;
     fdProdutoCodCli: TStringField;
     ACBrPosPrinter1: TACBrPosPrinter;
+
+    procedure PnVendaClick(Sender: TObject);
+    procedure PnVendaMouseEnter(Sender: TObject);
+    procedure PnVendaMouseLeave(Sender: TObject);
+    procedure PnfiadoClick(Sender: TObject);
+    procedure PnfiadoMouseEnter(Sender: TObject);
+    procedure PnfiadoMouseLeave(Sender: TObject);
+    procedure PnImpressoraClick(Sender: TObject);
+    procedure PnImpressoraMouseEnter(Sender: TObject);
+    procedure PnImpressoraMouseLeave(Sender: TObject);
+    procedure PnConfirmaItemClick(Sender: TObject);
+    procedure PnConfirmaItemMouseEnter(Sender: TObject);
+    procedure PnConfirmaItemMouseLeave(Sender: TObject);
 
   private
     { Private declarations }
@@ -100,5 +95,73 @@ implementation
 {$R *.dfm}
 
 uses dmConexao, untInicial, untCadastroProd;
+
+procedure TfrmCaixaVendas.PnVendaClick(Sender: TObject);
+begin
+  // TODO: finalizar venda
+end;
+
+procedure TfrmCaixaVendas.PnVendaMouseEnter(Sender: TObject);
+begin
+  PnVenda.Color := clGreen;
+  PnVenda.Font.Color := clWhite;
+end;
+
+procedure TfrmCaixaVendas.PnVendaMouseLeave(Sender: TObject);
+begin
+  PnVenda.Color := 2236962;
+  PnVenda.Font.Color := clWhite;
+end;
+
+procedure TfrmCaixaVendas.PnfiadoClick(Sender: TObject);
+begin
+  // TODO: registrar fiado
+end;
+
+procedure TfrmCaixaVendas.PnfiadoMouseEnter(Sender: TObject);
+begin
+  Pnfiado.Color := $001E8FBF;
+  Pnfiado.Font.Color := clWhite;
+end;
+
+procedure TfrmCaixaVendas.PnfiadoMouseLeave(Sender: TObject);
+begin
+  Pnfiado.Color := 2236962;
+  Pnfiado.Font.Color := clWhite;
+end;
+
+procedure TfrmCaixaVendas.PnImpressoraClick(Sender: TObject);
+begin
+  // TODO: imprimir
+end;
+
+procedure TfrmCaixaVendas.PnImpressoraMouseEnter(Sender: TObject);
+begin
+  PnImpressora.Color := $00CC6600;
+  PnImpressora.Font.Color := clWhite;
+end;
+
+procedure TfrmCaixaVendas.PnImpressoraMouseLeave(Sender: TObject);
+begin
+  PnImpressora.Color := 2236962;
+  PnImpressora.Font.Color := clWhite;
+end;
+
+procedure TfrmCaixaVendas.PnConfirmaItemClick(Sender: TObject);
+begin
+  // TODO: confirmar item
+end;
+
+procedure TfrmCaixaVendas.PnConfirmaItemMouseEnter(Sender: TObject);
+begin
+  PnConfirmaItem.Color := clGreen;
+  PnConfirmaItem.Font.Color := clWhite;
+end;
+
+procedure TfrmCaixaVendas.PnConfirmaItemMouseLeave(Sender: TObject);
+begin
+  PnConfirmaItem.Color := 2236962;
+  PnConfirmaItem.Font.Color := clWhite;
+end;
 
 end.

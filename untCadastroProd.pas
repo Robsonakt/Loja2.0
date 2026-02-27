@@ -93,6 +93,7 @@ type
       MousePos: TPoint; var Handled: Boolean);
     procedure DBGridVALORESMouseWheelUp(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
+    procedure PnLocalizaMouseEnter(Sender: TObject);
 
   private
     { Private declarations }
@@ -424,6 +425,12 @@ begin
    frmLozalizaprod.showmodal;                           //CHAMA O FORMULARIO CADASTRO
    frmLozalizaprod.Free;
    PnLocaliza.ParentDoubleBuffered := False;
+end;
+
+procedure TfrmCadastroProdutos.PnLocalizaMouseEnter(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00333333;
+  TPanel(sender).Font.Color :=0;
 end;
 
 procedure TfrmCadastroProdutos.PnNovoClick(Sender: TObject);

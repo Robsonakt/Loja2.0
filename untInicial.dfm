@@ -13,7 +13,7 @@ object FormularioPrincipal: TFormularioPrincipal
   Menu = MainMenu1
   Position = poScreenCenter
   OnShow = FormShow
-  TextHeight = 15
+  TextHeight = 17
   object Panel2: TPanel
     Left = 0
     Top = 444
@@ -33,19 +33,27 @@ object FormularioPrincipal: TFormularioPrincipal
     object lblRodapeInicial: TLabel
       Left = 16
       Top = 13
+      Width = 172
+      Height = 13
       Caption = 'Conectado   |   Sistema de Vendas'
+      Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
       Font.Height = -11
       Font.Name = 'Segoe UI'
+      Font.Style = []
       ParentFont = False
     end
     object lblRRJ: TLabel
       Left = 790
       Top = 13
+      Width = 24
+      Height = 13
       Caption = 'R.R.J'
+      Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
       Font.Height = -11
       Font.Name = 'Segoe UI'
+      Font.Style = []
       ParentFont = False
     end
   end
@@ -56,7 +64,6 @@ object FormularioPrincipal: TFormularioPrincipal
     Height = 444
     Align = alClient
     BevelOuter = bvNone
-    Caption = ''
     Color = 3289650
     ParentBackground = False
     TabOrder = 1
@@ -71,6 +78,8 @@ object FormularioPrincipal: TFormularioPrincipal
       object lblTituloInicial: TLabel
         Left = 16
         Top = 13
+        Width = 150
+        Height = 20
         Caption = 'SISTEMA DE VENDAS'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
@@ -91,7 +100,10 @@ object FormularioPrincipal: TFormularioPrincipal
       object lblMenuTitulo: TLabel
         Left = 20
         Top = 20
+        Width = 83
+        Height = 12
         Caption = 'MENU PRINCIPAL'
+        Font.Charset = DEFAULT_CHARSET
         Font.Color = clSilver
         Font.Height = -10
         Font.Name = 'Segoe UI'
@@ -214,7 +226,10 @@ object FormularioPrincipal: TFormularioPrincipal
       object lblTituloStatus: TLabel
         Left = 24
         Top = 30
+        Width = 87
+        Height = 12
         Caption = 'STATUS DO CAIXA'
+        Font.Charset = DEFAULT_CHARSET
         Font.Color = clSilver
         Font.Height = -10
         Font.Name = 'Segoe UI'
@@ -224,8 +239,8 @@ object FormularioPrincipal: TFormularioPrincipal
       object lblTextoAbertura: TLabel
         Left = 24
         Top = 60
-        Width = 8
-        Height = 34
+        Width = 7
+        Height = 32
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
         Font.Height = -24
@@ -236,7 +251,10 @@ object FormularioPrincipal: TFormularioPrincipal
       object lblCaixaLabel: TLabel
         Left = 24
         Top = 110
+        Width = 50
+        Height = 12
         Caption = 'SITUACAO'
+        Font.Charset = DEFAULT_CHARSET
         Font.Color = clSilver
         Font.Height = -10
         Font.Name = 'Segoe UI'
@@ -246,8 +264,8 @@ object FormularioPrincipal: TFormularioPrincipal
       object lblCaixa: TLabel
         Left = 24
         Top = 128
-        Width = 8
-        Height = 34
+        Width = 7
+        Height = 32
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clGreen
         Font.Height = -24

@@ -40,6 +40,28 @@ type
     procedure PnAnteriorClick(Sender: TObject);
     procedure PnProximoClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure PnUltimoMouseLeave(Sender: TObject);
+    procedure PnUltimoMouseEnter(Sender: TObject);
+    procedure PnProximoMouseLeave(Sender: TObject);
+    procedure PnProximoMouseEnter(Sender: TObject);
+    procedure PnAnteriorMouseEnter(Sender: TObject);
+    procedure PnAnteriorMouseLeave(Sender: TObject);
+    procedure PnNovoMouseLeave(Sender: TObject);
+    procedure PnNovoMouseEnter(Sender: TObject);
+    procedure PnEditarMouseEnter(Sender: TObject);
+    procedure PnEditarMouseLeave(Sender: TObject);
+    procedure PnCancelarMouseLeave(Sender: TObject);
+    procedure PnCancelarMouseEnter(Sender: TObject);
+    procedure PnExcluirMouseLeave(Sender: TObject);
+    procedure PnExcluirMouseEnter(Sender: TObject);
+    procedure PnGravarMouseEnter(Sender: TObject);
+    procedure PnGravarMouseLeave(Sender: TObject);
+    procedure PnSairMouseLeave(Sender: TObject);
+    procedure PnSairMouseEnter(Sender: TObject);
+    procedure PnLocalizaMouseEnter(Sender: TObject);
+    procedure PnLocalizaMouseLeave(Sender: TObject);
+    procedure PnPrimeiroMouseLeave(Sender: TObject);
+    procedure PnPrimeiroMouseEnter(Sender: TObject);
   private
     { Private declarations }
   public
@@ -80,6 +102,18 @@ begin
     else
       ShowMessage('Primeiro registro!');
   end;
+end;
+
+procedure TFrmCadastroUsuario.PnAnteriorMouseEnter(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00333333;
+  TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TFrmCadastroUsuario.PnAnteriorMouseLeave(Sender: TObject);
+begin
+  TPanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
 end;
 
 procedure TFrmCadastroUsuario.PnCancelarClick(Sender: TObject);
@@ -124,6 +158,18 @@ begin
 
 end;
 
+procedure TFrmCadastroUsuario.PnCancelarMouseEnter(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
+end;
+
+procedure TFrmCadastroUsuario.PnCancelarMouseLeave(Sender: TObject);
+begin
+  TPanel(sender).Color :=$00333333;
+  TPanel(sender).Font.Color :=clWhite;
+end;
+
 procedure TFrmCadastroUsuario.PnEditarClick(Sender: TObject);
 begin
       // Habilita/Desabilita campos
@@ -153,6 +199,18 @@ begin
   PnUltimo.Enabled    := false;
 end;
 
+procedure TFrmCadastroUsuario.PnEditarMouseEnter(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00333333;
+  TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TFrmCadastroUsuario.PnEditarMouseLeave(Sender: TObject);
+begin
+  TPanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
+end;
+
 procedure TFrmCadastroUsuario.PnExcluirClick(Sender: TObject);
 begin
       if MessageDlg('Deseja excluir este registro?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
@@ -166,6 +224,18 @@ begin
         ShowMessage('Erro ao excluir: ' + E.Message);
     end;
   end;
+end;
+
+procedure TFrmCadastroUsuario.PnExcluirMouseEnter(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00333333;
+  TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TFrmCadastroUsuario.PnExcluirMouseLeave(Sender: TObject);
+begin
+  TPanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
 end;
 
 procedure TFrmCadastroUsuario.PnGravarClick(Sender: TObject);
@@ -205,6 +275,30 @@ end;
   PnProximo.Enabled   := true;
   PnUltimo.Enabled    := true;
   PnSair.Enabled      := true;
+end;
+
+procedure TFrmCadastroUsuario.PnGravarMouseEnter(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00333333;
+  TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TFrmCadastroUsuario.PnGravarMouseLeave(Sender: TObject);
+begin
+  TPanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
+end;
+
+procedure TFrmCadastroUsuario.PnLocalizaMouseEnter(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00333333;
+  TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TFrmCadastroUsuario.PnLocalizaMouseLeave(Sender: TObject);
+begin
+  TPanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
 end;
 
 procedure TFrmCadastroUsuario.PnNovoClick(Sender: TObject);
@@ -254,9 +348,33 @@ begin
   end;
 end;
 
+procedure TFrmCadastroUsuario.PnNovoMouseEnter(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00333333;
+  TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TFrmCadastroUsuario.PnNovoMouseLeave(Sender: TObject);
+begin
+  TPanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
+end;
+
 procedure TFrmCadastroUsuario.PnPrimeiroClick(Sender: TObject);
 begin
     dmConexoes.qrCliente.First;
+end;
+
+procedure TFrmCadastroUsuario.PnPrimeiroMouseEnter(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00333333;
+  TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TFrmCadastroUsuario.PnPrimeiroMouseLeave(Sender: TObject);
+begin
+  TPanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
 end;
 
 procedure TFrmCadastroUsuario.PnProximoClick(Sender: TObject);
@@ -270,14 +388,53 @@ begin
   end;
 end;
 
+procedure TFrmCadastroUsuario.PnProximoMouseEnter(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00333333;
+  TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TFrmCadastroUsuario.PnProximoMouseLeave(Sender: TObject);
+begin
+  TPanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
+end;
+
 procedure TFrmCadastroUsuario.PnSairClick(Sender: TObject);
 begin
  close;
+end;
+
+procedure TFrmCadastroUsuario.PnSairMouseEnter(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00333333;
+  TPanel(sender).Font.Color :=clWhite;
+end;
+
+procedure TFrmCadastroUsuario.PnSairMouseLeave(Sender: TObject);
+begin
+  TPanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
 end;
 
 procedure TFrmCadastroUsuario.PnUltimoClick(Sender: TObject);
 begin
     dmConexoes.qrUsuario.Last;
 end;
+
+procedure TFrmCadastroUsuario.PnUltimoMouseLeave(Sender: TObject);
+begin
+  TPanel(sender).Color :=$00666666;
+  TPanel(sender).Font.Color :=0;
+end;
+
+procedure TFrmCadastroUsuario.PnUltimoMouseEnter(Sender: TObject);
+begin
+  Tpanel(sender).Color :=$00333333;
+  TPanel(sender).Font.Color :=clWhite;
+end;
+
+
+
 
 end.

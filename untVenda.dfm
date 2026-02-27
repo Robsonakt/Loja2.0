@@ -11,7 +11,7 @@ object frmCaixaVendas: TfrmCaixaVendas
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poScreenCenter
-  TextHeight = 15
+  TextHeight = 17
   object pnlTopo: TPanel
     Left = 0
     Top = 0
@@ -24,21 +24,14 @@ object frmCaixaVendas: TfrmCaixaVendas
     object lblTitulo: TLabel
       Left = 16
       Top = 13
+      Width = 133
+      Height = 20
       Caption = 'CAIXA DE VENDAS'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWhite
       Font.Height = -15
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object lblRodapeTop: TLabel
-      Left = 960
-      Top = 15
-      Caption = 'R.RJ'
-      Font.Color = clSilver
-      Font.Height = -11
-      Font.Name = 'Segoe UI'
       ParentFont = False
     end
   end
@@ -54,19 +47,27 @@ object frmCaixaVendas: TfrmCaixaVendas
     object lblStatus: TLabel
       Left = 16
       Top = 13
+      Width = 142
+      Height = 13
       Caption = 'Conectado   |   Caixa Aberto'
+      Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
       Font.Height = -11
       Font.Name = 'Segoe UI'
+      Font.Style = []
       ParentFont = False
     end
     object lblRodape: TLabel
       Left = 960
       Top = 13
+      Width = 21
+      Height = 13
       Caption = 'R.RJ'
+      Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
       Font.Height = -11
       Font.Name = 'Segoe UI'
+      Font.Style = []
       ParentFont = False
     end
   end
@@ -85,81 +86,105 @@ object frmCaixaVendas: TfrmCaixaVendas
       Width = 680
       Height = 78
       Caption = ' Identificacao da Venda '
-      Color = 3289650
+      Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
-      Font.Name = 'Segoe UI'
       Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
       ParentBackground = False
+      ParentFont = False
       TabOrder = 0
       object Label1: TLabel
         Left = 12
         Top = 18
+        Width = 84
+        Height = 13
         Caption = 'Cod. Cliente (F2)'
+        Font.Charset = DEFAULT_CHARSET
         Font.Color = clSilver
         Font.Height = -11
         Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lbNomeCli: TLabel
+        Left = 122
+        Top = 41
+        Width = 3
+        Height = 13
+        Caption = '.'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object Label2: TLabel
+        Left = 330
+        Top = 18
+        Width = 59
+        Height = 13
+        Caption = 'Cod. Venda'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lbDataVenda: TLabel
+        Left = 436
+        Top = 18
+        Width = 75
+        Height = 13
+        Caption = 'Data da Venda'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
         ParentFont = False
       end
       object EdtNameCliente: TEdit
         Left = 12
         Top = 36
         Width = 100
-        Height = 26
+        Height = 23
         Color = 2171170
+        Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
+        Font.Height = -12
         Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 0
-      end
-      object lbNomeCli: TLabel
-        Left = 122
-        Top = 41
-        Width = 3
-        Caption = '.'
-        Font.Color = clSilver
-        Font.Height = -11
-        Font.Name = 'Segoe UI'
-        ParentFont = False
-      end
-      object Label2: TLabel
-        Left = 330
-        Top = 18
-        Caption = 'Cod. Venda'
-        Font.Color = clSilver
-        Font.Height = -11
-        Font.Name = 'Segoe UI'
-        ParentFont = False
       end
       object edtCodVenda: TEdit
         Left = 330
         Top = 36
         Width = 90
-        Height = 26
+        Height = 23
         Color = 2171170
         Enabled = False
-        Font.Color = clSilver
-        Font.Name = 'Segoe UI'
         TabOrder = 1
-      end
-      object lbDataVenda: TLabel
-        Left = 436
-        Top = 18
-        Caption = 'Data da Venda'
-        Font.Color = clSilver
-        Font.Height = -11
-        Font.Name = 'Segoe UI'
-        ParentFont = False
       end
       object edtDataVenda: TMaskEdit
         Left = 436
         Top = 36
         Width = 110
-        Height = 26
+        Height = 23
         Color = 2171170
         EditMask = '!99/99/9999;1;_'
+        Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
+        Font.Height = -12
         Font.Name = 'Segoe UI'
+        Font.Style = []
         MaxLength = 10
+        ParentFont = False
         TabOrder = 2
+        Text = '  /  /    '
       end
     end
     object grpItens: TGroupBox
@@ -168,11 +193,13 @@ object frmCaixaVendas: TfrmCaixaVendas
       Width = 680
       Height = 260
       Caption = ' Itens da Venda '
-      Color = 3289650
+      Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
-      Font.Name = 'Segoe UI'
       Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
       ParentBackground = False
+      ParentFont = False
       TabOrder = 1
       object DBGrid1: TDBGrid
         Left = 10
@@ -181,16 +208,19 @@ object frmCaixaVendas: TfrmCaixaVendas
         Height = 226
         Color = 2171170
         DataSource = DSItensVenda
+        Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
-        Font.Name = 'Segoe UI'
         Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection]
+        ParentFont = False
+        TabOrder = 0
         TitleFont.Charset = DEFAULT_CHARSET
         TitleFont.Color = clAqua
         TitleFont.Height = -12
         TitleFont.Name = 'Segoe UI'
         TitleFont.Style = [fsBold]
-        Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection]
-        TabOrder = 0
         Columns = <
           item
             Expanded = False
@@ -240,116 +270,155 @@ object frmCaixaVendas: TfrmCaixaVendas
       Width = 680
       Height = 120
       Caption = ' Produto Selecionado '
-      Color = 3289650
+      Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
-      Font.Name = 'Segoe UI'
       Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
       ParentBackground = False
+      ParentFont = False
       TabOrder = 2
       object edtprod: TLabel
         Left = 12
         Top = 18
+        Width = 78
+        Height = 13
         Caption = 'Nome Prod (F2)'
+        Font.Charset = DEFAULT_CHARSET
         Font.Color = clSilver
         Font.Height = -11
         Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lbNomeProd: TLabel
+        Left = 112
+        Top = 41
+        Width = 3
+        Height = 13
+        Caption = '.'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lbValorUni: TLabel
+        Left = 12
+        Top = 70
+        Width = 50
+        Height = 13
+        Caption = 'Valor Uni.'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lbquant: TLabel
+        Left = 124
+        Top = 70
+        Width = 65
+        Height = 13
+        Caption = 'Qtd. Compra'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lbValTotal: TLabel
+        Left = 226
+        Top = 70
+        Width = 46
+        Height = 13
+        Caption = 'Val. Total'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lbQuantRest: TLabel
+        Left = 338
+        Top = 70
+        Width = 70
+        Height = 13
+        Caption = 'Qtd. Restante'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
         ParentFont = False
       end
       object edtCodProd: TEdit
         Left = 12
         Top = 36
         Width = 90
-        Height = 26
+        Height = 23
         Color = 2171170
+        Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
+        Font.Height = -12
         Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 0
-      end
-      object lbNomeProd: TLabel
-        Left = 112
-        Top = 41
-        Width = 3
-        Caption = '.'
-        Font.Color = clSilver
-        Font.Height = -11
-        Font.Name = 'Segoe UI'
-        ParentFont = False
-      end
-      object lbValorUni: TLabel
-        Left = 12
-        Top = 70
-        Caption = 'Valor Uni.'
-        Font.Color = clSilver
-        Font.Height = -11
-        Font.Name = 'Segoe UI'
-        ParentFont = False
       end
       object edtValorProd: TDBEdit
         Left = 12
         Top = 86
         Width = 100
-        Height = 26
+        Height = 23
         Color = 2171170
+        Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
+        Font.Height = -12
         Font.Name = 'Segoe UI'
-        TabOrder = 1
-      end
-      object lbquant: TLabel
-        Left = 124
-        Top = 70
-        Caption = 'Qtd. Compra'
-        Font.Color = clSilver
-        Font.Height = -11
-        Font.Name = 'Segoe UI'
+        Font.Style = []
         ParentFont = False
+        TabOrder = 1
       end
       object edtQuant: TEdit
         Left = 124
         Top = 86
         Width = 90
-        Height = 26
+        Height = 23
         Color = 2171170
+        Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
+        Font.Height = -12
         Font.Name = 'Segoe UI'
-        TabOrder = 2
-      end
-      object lbValTotal: TLabel
-        Left = 226
-        Top = 70
-        Caption = 'Val. Total'
-        Font.Color = clSilver
-        Font.Height = -11
-        Font.Name = 'Segoe UI'
+        Font.Style = []
         ParentFont = False
+        TabOrder = 2
       end
       object edtValorTotal: TEdit
         Left = 226
         Top = 86
         Width = 100
-        Height = 26
+        Height = 23
         Color = 2171170
-        Font.Color = 65280
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clLime
+        Font.Height = -12
         Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
         ReadOnly = True
         TabOrder = 3
-      end
-      object lbQuantRest: TLabel
-        Left = 338
-        Top = 70
-        Caption = 'Qtd. Restante'
-        Font.Color = clSilver
-        Font.Height = -11
-        Font.Name = 'Segoe UI'
-        ParentFont = False
       end
       object edtQuantRest: TDBEdit
         Left = 338
         Top = 86
         Width = 90
-        Height = 26
+        Height = 23
         Color = 2171170
-        Font.Color = clSilver
-        Font.Name = 'Segoe UI'
         TabOrder = 4
       end
     end
@@ -372,7 +441,10 @@ object frmCaixaVendas: TfrmCaixaVendas
         object lbTotalVend: TLabel
           Left = 14
           Top = 10
+          Width = 93
+          Height = 13
           Caption = 'TOTAL DA VENDA'
+          Font.Charset = DEFAULT_CHARSET
           Font.Color = clSilver
           Font.Height = -11
           Font.Name = 'Segoe UI'
@@ -382,8 +454,11 @@ object frmCaixaVendas: TfrmCaixaVendas
         object lbvalorDinheiro: TLabel
           Left = 14
           Top = 30
+          Width = 86
+          Height = 32
           Caption = 'R$ 0,00'
-          Font.Color = 65280
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clLime
           Font.Height = -24
           Font.Name = 'Segoe UI'
           Font.Style = [fsBold]
@@ -396,11 +471,13 @@ object frmCaixaVendas: TfrmCaixaVendas
         Width = 378
         Height = 170
         Caption = ' Observacoes '
-        Color = 3289650
+        Font.Charset = DEFAULT_CHARSET
         Font.Color = clSilver
-        Font.Name = 'Segoe UI'
         Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
         ParentBackground = False
+        ParentFont = False
         TabOrder = 1
         object Memo1: TMemo
           Left = 10
@@ -408,8 +485,12 @@ object frmCaixaVendas: TfrmCaixaVendas
           Width = 356
           Height = 136
           Color = 2171170
+          Font.Charset = DEFAULT_CHARSET
           Font.Color = clWhite
+          Font.Height = -12
           Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
           ScrollBars = ssVertical
           TabOrder = 0
         end
@@ -420,68 +501,96 @@ object frmCaixaVendas: TfrmCaixaVendas
         Width = 378
         Height = 207
         Caption = ' Acoes '
-        Color = 3289650
+        Font.Charset = DEFAULT_CHARSET
         Font.Color = clSilver
-        Font.Name = 'Segoe UI'
         Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
         ParentBackground = False
+        ParentFont = False
         TabOrder = 2
-        object btnConfirmar: TBitBtn
-          Left = 10
-          Top = 24
-          Width = 356
-          Height = 40
-          Caption = 'CONFIRMAR ITEM'
+        object PnVenda: TPanel
+          Left = 40
+          Top = 77
+          Width = 148
+          Height = 41
+          Caption = 'Venda'
+          Color = 3355443
+          Font.Charset = DEFAULT_CHARSET
           Font.Color = clWhite
-          Font.Height = -13
+          Font.Height = -16
           Font.Name = 'Segoe UI'
           Font.Style = [fsBold]
+          ParentBackground = False
           ParentFont = False
           TabOrder = 0
+          OnClick = PnVendaClick
+          OnMouseEnter = PnVendaMouseEnter
+          OnMouseLeave = PnVendaMouseLeave
         end
-        object btnVendas: TBitBtn
-          Left = 10
-          Top = 74
-          Width = 170
-          Height = 40
-          Caption = 'VENDA'
+        object Pnfiado: TPanel
+          Left = 194
+          Top = 77
+          Width = 151
+          Height = 41
+          Caption = 'Fiado'
+          Color = 3355443
+          Font.Charset = DEFAULT_CHARSET
           Font.Color = clWhite
-          Font.Height = -13
+          Font.Height = -16
           Font.Name = 'Segoe UI'
           Font.Style = [fsBold]
+          ParentBackground = False
           ParentFont = False
           TabOrder = 1
+          OnClick = PnfiadoClick
+          OnMouseEnter = PnfiadoMouseEnter
+          OnMouseLeave = PnfiadoMouseLeave
         end
-        object btnFiados: TBitBtn
-          Left = 196
-          Top = 74
-          Width = 170
-          Height = 40
-          Caption = 'FIADO'
+        object PnImpressora: TPanel
+          Left = 16
+          Top = 140
+          Width = 359
+          Height = 41
+          Caption = 'Impressora'
+          Color = 3355443
+          Font.Charset = DEFAULT_CHARSET
           Font.Color = clWhite
-          Font.Height = -13
+          Font.Height = -16
           Font.Name = 'Segoe UI'
           Font.Style = [fsBold]
+          ParentBackground = False
           ParentFont = False
           TabOrder = 2
+          OnClick = PnImpressoraClick
+          OnMouseEnter = PnImpressoraMouseEnter
+          OnMouseLeave = PnImpressoraMouseLeave
         end
-        object btnImpressora: TBitBtn
-          Left = 10
-          Top = 124
-          Width = 356
-          Height = 36
-          Caption = 'Impressora'
+        object PnConfirmaItem: TPanel
+          Left = 16
+          Top = 30
+          Width = 353
+          Height = 41
+          Caption = 'CONFIRMA ITEM'
+          Color = 3355443
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWhite
+          Font.Height = -16
           Font.Name = 'Segoe UI'
-          Font.Height = -12
+          Font.Style = [fsBold]
+          ParentBackground = False
           ParentFont = False
           TabOrder = 3
+          OnClick = PnConfirmaItemClick
+          OnMouseEnter = PnConfirmaItemMouseEnter
+          OnMouseLeave = PnConfirmaItemMouseLeave
         end
       end
     end
   end
   object DSItensVenda: TDataSource
     DataSet = fdProduto
-    Left = 900
+    Left = 860
     Top = 580
   end
   object fdProduto: TFDMemTable
@@ -496,7 +605,7 @@ object frmCaixaVendas: TfrmCaixaVendas
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
     StoreDefs = True
-    Left = 820
+    Left = 788
     Top = 580
     object fdProdutoCodProd: TIntegerField
       FieldName = 'CodProd'

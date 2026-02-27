@@ -409,7 +409,7 @@ end;
 
 procedure TfrmCadastroCliente.PnNovoMouseLeave(Sender: TObject);
 begin
-  Tpanel(sender).Color := clMoneyGreen;;
+  Tpanel(sender).Color := $00666666;
    TPanel(sender).Font.Color :=0;
 end;
 
