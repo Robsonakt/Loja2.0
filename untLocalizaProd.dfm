@@ -1,8 +1,8 @@
-object frmLozalizaProd: TfrmLozalizaProd
+object frmLocalizaProd: TfrmLocalizaProd
   Left = 0
   Top = 0
-  Caption = 'frmLozalizaProd'
-  ClientHeight = 488
+  Caption = 'Localiza Produto'
+  ClientHeight = 494
   ClientWidth = 829
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -10,15 +10,17 @@ object frmLozalizaProd: TfrmLozalizaProd
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  Position = poScreenCenter
+  OnShow = FormShow
   TextHeight = 15
   object Panel1: TPanel
     Left = 0
-    Top = 424
+    Top = 430
     Width = 829
     Height = 64
     Align = alBottom
     TabOrder = 0
-    ExplicitWidth = 818
+    ExplicitTop = 424
     object lbConsultaProduto: TLabel
       Left = 16
       Top = 7
@@ -39,17 +41,17 @@ object frmLozalizaProd: TfrmLozalizaProd
     Left = 0
     Top = 0
     Width = 829
-    Height = 424
+    Height = 430
     Align = alClient
     Caption = 'Panel2'
     TabOrder = 1
-    ExplicitWidth = 818
+    ExplicitHeight = 424
     object gridProduto: TDBGrid
       Left = 0
       Top = 0
       Width = 897
-      Height = 353
-      DataSource = dmConexoes.dsProduto
+      Height = 425
+      DataSource = DsProdutos
       TabOrder = 0
       TitleFont.Charset = DEFAULT_CHARSET
       TitleFont.Color = clWindowText

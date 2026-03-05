@@ -11,6 +11,7 @@ object frmCaixaVendas: TfrmCaixaVendas
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poScreenCenter
+  OnShow = FormShow
   TextHeight = 17
   object pnlTopo: TPanel
     Left = 0
@@ -159,6 +160,10 @@ object frmCaixaVendas: TfrmCaixaVendas
         Font.Style = []
         ParentFont = False
         TabOrder = 0
+        OnChange = EdtNameClienteChange
+        OnExit = EdtNameClienteExit
+        OnKeyDown = EdtNameClienteKeyDown
+        OnKeyPress = EdtNameClienteKeyPress
       end
       object edtCodVenda: TEdit
         Left = 330
@@ -185,6 +190,7 @@ object frmCaixaVendas: TfrmCaixaVendas
         ParentFont = False
         TabOrder = 2
         Text = '  /  /    '
+        OnKeyPress = edtDataVendaKeyPress
       end
     end
     object grpItens: TGroupBox
@@ -209,7 +215,7 @@ object frmCaixaVendas: TfrmCaixaVendas
         Color = 2171170
         DataSource = DSItensVenda
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
+        Font.Color = clBlack
         Font.Height = -12
         Font.Name = 'Segoe UI'
         Font.Style = []
@@ -217,15 +223,17 @@ object frmCaixaVendas: TfrmCaixaVendas
         ParentFont = False
         TabOrder = 0
         TitleFont.Charset = DEFAULT_CHARSET
-        TitleFont.Color = clAqua
+        TitleFont.Color = clBlack
         TitleFont.Height = -12
         TitleFont.Name = 'Segoe UI'
         TitleFont.Style = [fsBold]
+        OnKeyDown = DBGrid1KeyDown
         Columns = <
           item
             Expanded = False
             FieldName = 'CodProd'
-            Width = 70
+            Title.Caption = 'Cod. Produto'
+            Width = 78
             Visible = True
           end
           item
@@ -237,18 +245,21 @@ object frmCaixaVendas: TfrmCaixaVendas
           item
             Expanded = False
             FieldName = 'Quantidade'
+            Title.Caption = 'Qtd'
             Width = 80
             Visible = True
           end
           item
             Expanded = False
             FieldName = 'ValorUni'
+            Title.Caption = 'Vl. Unit'
             Width = 90
             Visible = True
           end
           item
             Expanded = False
             FieldName = 'ValorTotal'
+            Title.Caption = 'Vl. Total'
             Width = 90
             Visible = True
           end
@@ -281,9 +292,9 @@ object frmCaixaVendas: TfrmCaixaVendas
       object edtprod: TLabel
         Left = 12
         Top = 18
-        Width = 78
+        Width = 72
         Height = 13
-        Caption = 'Nome Prod (F2)'
+        Caption = 'Cod. Prod (F2)'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clSilver
         Font.Height = -11
@@ -307,9 +318,9 @@ object frmCaixaVendas: TfrmCaixaVendas
       object lbValorUni: TLabel
         Left = 12
         Top = 70
-        Width = 50
+        Width = 54
         Height = 13
-        Caption = 'Valor Uni.'
+        Caption = 'Valor Unit.'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clSilver
         Font.Height = -11
@@ -369,6 +380,8 @@ object frmCaixaVendas: TfrmCaixaVendas
         Font.Style = []
         ParentFont = False
         TabOrder = 0
+        OnKeyDown = edtCodProdKeyDown
+        OnKeyPress = edtCodProdKeyPress
       end
       object edtValorProd: TDBEdit
         Left = 12
@@ -376,12 +389,15 @@ object frmCaixaVendas: TfrmCaixaVendas
         Width = 100
         Height = 23
         Color = 2171170
+        DataField = 'valorvenda'
+        DataSource = FormularioPrincipal.dsProduto
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
         Font.Height = -12
         Font.Name = 'Segoe UI'
         Font.Style = []
         ParentFont = False
+        ReadOnly = True
         TabOrder = 1
       end
       object edtQuant: TEdit
@@ -397,9 +413,10 @@ object frmCaixaVendas: TfrmCaixaVendas
         Font.Style = []
         ParentFont = False
         TabOrder = 2
+        OnKeyPress = edtQuantKeyPress
       end
       object edtValorTotal: TEdit
-        Left = 226
+        Left = 224
         Top = 86
         Width = 100
         Height = 23
@@ -412,6 +429,7 @@ object frmCaixaVendas: TfrmCaixaVendas
         ParentFont = False
         ReadOnly = True
         TabOrder = 3
+        OnKeyPress = edtValorTotalKeyPress
       end
       object edtQuantRest: TDBEdit
         Left = 338
@@ -419,6 +437,9 @@ object frmCaixaVendas: TfrmCaixaVendas
         Width = 90
         Height = 23
         Color = 2171170
+        DataField = 'quantidade'
+        DataSource = FormularioPrincipal.dsProduto
+        ReadOnly = True
         TabOrder = 4
       end
     end
@@ -509,12 +530,12 @@ object frmCaixaVendas: TfrmCaixaVendas
         ParentBackground = False
         ParentFont = False
         TabOrder = 2
-        object PnVenda: TPanel
-          Left = 40
-          Top = 77
-          Width = 148
+        object PnConfirmaItem: TPanel
+          Left = 16
+          Top = 30
+          Width = 353
           Height = 41
-          Caption = 'Venda'
+          Caption = 'CONFIRMA ITEM'
           Color = 3355443
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWhite
@@ -524,6 +545,26 @@ object frmCaixaVendas: TfrmCaixaVendas
           ParentBackground = False
           ParentFont = False
           TabOrder = 0
+          OnClick = PnConfirmaItemClick
+          OnMouseEnter = PnConfirmaItemMouseEnter
+          OnMouseLeave = PnConfirmaItemMouseLeave
+        end
+        object PnVenda: TPanel
+          Left = 40
+          Top = 77
+          Width = 148
+          Height = 41
+          Caption = 'Venda'
+          Color = 3355443
+          Enabled = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWhite
+          Font.Height = -16
+          Font.Name = 'Segoe UI'
+          Font.Style = [fsBold]
+          ParentBackground = False
+          ParentFont = False
+          TabOrder = 1
           OnClick = PnVendaClick
           OnMouseEnter = PnVendaMouseEnter
           OnMouseLeave = PnVendaMouseLeave
@@ -535,6 +576,7 @@ object frmCaixaVendas: TfrmCaixaVendas
           Height = 41
           Caption = 'Fiado'
           Color = 3355443
+          Enabled = False
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWhite
           Font.Height = -16
@@ -542,7 +584,7 @@ object frmCaixaVendas: TfrmCaixaVendas
           Font.Style = [fsBold]
           ParentBackground = False
           ParentFont = False
-          TabOrder = 1
+          TabOrder = 2
           OnClick = PnfiadoClick
           OnMouseEnter = PnfiadoMouseEnter
           OnMouseLeave = PnfiadoMouseLeave
@@ -561,42 +603,24 @@ object frmCaixaVendas: TfrmCaixaVendas
           Font.Style = [fsBold]
           ParentBackground = False
           ParentFont = False
-          TabOrder = 2
+          TabOrder = 3
+          Visible = False
           OnClick = PnImpressoraClick
           OnMouseEnter = PnImpressoraMouseEnter
           OnMouseLeave = PnImpressoraMouseLeave
-        end
-        object PnConfirmaItem: TPanel
-          Left = 16
-          Top = 30
-          Width = 353
-          Height = 41
-          Caption = 'CONFIRMA ITEM'
-          Color = 3355443
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWhite
-          Font.Height = -16
-          Font.Name = 'Segoe UI'
-          Font.Style = [fsBold]
-          ParentBackground = False
-          ParentFont = False
-          TabOrder = 3
-          OnClick = PnConfirmaItemClick
-          OnMouseEnter = PnConfirmaItemMouseEnter
-          OnMouseLeave = PnConfirmaItemMouseLeave
         end
       end
     end
   end
   object DSItensVenda: TDataSource
     DataSet = fdProduto
+    OnDataChange = DSItensVendaDataChange
     Left = 860
     Top = 580
   end
   object fdProduto: TFDMemTable
     FieldDefs = <>
     IndexDefs = <>
-    DetailFields = 'CodCli;CodVenda;Quantidade;ValorTotal;ValorUni'
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll
     ResourceOptions.AssignedValues = [rvSilentMode]
@@ -612,15 +636,20 @@ object frmCaixaVendas: TfrmCaixaVendas
     end
     object fdProdutoDescricao: TStringField
       FieldName = 'Descricao'
+      Size = 100
     end
     object fdProdutoQuantidade: TIntegerField
       FieldName = 'Quantidade'
     end
     object fdProdutoValorUni: TCurrencyField
       FieldName = 'ValorUni'
+      DisplayFormat = '"R$" #,##0.00'
+      EditFormat = '#,##0.00'
     end
     object fdProdutoValorTotal: TCurrencyField
       FieldName = 'ValorTotal'
+      DisplayFormat = '"R$" #,##0.00'
+      EditFormat = '#,##0.00'
     end
     object fdProdutoCodVenda: TIntegerField
       FieldName = 'CodVenda'

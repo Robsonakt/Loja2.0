@@ -123,6 +123,7 @@ type
 
 var
   frmCadastroProdutos: TfrmCadastroProdutos;
+  LocalizacodProduto : string;
 
 implementation
 
@@ -412,7 +413,7 @@ begin
   begin
     if qrEstoque.State in [dsEdit, dsInsert] then
     begin
-      qrEstoquemarkupChange(qrEstoquemarkup);
+      qrEstoquemarkupChange(dmConexoes.qrEstoque.FieldByName('markup'));
       qrEstoque.FieldByName('tipo').AsString       := Trim(edtTipo.Text);
       qrEstoque.FieldByName('data').AsDateTime     := edtDatacri.Date;
       qrEstoque.FieldByName('ncm').AsString        := Trim(edtNCM.Text);
@@ -463,9 +464,9 @@ end;
 procedure TfrmCadastroProdutos.PnLocalizaClick(Sender: TObject);
 begin
   dmConexoes.qrEstoque.First;
-  Application.CreateForm(TfrmLozalizaprod, frmLozalizaprod);
-  frmLozalizaprod.ShowModal;
-  frmLozalizaprod.Free;
+  Application.CreateForm(TfrmLocalizaprod, frmLocalizaprod);
+  frmLocalizaprod.ShowModal;
+  frmLocalizaprod.Free;
   PnLocaliza.ParentDoubleBuffered := False;
 end;
 

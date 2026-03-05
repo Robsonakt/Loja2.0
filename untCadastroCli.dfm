@@ -400,7 +400,7 @@ object frmCadastroCliente: TfrmCadastroCliente
       Top = 40
       Width = 34
       Height = 23
-      DataField = 'codigo'
+      DataField = 'CodCli'
       DataSource = dmConexoes.dsCliente
       Enabled = False
       TabOrder = 4

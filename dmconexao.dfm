@@ -205,6 +205,11 @@ object dmConexoes: TdmConexoes
       Precision = 5
       Size = 2
     end
+    object qrEstoquevalorvendaTotal: TBCDField
+      FieldName = 'valorvendaTotal'
+      Precision = 10
+      Size = 2
+    end
   end
   object vwGerarNumCliente: TADOQuery
     Parameters = <>
@@ -216,7 +221,8 @@ object dmConexoes: TdmConexoes
     CursorType = ctStatic
     Parameters = <>
     SQL.Strings = (
-      'SELECT *   FROM [Controle_Comanda].[dbo].[StatusComanda]')
+      ''
+      '')
     Left = 21
     Top = 432
     object qrComandaCod_Comanda: TIntegerField
@@ -240,106 +246,27 @@ object dmConexoes: TdmConexoes
     CursorType = ctStatic
     Parameters = <>
     SQL.Strings = (
-      'SELECT * FROM [Controle_Comanda].[dbo].[Vendas]')
+      'SELECT * FROM [LojaNova].[dbo].[VENDAS]')
     Left = 29
     Top = 80
-    object qrVendasCodCli: TIntegerField
-      FieldName = 'CodCli'
-    end
-    object qrVendasData: TWideStringField
-      FieldName = 'Data'
-      FixedChar = True
-      Size = 10
-    end
-    object qrVendasValorTotal: TBCDField
-      FieldName = 'ValorTotal'
-      DisplayFormat = '"R$" #,##0.00'
-      EditFormat = '#,##0.00'
-      currency = True
-      Precision = 10
-      Size = 2
-    end
-    object qrVendasValorRestante: TBCDField
-      FieldName = 'ValorRestante'
-      DisplayFormat = '"R$" #,##0.00'
-      EditFormat = '#,##0.00'
-      currency = True
-      Precision = 10
-      Size = 2
-    end
-    object qrVendasValorPago: TBCDField
-      FieldName = 'ValorPago'
-      DisplayFormat = '"R$" #,##0.00'
-      EditFormat = '#,##0.00'
-      currency = True
-      Precision = 10
-      Size = 2
-    end
-    object qrVendasDataVenda: TDateTimeField
-      FieldName = 'DataVenda'
-    end
-    object qrVendasCodVenda: TIntegerField
-      FieldName = 'CodVenda'
-    end
-    object qrVendasDescriProd: TStringField
-      FieldName = 'DescriProd'
-      Size = 50
-    end
-    object qrVendasQuantidade: TIntegerField
-      FieldName = 'Quantidade'
-    end
-    object qrVendasValorProdUni: TBCDField
-      FieldName = 'ValorProdUni'
-      DisplayFormat = '"R$" #,##0.00'
-      EditFormat = '#,##0.00'
-      currency = True
-      Precision = 10
-      Size = 2
-    end
   end
   object qrItensVenda: TADOQuery
     Connection = conRobson
     CursorType = ctStatic
     Parameters = <>
     SQL.Strings = (
-      'SELECT * FROM [Controle_Comanda].[dbo].[ItensVenda]')
+      'SELECT * FROM [LojaNova].[dbo].[ItensVenda]')
     Left = 93
     Top = 80
-    object qrItensVendaCodigo: TIntegerField
-      FieldName = 'Codigo'
-    end
-    object qrItensVendaCodItem: TIntegerField
-      FieldName = 'CodItem'
-    end
-    object qrItensVendaCodVenda: TIntegerField
-      FieldName = 'CodVenda'
-    end
-    object qrItensVendaDescricao: TStringField
-      FieldName = 'Descricao'
-      Size = 50
-    end
-    object qrItensVendaValorTotal: TBCDField
-      FieldName = 'ValorTotal'
-      DisplayFormat = '"R$" #,##0.00'
-      EditFormat = '#,##0.00'
-      currency = True
-      Precision = 10
-      Size = 2
-    end
-    object qrItensVendaQuantidade: TIntegerField
-      FieldName = 'Quantidade'
-    end
-    object qrItensVendaValorProdUni: TBCDField
-      FieldName = 'ValorProdUni'
-      DisplayFormat = '"R$" #,##0.00'
-      EditFormat = '#,##0.00'
-      currency = True
-      Precision = 10
-      Size = 2
-    end
-    object qrItensVendaDataVenda: TDateTimeField
-      FieldName = 'DataVenda'
-    end
+  end
+  object qrComando: TADOQuery
+    Connection = conRobson
+    CursorType = ctStatic
+    Parameters = <>
+    SQL.Strings = (
+      'SELECT * FROM [LojaNova].[dbo].[PRODUTOS]')
+    Left = 160
+    Top = 80
   end
   object dsEstoque: TDataSource
     DataSet = qrEstoque
@@ -377,11 +304,11 @@ object dmConexoes: TdmConexoes
     CursorType = ctStatic
     Parameters = <>
     SQL.Strings = (
-      'SELECT * FROM [LojaNova].[dbo].[Cliente]')
+      'SELECT * FROM cliente WHERE (CODIGO IS NOT NULL)')
     Left = 21
     Top = 280
-    object qrClientecodigo: TAutoIncField
-      FieldName = 'codigo'
+    object qrClienteCodCli: TAutoIncField
+      FieldName = 'CodCli'
       ReadOnly = True
     end
     object qrClientenome: TWideStringField
@@ -417,9 +344,6 @@ object dmConexoes: TdmConexoes
     end
     object qrClientevalorfiado: TBCDField
       FieldName = 'valorfiado'
-      DisplayFormat = '"R$" #,##0.00'
-      EditFormat = '#,##0.00'
-      currency = True
       Precision = 10
       Size = 2
     end

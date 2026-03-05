@@ -63,26 +63,8 @@ type
     qrComandaEstad_Comanda: TStringField;
 
     qrVendas: TADOQuery;
-    qrVendasCodCli: TIntegerField;
-    qrVendasData: TWideStringField;
-    qrVendasValorTotal: TBCDField;
-    qrVendasValorRestante: TBCDField;
-    qrVendasValorPago: TBCDField;
-    qrVendasDataVenda: TDateTimeField;
-    qrVendasCodVenda: TIntegerField;
-    qrVendasDescriProd: TStringField;
-    qrVendasQuantidade: TIntegerField;
-    qrVendasValorProdUni: TBCDField;
-
     qrItensVenda: TADOQuery;
-    qrItensVendaCodigo: TIntegerField;
-    qrItensVendaCodItem: TIntegerField;
-    qrItensVendaCodVenda: TIntegerField;
-    qrItensVendaDescricao: TStringField;
-    qrItensVendaValorTotal: TBCDField;
-    qrItensVendaQuantidade: TIntegerField;
-    qrItensVendaValorProdUni: TBCDField;
-    qrItensVendaDataVenda: TDateTimeField;
+    qrComando: TADOQuery;
 
     dsEstoque: TDataSource;
     dsCliente: TDataSource;
@@ -91,17 +73,6 @@ type
     qrCaixa: TADOQuery;
 
     qrCliente: TADOQuery;
-    qrClientecodigo: TAutoIncField;
-    qrClientenome: TWideStringField;
-    qrClienteendereco: TWideStringField;
-    qrClientenumeroresidencia: TWideStringField;
-    qrClientetelefone: TStringField;
-    qrClientecpf: TStringField;
-    qrClienterg: TStringField;
-    qrClienteproduto: TWideStringField;
-    qrClientevalor: TIntegerField;
-    qrClientevalorfiado: TBCDField;
-    qrClientedatacadastrocliente: TDateTimeField;
 
     qrUsuario: TADOQuery;
     dsUsuario: TDataSource;
@@ -124,6 +95,18 @@ type
 
     // Query de estoque para markup (sem fields persistentes)
     Estoquemarkup: TADOQuery;
+    qrClienteCodCli: TAutoIncField;
+    qrClientenome: TWideStringField;
+    qrClienteendereco: TWideStringField;
+    qrClientenumeroresidencia: TWideStringField;
+    qrClientetelefone: TStringField;
+    qrClientecpf: TStringField;
+    qrClienterg: TStringField;
+    qrClienteproduto: TWideStringField;
+    qrClientevalor: TIntegerField;
+    qrClientevalorfiado: TBCDField;
+    qrClientedatacadastrocliente: TDateTimeField;
+    qrEstoquevalorvendaTotal: TBCDField;
 
     procedure qrEstoqueCalcFields(DataSet: TDataSet);
     procedure CalculoProdutosAfterScroll(DataSet: TDataSet);

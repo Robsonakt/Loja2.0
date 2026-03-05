@@ -1,0 +1,797 @@
+object frmCadastroProdutos: TfrmCadastroProdutos
+  Left = 0
+  Top = 0
+  Caption = 'Cadastro de Produtos'
+  ClientHeight = 707
+  ClientWidth = 914
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  Position = poScreenCenter
+  OnMouseLeave = FormMouseLeave
+  OnShow = FormShow
+  TextHeight = 15
+  object Panel1: TPanel
+    Left = 0
+    Top = 0
+    Width = 914
+    Height = 105
+    Align = alTop
+    BevelOuter = bvNone
+    Color = 2236962
+    ParentBackground = False
+    TabOrder = 0
+    DesignSize = (
+      914
+      105)
+    object PnNovo: TPanel
+      Left = 0
+      Top = -1
+      Width = 80
+      Height = 52
+      Caption = 'Novo'
+      Color = 6710886
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 0
+      OnClick = PnNovoClick
+      OnMouseEnter = PnNovoMouseEnter
+      OnMouseLeave = PnNovoMouseLeave
+    end
+    object PnEditar: TPanel
+      Left = 80
+      Top = -1
+      Width = 80
+      Height = 52
+      Caption = 'Editar'
+      Color = 6710886
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 1
+      OnClick = PnEditarClick
+      OnMouseEnter = PnEditarMouseEnter
+      OnMouseLeave = PnEditarMouseLeave
+    end
+    object PnCancelar: TPanel
+      Left = 157
+      Top = -1
+      Width = 80
+      Height = 52
+      Caption = 'Cancelar'
+      Color = 6710886
+      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = 3355443
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 2
+      OnClick = PnCancelarClick
+      OnMouseEnter = PnCancelarMouseEnter
+      OnMouseLeave = PnCancelarMouseLeave
+    end
+    object PnExcluir: TPanel
+      Left = 237
+      Top = -1
+      Width = 80
+      Height = 52
+      Caption = 'Excluir'
+      Color = 6710886
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 3
+      OnClick = PnExcluirClick
+      OnMouseEnter = PnExcluirMouseEnter
+      OnMouseLeave = PnExcluirMouseLeave
+    end
+    object PnGravar: TPanel
+      Left = 316
+      Top = -1
+      Width = 80
+      Height = 52
+      Caption = 'Gravar'
+      Color = 6710886
+      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = 3355443
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 4
+      OnClick = PnGravarClick
+      OnMouseEnter = PnGravarMouseEnter
+      OnMouseLeave = PnGravarMouseLeave
+    end
+    object PnPrimeiro: TPanel
+      Left = 601
+      Top = 53
+      Width = 80
+      Height = 52
+      Anchors = [akTop, akRight]
+      Caption = 'Primeiro'
+      Color = 6710886
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 5
+      OnClick = PnPrimeiroClick
+      OnMouseEnter = PnPrimeiroMouseEnter
+      OnMouseLeave = PnPrimeiroMouseLeave
+    end
+    object PnAnterior: TPanel
+      Left = 680
+      Top = 53
+      Width = 80
+      Height = 52
+      Anchors = [akTop, akRight]
+      Caption = 'Anterior'
+      Color = 6710886
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 6
+      OnClick = PnAnteriorClick
+      OnMouseEnter = PnAnteriorMouseEnter
+      OnMouseLeave = PnAnteriorMouseLeave
+    end
+    object PnProximo: TPanel
+      Left = 758
+      Top = 53
+      Width = 80
+      Height = 52
+      Anchors = [akTop, akRight]
+      Caption = 'Proximo'
+      Color = 6710886
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 7
+      OnClick = PnProximoClick
+      OnMouseEnter = PnProximoMouseEnter
+      OnMouseLeave = PnProximoMouseLeave
+    end
+    object PnUltimo: TPanel
+      Left = 834
+      Top = 52
+      Width = 80
+      Height = 53
+      Anchors = [akTop, akRight]
+      Caption = #218'ltimo'
+      Color = 6710886
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 8
+      OnClick = PnUltimoClick
+      OnMouseEnter = PnUltimoMouseEnter
+      OnMouseLeave = PnUltimoMouseLeave
+    end
+    object PnSair: TPanel
+      Left = 834
+      Top = 0
+      Width = 80
+      Height = 53
+      Anchors = [akTop, akRight]
+      Caption = 'Sair'
+      Color = 6710886
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 9
+      OnClick = PnSairClick
+      OnMouseEnter = PnSairMouseEnter
+      OnMouseLeave = PnSairMouseLeave
+    end
+    object PnRelatorio: TPanel
+      Left = 758
+      Top = 0
+      Width = 80
+      Height = 53
+      Anchors = [akTop, akRight]
+      Caption = 'Relat'#243'rio'
+      Color = 6710886
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 10
+      OnClick = PnRelatorioClick
+      OnMouseEnter = PnRelatorioMouseEnter
+      OnMouseLeave = PnRelatorioMouseLeave
+    end
+    object PnLocaliza: TPanel
+      Left = 521
+      Top = 53
+      Width = 80
+      Height = 52
+      Caption = 'Localiza'
+      Color = 6710886
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 11
+      OnClick = PnLocalizaClick
+      OnMouseEnter = PnLocalizaMouseEnter
+      OnMouseLeave = PnLocalizaMouseLeave
+    end
+  end
+  object PnCentro: TPanel
+    Left = 0
+    Top = 105
+    Width = 914
+    Height = 602
+    Align = alClient
+    BevelOuter = bvNone
+    Color = 3355443
+    ParentBackground = False
+    TabOrder = 1
+    object PageControl1: TPageControl
+      Left = 0
+      Top = 6
+      Width = 914
+      Height = 595
+      ActivePage = TabSheet1
+      TabOrder = 0
+      object TabSheet1: TTabSheet
+        Caption = 'Produto'
+        object Label1: TLabel
+          Left = 21
+          Top = 100
+          Width = 38
+          Height = 14
+          Caption = 'Barras'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBtnText
+          Font.Height = -12
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object LbCodProd: TLabel
+          Left = 19
+          Top = 51
+          Width = 102
+          Height = 14
+          Caption = 'C'#243'digo Produto '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object Lbdatacadastroproduto: TLabel
+          Left = 24
+          Top = 394
+          Width = 88
+          Height = 14
+          Caption = 'Data Cadastro'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object Lbnomeproduto: TLabel
+          Left = 197
+          Top = 101
+          Width = 132
+          Height = 14
+          Caption = 'Descri'#231#227'o do produto'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object lbTipo: TLabel
+          Left = 21
+          Top = 169
+          Width = 26
+          Height = 14
+          Caption = 'Tipo'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object edtBarras: TDBEdit
+          Left = 21
+          Top = 120
+          Width = 134
+          Height = 23
+          DataField = 'CodBarras'
+          DataSource = dmConexoes.dsEstoque
+          Enabled = False
+          TabOrder = 0
+          OnKeyPress = edtBarrasKeyPress
+        end
+        object edtCodProd: TDBEdit
+          Left = 21
+          Top = 71
+          Width = 50
+          Height = 23
+          DataField = 'codigo'
+          DataSource = dmConexoes.dsEstoque
+          Enabled = False
+          TabOrder = 1
+        end
+        object edtDatacri: TDatePicker
+          Left = 26
+          Top = 414
+          Width = 86
+          Height = 25
+          Date = 45723.000000000000000000
+          DateFormat = 'dd/MM/yyyy'
+          Enabled = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -16
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          TabOrder = 2
+        end
+        object edtDescricaoProd: TDBEdit
+          Left = 197
+          Top = 121
+          Width = 369
+          Height = 23
+          DataField = 'descricao'
+          DataSource = dmConexoes.dsEstoque
+          Enabled = False
+          TabOrder = 3
+          OnKeyPress = edtDescricaoProdKeyPress
+        end
+        object edtTipo: TComboBox
+          Left = 21
+          Top = 189
+          Width = 46
+          Height = 23
+          Enabled = False
+          ItemIndex = 0
+          TabOrder = 4
+          Text = 'UN'
+          OnKeyPress = edtTipoKeyPress
+          Items.Strings = (
+            'UN'
+            'LT')
+        end
+        object DBGridVALORES: TDBGrid
+          Left = 19
+          Top = 280
+          Width = 534
+          Height = 49
+          Align = alCustom
+          DataSource = dmConexoes.dsProduto
+          Enabled = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
+          ParentFont = False
+          TabOrder = 5
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -13
+          TitleFont.Name = 'Segoe UI'
+          TitleFont.Style = [fsBold]
+          OnKeyDown = DBGridVALORESKeyDown
+          OnMouseWheelDown = DBGridVALORESMouseWheelDown
+          OnMouseWheelUp = DBGridVALORESMouseWheelUp
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'quantidade'
+              Title.Caption = 'Quantidade'
+              Width = 83
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'valorcusto'
+              Title.Caption = 'Valor Custo'
+              Width = 80
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'custo_total'
+              Title.Caption = 'Custo Total'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'markup'
+              Title.Caption = 'MarkeUp'
+              Width = 91
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'valorvenda'
+              Title.Caption = 'Valor Venda'
+              Width = 91
+              Visible = True
+            end>
+        end
+      end
+      object TabSheet2: TTabSheet
+        Caption = 'Tributa'#231#245'es'
+        ImageIndex = 1
+        object grpFiscal: TGroupBox
+          Left = 10
+          Top = 10
+          Width = 860
+          Height = 70
+          Caption = ' Identifica'#231#227'o Fiscal '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Segoe UI'
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 0
+          object lbNCM: TLabel
+            Left = 12
+            Top = 16
+            Width = 25
+            Height = 13
+            Caption = 'NCM'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
+          end
+          object lbCFOP: TLabel
+            Left = 162
+            Top = 16
+            Width = 28
+            Height = 13
+            Caption = 'CFOP'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
+          end
+          object lbOrigem: TLabel
+            Left = 312
+            Top = 16
+            Width = 83
+            Height = 13
+            Caption = 'Origem Produto'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
+          end
+          object lbUnTrib: TLabel
+            Left = 612
+            Top = 16
+            Width = 97
+            Height = 13
+            Caption = 'Unidade Tribut'#225'vel'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
+          end
+          object edtNCM: TDBEdit
+            Left = 12
+            Top = 33
+            Width = 120
+            Height = 21
+            DataField = 'ncm'
+            DataSource = dmConexoes.dsEstoque
+            Enabled = False
+            TabOrder = 0
+          end
+          object edtCFOP: TDBEdit
+            Left = 162
+            Top = 33
+            Width = 100
+            Height = 21
+            DataField = 'cfop'
+            DataSource = dmConexoes.dsEstoque
+            Enabled = False
+            TabOrder = 1
+          end
+          object cmbOrigem: TComboBox
+            Left = 312
+            Top = 33
+            Width = 260
+            Height = 21
+            Enabled = False
+            ItemIndex = 0
+            TabOrder = 2
+            Text = '0 - Nacional'
+            Items.Strings = (
+              '0 - Nacional'
+              '1 - Estrangeiro (Importa'#231#227'o Direta)'
+              '2 - Estrangeiro (Adq. Mercado Interno)')
+          end
+          object cmbUnTrib: TComboBox
+            Left = 612
+            Top = 33
+            Width = 120
+            Height = 21
+            Enabled = False
+            ItemIndex = 0
+            TabOrder = 3
+            Text = 'UN'
+            Items.Strings = (
+              'UN'
+              'KG'
+              'LT'
+              'CX'
+              'PC')
+          end
+        end
+        object grpICMS: TGroupBox
+          Left = 10
+          Top = 92
+          Width = 860
+          Height = 70
+          Caption = ' ICMS '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Segoe UI'
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 1
+          object lbCSOSN: TLabel
+            Left = 12
+            Top = 16
+            Width = 36
+            Height = 13
+            Caption = 'CSOSN'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
+          end
+          object lbAliqICMS: TLabel
+            Left = 462
+            Top = 16
+            Width = 85
+            Height = 13
+            Caption = 'Al'#237'quota ICMS %'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
+          end
+          object lbBCICMS: TLabel
+            Left = 612
+            Top = 16
+            Width = 76
+            Height = 13
+            Caption = 'Base C'#225'lculo %'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
+          end
+          object cmbCSOSN: TComboBox
+            Left = 12
+            Top = 33
+            Width = 400
+            Height = 21
+            Enabled = False
+            ItemIndex = 0
+            TabOrder = 0
+            Text = '102 - Tributada sem permiss'#227'o de cr'#233'dito'
+            Items.Strings = (
+              '102 - Tributada sem permiss'#227'o de cr'#233'dito'
+              '400 - N'#227'o tributada'
+              '500 - ICMS cobrado por substitui'#231#227'o'
+              '900 - Outros')
+          end
+          object edtAliqICMS: TDBEdit
+            Left = 462
+            Top = 33
+            Width = 100
+            Height = 21
+            DataField = 'aliq_icms'
+            DataSource = dmConexoes.dsEstoque
+            Enabled = False
+            TabOrder = 1
+          end
+          object edtBCICMS: TDBEdit
+            Left = 612
+            Top = 33
+            Width = 100
+            Height = 21
+            DataField = 'bc_icms'
+            DataSource = dmConexoes.dsEstoque
+            Enabled = False
+            TabOrder = 2
+          end
+        end
+        object grpPISCOFINS: TGroupBox
+          Left = 10
+          Top = 174
+          Width = 860
+          Height = 70
+          Caption = ' PIS / COFINS '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Segoe UI'
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 2
+          object lbCSTPIS: TLabel
+            Left = 12
+            Top = 16
+            Width = 37
+            Height = 13
+            Caption = 'CST PIS'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
+          end
+          object lbAliqPIS: TLabel
+            Left = 362
+            Top = 16
+            Width = 74
+            Height = 13
+            Caption = 'Al'#237'quota PIS %'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
+          end
+          object lbCSTCOFINS: TLabel
+            Left = 480
+            Top = 16
+            Width = 61
+            Height = 13
+            Caption = 'CST COFINS'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
+          end
+          object lbAliqCOFINS: TLabel
+            Left = 712
+            Top = 16
+            Width = 98
+            Height = 13
+            Caption = 'Al'#237'quota COFINS %'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
+          end
+          object cmbCSTPIS: TComboBox
+            Left = 12
+            Top = 33
+            Width = 300
+            Height = 21
+            Enabled = False
+            ItemIndex = 0
+            TabOrder = 0
+            Text = '07 - Opera'#231#227'o Isenta'
+            Items.Strings = (
+              '07 - Opera'#231#227'o Isenta'
+              '01 - Tributado '#224' Al'#237'quota Normal'
+              '49 - Outras Opera'#231#245'es de Sa'#237'da')
+          end
+          object edtAliqPIS: TDBEdit
+            Left = 362
+            Top = 33
+            Width = 100
+            Height = 21
+            DataField = 'aliq_pis'
+            DataSource = dmConexoes.dsEstoque
+            Enabled = False
+            TabOrder = 1
+          end
+          object cmbCSTCOFINS: TComboBox
+            Left = 480
+            Top = 33
+            Width = 208
+            Height = 21
+            Enabled = False
+            ItemIndex = 0
+            TabOrder = 2
+            Text = '07 - Opera'#231#227'o Isenta'
+            Items.Strings = (
+              '07 - Opera'#231#227'o Isenta'
+              '01 - Tributado '#224' Al'#237'quota Normal'
+              '49 - Outras Opera'#231#245'es de Sa'#237'da')
+          end
+          object edtAliqCOFINS: TDBEdit
+            Left = 712
+            Top = 33
+            Width = 100
+            Height = 21
+            DataField = 'aliq_cofins'
+            DataSource = dmConexoes.dsEstoque
+            Enabled = False
+            TabOrder = 3
+          end
+        end
+      end
+    end
+  end
+end

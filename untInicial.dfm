@@ -303,6 +303,7 @@ object FormularioPrincipal: TFormularioPrincipal
     Top = 200
   end
   object dsProduto: TDataSource
+    DataSet = dmConexoes.qrEstoque
     Left = 700
     Top = 260
   end

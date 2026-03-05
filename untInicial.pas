@@ -46,7 +46,6 @@ type
     lblTituloInicial: TLabel;
     pnlMenuEsq: TPanel;
     lblMenuTitulo: TLabel;
-    AtualizarStatusCaixaPanel: TPanel;
     lblTituloStatus: TLabel;
     lblCaixaLabel: TLabel;
     lblRodapeInicial: TLabel;
@@ -70,6 +69,7 @@ type
 
 var
   FormularioPrincipal: TFormularioPrincipal;
+  keyEnter: char = #13;
 
 implementation
 

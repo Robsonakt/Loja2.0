@@ -10,8 +10,8 @@ uses
   UntRelatorioVenda in 'UntRelatorioVenda.pas' {Form5},
   untRelatorioProd in 'untRelatorioProd.pas' {FrmRelatorioProd},
   untCadastroCli in 'untCadastroCli.pas' {frmCadastroCliente},
-  untLocalizaCli in 'untLocalizaCli.pas' {frmLozalizaCli},
-  untLocalizaProd in 'untLocalizaProd.pas' {frmLozalizaProd},
+  untLocalizaCli in 'untLocalizaCli.pas' {frmLocalizaCli},
+  untLocalizaProd in 'untLocalizaProd.pas' {frmLocalizaProd},
   untLogUser in 'untLogUser.pas' {frmLogin},
   untCadastroUsuario in 'untCadastroUsuario.pas' {FrmCadastroUsuario};
 
@@ -22,15 +22,10 @@ begin
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TFormularioPrincipal, FormularioPrincipal);
   Application.CreateForm(TdmConexoes, dmConexoes);
-  Application.CreateForm(TfrmCadastroProdutos, frmCadastroProdutos);
   Application.CreateForm(TfrmCaixaVendas, frmCaixaVendas);
   Application.CreateForm(TForm4, Form4);
   Application.CreateForm(TForm5, Form5);
   Application.CreateForm(TFrmRelatorioProd, FrmRelatorioProd);
-  Application.CreateForm(TfrmCadastroCliente, frmCadastroCliente);
-  Application.CreateForm(TfrmLozalizaCli, frmLozalizaCli);
-  Application.CreateForm(TfrmLozalizaProd, frmLozalizaProd);
   Application.CreateForm(TfrmLogin, frmLogin);
-  Application.CreateForm(TFrmCadastroUsuario, FrmCadastroUsuario);
   Application.Run;
 end.
