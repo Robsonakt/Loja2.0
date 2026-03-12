@@ -41,6 +41,14 @@ begin
   LocalizaCodigoProd := '';
   DsProdutos.DataSet := dmConexoes.qrComando;
   LocalizaProduto;
+  gridProduto.Columns[0].Width := 60;  // codigo
+  gridProduto.Columns[1].Width := 70;  // quantidade
+  gridProduto.Columns[2].Width := 250; // descricao
+  gridProduto.Columns[3].Width := 80;  // data
+  gridProduto.Columns[4].Width := 90;  // valorvenda
+  gridProduto.Columns[5].Width := 60;  // tipo
+  gridProduto.Columns[6].Width := 90;  // valorcusto
+  gridProduto.Columns[7].Width := 100; // CodBarras
   edtPesquisaProduto.SetFocus;
 end;
 
@@ -76,10 +84,17 @@ begin
   begin
     Close;
     SQL.Clear;
-    SQL.Add('SELECT codigo, descricao, CodBarras, valorvenda, quantidade,valorcusto,data,tipo');
+   SQL.Add('SELECT');
+    SQL.Add('  codigo,');
+    SQL.Add('  quantidade,');
+    SQL.Add('  descricao,');
+    SQL.Add('  data,');
+    SQL.Add('  ''R$ '' + REPLACE(CONVERT(VARCHAR, CAST(valorvenda AS NUMERIC(15,2))), ''.'', '','') AS valorvenda,');
+    SQL.Add('  tipo,');
+    SQL.Add('  ''R$ '' + REPLACE(CONVERT(VARCHAR, CAST(valorcusto AS NUMERIC(15,2))), ''.'', '','') AS valorcusto,');
+    SQL.Add('  CodBarras');
     SQL.Add('FROM [LojaNova].[dbo].[PRODUTOS]');
     SQL.Add('WHERE (CODIGO IS NOT NULL)');
-
     if Trim(edtPesquisaProduto.Text) <> '' then
     begin
       SQL.Add('AND (Descricao LIKE :pDescricao');

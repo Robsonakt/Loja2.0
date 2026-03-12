@@ -12,15 +12,15 @@ type
     Panel1: TPanel;
     lbConsultaProduto: TLabel;
     edtPesquisaProduto: TEdit;
+    gridProduto: TDBGrid;
     DsProdutos: TDataSource;
     Panel2: TPanel;
-    gridProduto: TDBGrid;
     procedure edtPesquisaProdutoChange(Sender: TObject);
     procedure LocalizaProduto();
     procedure gridProdutoKeyPress(Sender: TObject; var Key: Char);
+    procedure gridProdutoDblClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure DsProdutosDataChange(Sender: TObject; Field: TField);
   private
     { Private declarations }
   public
@@ -49,12 +49,7 @@ begin
   dmConexoes.qrComando.Close;
 end;
 
-pprocedure TfrmLocalizaProd.DsProdutosDataChange(Sender: TObject; Field: TField);
-begin
-
-end;
-
-rocedure TfrmLocalizaProd.edtPesquisaProdutoChange(Sender: TObject);
+procedure TfrmLocalizaProd.edtPesquisaProdutoChange(Sender: TObject);
 begin
   LocalizaProduto;
 end;
@@ -64,19 +59,24 @@ begin
   if Key = #13 then
   begin
     LocalizaCodigoProd := dmConexoes.qrComando.FieldByName('codigo').AsString;
-    edtPesquisaProduto.Text := '';
-    frmLozalizaProd.Close;
+    frmLocalizaProd.Close;
   end;
 end;
 
+procedure TfrmLocalizaProd.gridProdutoDblClick(Sender: TObject);
+begin
+  LocalizaCodigoProd := dmConexoes.qrComando.FieldByName('codigo').AsString;
+  edtPesquisaProduto.Text := '';
+  frmLocalizaProd.Close;
+end;
+
 procedure TfrmLocalizaProd.LocalizaProduto;
-// Usa qrComando para nao interferir no qrEstoque que tem fields persistentes
 begin
   with dmConexoes.qrComando do
   begin
     Close;
     SQL.Clear;
-    SQL.Add('SELECT codigo, descricao, CodBarras, valorvenda, quantidade');
+    SQL.Add('SELECT codigo, descricao, CodBarras, valorvenda, quantidade,valorcusto,data,tipo');
     SQL.Add('FROM [LojaNova].[dbo].[PRODUTOS]');
     SQL.Add('WHERE (CODIGO IS NOT NULL)');
 

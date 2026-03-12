@@ -111,6 +111,7 @@ type
       MousePos: TPoint; var Handled: Boolean);
     procedure PnLocalizaMouseEnter(Sender: TObject);
     procedure edtDescricaoProdKeyPress(Sender: TObject; var Key: Char);
+    procedure PnLocalizaMouseLeave(Sender: TObject);
  
   
 
@@ -122,6 +123,7 @@ type
 
 var
   frmCadastroProdutos: TfrmCadastroProdutos;
+  LocalizacodProduto : string;
 
 implementation
 
@@ -196,10 +198,7 @@ end;
 
 procedure TfrmCadastroProdutos.edtTipoKeyPress(Sender: TObject; var Key: Char);
 begin
-  if Key = #13 then
-  begin
     if Key = #13 then DBGridVALORES.SetFocus;
-  end;
 end;
 
 // -------------------------------------------------------
@@ -299,7 +298,8 @@ end;
 // -------------------------------------------------------
 procedure TfrmCadastroProdutos.PnEditarClick(Sender: TObject);
 begin
-  dmConexoes.qrEstoque.Edit;
+  if dmConexoes.qrEstoque.State in [dsEdit, dsInsert] then
+    Exit;
 
   PnEditar.Enabled    := False;
   PnExcluir.Enabled   := False;
@@ -390,7 +390,7 @@ end;
 procedure TfrmCadastroProdutos.PnGravarClick(Sender: TObject);
 begin
   // -------------------------------------------------------
-  // VALIDACOES - executadas antes de gravar
+  // VALIDACOES
   // -------------------------------------------------------
   if Trim(edtBarras.Text) = '' then
   begin
@@ -407,12 +407,12 @@ begin
   end;
 
   // -------------------------------------------------------
-  // GRAVACAO - só chega aqui se passou em todas validacoes
+  // GRAVACAO
   // -------------------------------------------------------
   with dmConexoes do
 begin
   if qrEstoque.State in [dsEdit, dsInsert] then
-    qrEstoquemarkupChange(qrEstoquemarkup);
+  begin
     qrEstoque.FieldByName('tipo').AsString       := Trim(edtTipo.Text);
     qrEstoque.FieldByName('data').AsDateTime     := edtDatacri.Date;
     qrEstoque.FieldByName('ncm').AsString        := Trim(edtNCM.Text);
@@ -422,35 +422,77 @@ begin
     qrEstoque.FieldByName('csosn').AsString      := Copy(cmbCSOSN.Text, 1, 3);
     qrEstoque.FieldByName('cst_pis').AsString    := Copy(cmbCSTPIS.Text, 1, 2);
     qrEstoque.FieldByName('cst_cofins').AsString := Copy(cmbCSTCOFINS.Text, 1, 2);
-    qrEstoque.Post;
-  // -------------------------------------------------------
-  // Habilita novamente os paineis
-  // -------------------------------------------------------
 
-  PnNovo.Enabled     := true;
-  PnEditar.Enabled   := true;
-  PnExcluir.enabled  := true;
-  PnGravar.Enabled   := true;
-  PnPrimeiro.Enabled := true;
-  PnProximo.Enabled  := true;
-  PnAnterior.Enabled := true;
-  PnUltimo.Enabled   := true;
+    // Persiste os valores calculados em memória para o banco
+    qrEstoque.FieldByName('valorvenda').AsFloat  :=
+      qrEstoque.FieldByName('valorcusto').AsFloat *
+      (1 + qrEstoque.FieldByName('markup').AsFloat / 100);
+
+    qrEstoque.FieldByName('custo_total').AsFloat :=
+      qrEstoque.FieldByName('quantidade').AsFloat *
+      qrEstoque.FieldByName('valorcusto').AsFloat;
+
+    qrEstoque.Post;
+    end;
   end;
 
+  // -------------------------------------------------------
+  // Habilita paineis apos gravar
+  // -------------------------------------------------------
+  application.MessageBox('Produto Gravado com Sucesso', 'Cadastro', mb_ok + MB_ICONINFORMATION);
 
+  HabilitarCampos(False);
+  DBGridVALORES.Enabled  := False;
+
+  PnGravar.Enabled    := False;
+  PnNovo.Enabled      := True;
+  PnEditar.Enabled    := True;
+  PnExcluir.Enabled   := True;
+  PnCancelar.Enabled  := True;
+  PnPrimeiro.Enabled  := True;
+  PnAnterior.Enabled  := True;
+  PnProximo.Enabled   := True;
+  PnUltimo.Enabled    := True;
+  PnRelatorio.Enabled := True;
+  PnSair.Enabled      := True;
+
+  PnGravar.Font.Color    := $00333333;
+  PnEditar.Color         := $00666666;
+  PnEditar.Font.Color    := 0;
+  PnSair.Font.Color      := 0;
+  PnCancelar.Font.Color  := 0;
+  PnPrimeiro.Font.Color  := 0;
+  PnAnterior.Font.Color  := 0;
+  PnProximo.Font.Color   := 0;
+  PnUltimo.Font.Color    := 0;
+  PnRelatorio.Font.Color := 0;
 end;
 // -------------------------------------------------------
 // Localiza
 // -------------------------------------------------------
 procedure TfrmCadastroProdutos.PnLocalizaClick(Sender: TObject);
 begin
-  dmConexoes.qrEstoque.First;
-  Application.CreateForm(TfrmLozalizaprod, frmLozalizaprod);
-  frmLozalizaprod.ShowModal;
-  frmLozalizaprod.Free;
+Application.CreateForm(TfrmLocalizaprod, frmLocalizaprod);
+  frmLocalizaprod.ShowModal;
+  frmLocalizaprod.Free;
+
+  // Após fechar o localiza, posiciona o cadastro no produto selecionado
+  if Trim(LocalizaCodigoProd) <> '' then
+  begin
+    with dmConexoes do
+    begin
+      qrEstoque.Close;
+      qrEstoque.SQL.Clear;
+      qrEstoque.SQL.Add('SELECT * FROM [LojaNova].[dbo].[PRODUTOS]');
+      qrEstoque.SQL.Add('WHERE CODIGO = :pCodigo');
+      qrEstoque.Parameters.ParamByName('pCodigo').Value := LocalizaCodigoProd;
+      qrEstoque.Open;
+    end;
+    LocalizaCodigoProd := ''; // limpa para a próxima vez
+  end;
+
   PnLocaliza.ParentDoubleBuffered := False;
 end;
-
 // -------------------------------------------------------
 // Relatorio
 // -------------------------------------------------------
@@ -539,5 +581,11 @@ begin TPanel(Sender).Color := $00666666; TPanel(Sender).Font.Color := 0; end;
 
 procedure TfrmCadastroProdutos.PnLocalizaMouseEnter(Sender: TObject);
 begin TPanel(Sender).Color := $00333333; TPanel(Sender).Font.Color := 0; end;
+
+procedure TfrmCadastroProdutos.PnLocalizaMouseLeave(Sender: TObject);
+begin
+  TPanel(Sender).Color := $00666666;
+  TPanel(Sender).Font.Color := 0;
+end;
 
 end.

@@ -398,14 +398,12 @@ begin
     edtBarras.SetFocus;
     Exit;
   end;
-
   if Trim(edtDescricaoProd.Text) = '' then
   begin
     ShowMessage('Informe a descrição do produto!');
     edtDescricaoProd.SetFocus;
     Exit;
   end;
-
   // -------------------------------------------------------
   // GRAVACAO
   // -------------------------------------------------------
@@ -413,7 +411,6 @@ begin
   begin
     if qrEstoque.State in [dsEdit, dsInsert] then
     begin
-      qrEstoquemarkupChange(dmConexoes.qrEstoque.FieldByName('markup'));
       qrEstoque.FieldByName('tipo').AsString       := Trim(edtTipo.Text);
       qrEstoque.FieldByName('data').AsDateTime     := edtDatacri.Date;
       qrEstoque.FieldByName('ncm').AsString        := Trim(edtNCM.Text);
@@ -424,17 +421,33 @@ begin
       qrEstoque.FieldByName('cst_pis').AsString    := Copy(cmbCSTPIS.Text, 1, 2);
       qrEstoque.FieldByName('cst_cofins').AsString := Copy(cmbCSTCOFINS.Text, 1, 2);
       qrEstoque.Post;
+
+      // Grava valorvenda no banco via UPDATE
+      // (campo fkCalculated não é salvo pelo Post)
+      qrComando.Close;
+      qrComando.SQL.Clear;
+      qrComando.SQL.Add('UPDATE [LojaNova].[dbo].[PRODUTOS]');
+      qrComando.SQL.Add('SET valorvenda = :pVenda');
+      qrComando.SQL.Add('WHERE codigo = :pCodigo');
+
+      // Força o tipo Currency para preservar as casas decimais
+      qrComando.Parameters.ParamByName('pVenda').DataType := ftBCD;
+      qrComando.Parameters.ParamByName('pVenda').Value    :=
+        qrEstoque.FieldByName('valorvenda').AsCurrency;
+
+      qrComando.Parameters.ParamByName('pCodigo').DataType := ftInteger;
+      qrComando.Parameters.ParamByName('pCodigo').Value    :=
+        qrEstoque.FieldByName('codigo').AsInteger;
+
+      qrComando.ExecSQL;
     end;
   end;
-
   // -------------------------------------------------------
   // Habilita paineis apos gravar
   // -------------------------------------------------------
   application.MessageBox('Produto Gravado com Sucesso', 'Cadastro', mb_ok + MB_ICONINFORMATION);
-
   HabilitarCampos(False);
   DBGridVALORES.Enabled  := False;
-
   PnGravar.Enabled    := False;
   PnNovo.Enabled      := True;
   PnEditar.Enabled    := True;
@@ -446,7 +459,6 @@ begin
   PnUltimo.Enabled    := True;
   PnRelatorio.Enabled := True;
   PnSair.Enabled      := True;
-
   PnGravar.Font.Color    := $00333333;
   PnEditar.Color         := $00666666;
   PnEditar.Font.Color    := 0;
