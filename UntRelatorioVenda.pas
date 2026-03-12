@@ -4,10 +4,27 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, RLReport;
 
 type
-  TForm5 = class(TForm)
+  TfrmRelatorioVendas = class(TForm)
+    rlr_RelatorioVendas: TRLReport;
+    RLBand_Cabecalho: TRLBand;
+    RLSystemInfo1: TRLSystemInfo;
+    RLLabel_Cabecalho: TRLLabel;
+    RLSystemInfo2: TRLSystemInfo;
+    RLBand1: TRLBand;
+    RLLabel1: TRLLabel;
+    RLLabel2: TRLLabel;
+    RLLabel3: TRLLabel;
+    RLLabel4: TRLLabel;
+    RLLabel5: TRLLabel;
+    RLBand2: TRLBand;
+    RLDBText1: TRLDBText;
+    RLDBText2: TRLDBText;
+    RLDBText3: TRLDBText;
+    RLDBText4: TRLDBText;
+    RLDBText5: TRLDBText;
   private
     { Private declarations }
   public
@@ -15,7 +32,7 @@ type
   end;
 
 var
-  Form5: TForm5;
+  frmRelatorioVendas: TfrmRelatorioVendas;
 
 implementation
 

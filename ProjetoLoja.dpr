@@ -6,14 +6,15 @@ uses
   dmconexao in 'dmconexao.pas' {dmConexoes: TDataModule},
   untCadastroProd in 'untCadastroProd.pas' {frmCadastroProdutos},
   untVenda in 'untVenda.pas' {frmCaixaVendas},
-  untConsultaVendas in 'untConsultaVendas.pas' {Form4},
-  UntRelatorioVenda in 'UntRelatorioVenda.pas' {Form5},
+  untConsultaVendas in 'untConsultaVendas.pas' {frmConsulta_Venda},
+  UntRelatorioVenda in 'UntRelatorioVenda.pas' {frmRelatorioVendas},
   untRelatorioProd in 'untRelatorioProd.pas' {FrmRelatorioProd},
   untCadastroCli in 'untCadastroCli.pas' {frmCadastroCliente},
   untLocalizaCli in 'untLocalizaCli.pas' {frmLocalizaCli},
   untLocalizaProd in 'untLocalizaProd.pas' {frmLocalizaProd},
   untLogUser in 'untLogUser.pas' {frmLogin},
-  untCadastroUsuario in 'untCadastroUsuario.pas' {FrmCadastroUsuario};
+  untCadastroUsuario in 'untCadastroUsuario.pas' {FrmCadastroUsuario},
+  untconsultaFiado in 'untconsultaFiado.pas' {consulta_vendas};
 
 {$R *.res}
 
@@ -23,9 +24,8 @@ begin
   Application.CreateForm(TFormularioPrincipal, FormularioPrincipal);
   Application.CreateForm(TdmConexoes, dmConexoes);
   Application.CreateForm(TfrmCaixaVendas, frmCaixaVendas);
-  Application.CreateForm(TForm4, Form4);
-  Application.CreateForm(TForm5, Form5);
   Application.CreateForm(TFrmRelatorioProd, FrmRelatorioProd);
   Application.CreateForm(TfrmLogin, frmLogin);
+  Application.CreateForm(Tconsulta_vendas, consulta_vendas);
   Application.Run;
 end.

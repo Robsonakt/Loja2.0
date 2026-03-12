@@ -143,11 +143,11 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="untConsultaVendas.pas">
-            <Form>Form4</Form>
+            <Form>frmConsulta_Venda</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="UntRelatorioVenda.pas">
-            <Form>Form5</Form>
+            <Form>frmRelatorioVendas</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="untRelatorioProd.pas">
@@ -172,6 +172,10 @@
         </DCCReference>
         <DCCReference Include="untCadastroUsuario.pas">
             <Form>FrmCadastroUsuario</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="untconsultaFiado.pas">
+            <Form>consulta_vendas</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Base">

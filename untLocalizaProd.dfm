@@ -11,6 +11,7 @@ object frmLocalizaProd: TfrmLocalizaProd
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poScreenCenter
+  OnClose = FormClose
   OnShow = FormShow
   TextHeight = 15
   object Panel1: TPanel
@@ -20,7 +21,6 @@ object frmLocalizaProd: TfrmLocalizaProd
     Height = 64
     Align = alBottom
     TabOrder = 0
-    ExplicitTop = 424
     object lbConsultaProduto: TLabel
       Left = 16
       Top = 7
@@ -45,7 +45,6 @@ object frmLocalizaProd: TfrmLocalizaProd
     Align = alClient
     Caption = 'Panel2'
     TabOrder = 1
-    ExplicitHeight = 424
     object gridProduto: TDBGrid
       Left = 0
       Top = 0
@@ -58,6 +57,7 @@ object frmLocalizaProd: TfrmLocalizaProd
       TitleFont.Height = -12
       TitleFont.Name = 'Segoe UI'
       TitleFont.Style = []
+      OnDblClick = gridProdutoDblClick
       OnKeyPress = gridProdutoKeyPress
       Columns = <
         item
@@ -104,7 +104,6 @@ object frmLocalizaProd: TfrmLocalizaProd
     end
   end
   object DsProdutos: TDataSource
-    DataSet = dmConexoes.qrEstoque
     Left = 336
     Top = 184
   end
