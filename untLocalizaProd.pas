@@ -59,8 +59,6 @@ begin
   if Key = #13 then
   begin
     LocalizaCodigoProd := dmConexoes.qrComando.FieldByName('codigo').AsString;
-    edtPesquisaProduto.Text := dmconexoes.qrEstoque.FieldByName('CODIGO').asstring;
-    //  LocalizaCodigoProd := dmconexoes.qrEstoque.FieldByName('CODIGO').asstring;
     frmLocalizaProd.Close;
   end;
 end;

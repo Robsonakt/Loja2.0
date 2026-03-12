@@ -58,7 +58,6 @@ begin
   begin
     // coluna chave da tabela Cliente e codcli
     LocalizaCodigoCli := dmConexoes.qrComando.FieldByName('codcli').AsString;
-    edtPesquisaCLiente.Text := '';
     frmLocalizaCli.Close;
   end;
 end;

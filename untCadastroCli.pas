@@ -337,15 +337,27 @@ end;
 
 procedure TfrmCadastroCliente.PnLocalizaClick(Sender: TObject);
 begin
-    dmConexoes.qrCliente.First;
+ Application.CreateForm(TfrmLocalizaCli, frmLocalizaCli);
+  frmLocalizaCli.ShowModal;
+  frmLocalizaCli.Free;
 
-   Application.CreateForm(TfrmLocalizaCli,frmLocalizaCli);  //CRIA A TELA
-   frmLocalizaCli.showmodal;                           //CHAMA O FORMULARIO CADASTRO
-   frmLocalizaCli.Free;
+  // Após fechar o localiza, posiciona o cadastro no produto selecionado
+  if Trim(LocalizaCodigoCli) <> '' then
+  begin
+    with dmConexoes do
+    begin
+      qrCliente.Close;
+      qrCliente.SQL.Clear;
+      qrCliente.SQL.Add('SELECT *  FROM [LojaNova].[dbo].[Cliente]');
+      qrCliente.SQL.Add('WHERE CODCLI = :pCodigo');
+      qrCliente.Parameters.ParamByName('pCodigo').Value := LocalizaCodigoCli;
+      qrCliente.Open;
+    end;
+    LocalizaCodigoCli := ''; // limpa para a próxima vez
+  end;
 
-    PnLocaliza.ParentDoubleBuffered := False;
+  PnLocaliza.ParentDoubleBuffered := False;
 end;
-
 procedure TfrmCadastroCliente.PnLocalizaMouseEnter(Sender: TObject);
 begin
 

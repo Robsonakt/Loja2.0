@@ -463,13 +463,27 @@ end;
 // -------------------------------------------------------
 procedure TfrmCadastroProdutos.PnLocalizaClick(Sender: TObject);
 begin
-  dmConexoes.qrEstoque.First;
-  Application.CreateForm(TfrmLocalizaprod, frmLocalizaprod);
+Application.CreateForm(TfrmLocalizaprod, frmLocalizaprod);
   frmLocalizaprod.ShowModal;
   frmLocalizaprod.Free;
+
+  // Após fechar o localiza, posiciona o cadastro no produto selecionado
+  if Trim(LocalizaCodigoProd) <> '' then
+  begin
+    with dmConexoes do
+    begin
+      qrEstoque.Close;
+      qrEstoque.SQL.Clear;
+      qrEstoque.SQL.Add('SELECT * FROM [LojaNova].[dbo].[PRODUTOS]');
+      qrEstoque.SQL.Add('WHERE CODIGO = :pCodigo');
+      qrEstoque.Parameters.ParamByName('pCodigo').Value := LocalizaCodigoProd;
+      qrEstoque.Open;
+    end;
+    LocalizaCodigoProd := ''; // limpa para a próxima vez
+  end;
+
   PnLocaliza.ParentDoubleBuffered := False;
 end;
-
 // -------------------------------------------------------
 // Relatorio
 // -------------------------------------------------------
