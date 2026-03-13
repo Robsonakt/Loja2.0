@@ -16,6 +16,7 @@ object frmRelatorioVendas: TfrmRelatorioVendas
     Top = 0
     Width = 794
     Height = 1123
+    DataSource = dmConexoes.dsVenda
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clBlack
     Font.Height = -13
@@ -104,72 +105,52 @@ object frmRelatorioVendas: TfrmRelatorioVendas
         Height = 16
         Caption = 'Desc.Prod'
       end
-      object RLLabel3: TRLLabel
-        Left = 315
-        Top = 6
-        Width = 29
-        Height = 16
-        Caption = 'Qtd.'
-      end
-      object RLLabel4: TRLLabel
-        Left = 440
-        Top = 6
-        Width = 74
-        Height = 16
-        Caption = 'Vlr.Prod.Uni'
-      end
       object RLLabel5: TRLLabel
-        Left = 568
+        Left = 448
         Top = 6
         Width = 52
         Height = 16
         Caption = 'Vlr.Total'
       end
     end
-    object RLBand2: TRLBand
+    object RLSubDetail1: TRLSubDetail
       Left = 38
       Top = 127
       Width = 718
-      Height = 34
-      object RLDBText1: TRLDBText
-        Left = 16
-        Top = 6
-        Width = 64
-        Height = 16
-        DataField = 'CodVenda'
-        Text = ''
-      end
-      object RLDBText2: TRLDBText
-        Left = 112
-        Top = 6
-        Width = 68
-        Height = 16
-        DataField = 'DescriProd'
-        Text = ''
-      end
-      object RLDBText3: TRLDBText
-        Left = 315
-        Top = 3
-        Width = 70
-        Height = 16
-        DataField = 'Quantidade'
-        Text = ''
-      end
-      object RLDBText4: TRLDBText
-        Left = 440
-        Top = 6
-        Width = 80
-        Height = 16
-        DataField = 'ValorProdUni'
-        Text = ''
-      end
-      object RLDBText5: TRLDBText
-        Left = 568
-        Top = 6
-        Width = 62
-        Height = 16
-        DataField = 'ValorTotal'
-        Text = ''
+      Height = 64
+      DataSource = frmConsulta_Venda.dsVenda
+      object RLBand2: TRLBand
+        Left = 0
+        Top = 0
+        Width = 718
+        Height = 34
+        object RLDBText1: TRLDBText
+          Left = 16
+          Top = 6
+          Width = 64
+          Height = 17
+          DataField = 'CodVenda'
+          DataSource = frmConsulta_Venda.dsVenda
+          Text = ''
+        end
+        object RLDBText2: TRLDBText
+          Left = 112
+          Top = 6
+          Width = 68
+          Height = 16
+          DataField = 'DescriProd'
+          DataSource = frmConsulta_Venda.dsVenda
+          Text = ''
+        end
+        object RLDBText5: TRLDBText
+          Left = 448
+          Top = 6
+          Width = 62
+          Height = 16
+          DataField = 'ValorTotal'
+          DataSource = frmConsulta_Venda.dsVenda
+          Text = ''
+        end
       end
     end
   end

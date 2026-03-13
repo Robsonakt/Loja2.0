@@ -1,0 +1,228 @@
+unit untConsultaVendas;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids,
+  Vcl.StdCtrls, Vcl.Buttons, Vcl.ComCtrls, Vcl.ExtCtrls;
+
+type
+  TfrmConsulta_Venda = class(TForm)
+    pnFrontal: TPanel;
+    pnSuperior: TPanel;
+    btnEfetuarConsulta: TSpeedButton;
+    GroupBox3: TGroupBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    cbIntervalo: TComboBox;
+    dtInicial: TDateTimePicker;
+    dtFinal: TDateTimePicker;
+    pnInferior: TPanel;
+    btnRelatorio: TBitBtn;
+    btnExcel: TBitBtn;
+    GroupBox1: TGroupBox;
+    dbProdutos: TDBGrid;
+    GroupBox2: TGroupBox;
+    gridConsultaItens: TDBGrid;
+    dsVenda: TDataSource;
+    dsItensVenda: TDataSource;
+    procedure FormShow(Sender: TObject);
+    procedure cbIntervaloChange(Sender: TObject);
+    procedure cbIntervaloKeyPress(Sender: TObject; var Key: Char);
+    procedure dtFinalKeyPress(Sender: TObject; var Key: Char);
+    procedure dtInicialKeyPress(Sender: TObject; var Key: Char);
+    procedure consultaHorario ();
+    procedure btnRelatorioClick(Sender: TObject);
+    procedure dsVendaDataChange(Sender: TObject; Field: TField);
+    procedure btnEfetuarConsultaClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    function VerificaCamposConsulta(): Boolean;
+  end;
+
+var
+  frmConsulta_Venda: TfrmConsulta_Venda;
+
+implementation
+
+{$R *.dfm}
+uses
+  untCadastroProd, untCadastroCli, UntRelatorioVenda, untRelatorioProd,
+  untVenda, dmconexao, untCadastroUsuario, untLogUser;
+
+procedure TfrmConsulta_Venda.btnEfetuarConsultaClick(Sender: TObject);
+begin
+   VerificaCamposConsulta();
+    consultaHorario();
+end;
+
+procedure TfrmConsulta_Venda.btnRelatorioClick(Sender: TObject);
+begin
+with dmconexoes do
+  begin
+   qrVendas.Close  ;
+   qrVendas.SQL.Clear;
+   qrVendas.SQL.Add('SELECT * FROM vendas ')  ;
+   qrVendas.Open;
+
+   frmRelatorioVendas := TfrmRelatorioVendas.Create(self);
+   frmRelatorioVendas.rlr_RelatorioVendas.Preview();
+  end;
+  //          Application.CreateForm(TfrmRelatorio,frmRelatorio);   //CRIA A TELA
+  //          frmRelatorio.showmodal;                               //CHAMA O FORMULARIO
+  //          frmRelatorio.Free;                                    //LIBERA A MEMORIA NO FORMULARIO
+end;
+
+procedure TfrmConsulta_Venda.cbIntervaloChange(Sender: TObject);
+begin
+   if cbIntervalo.ItemIndex = 1 then // Com Intervalo
+    begin
+      dtInicial.Enabled := true;
+      dtFinal.Enabled   := true;
+
+      dtInicial.Date    := Date;
+      dtFinal.Date      := Date;
+
+      dtInicial.SetFocus;
+    end
+  else
+    begin
+      dtInicial.Enabled := false;
+      dtFinal.Enabled   := false;
+    end;
+end;
+
+procedure TfrmConsulta_Venda.cbIntervaloKeyPress(Sender: TObject; var Key: Char);
+begin
+  if key = #13 then
+    begin
+      key := #0;
+
+      if cbIntervalo.ItemIndex = 1 then // Com Intervalo
+        begin
+          dtInicial.Enabled := true;
+          dtFinal.Enabled   := true;
+
+          dtInicial.Date    := Date;
+          dtFinal.Date      := Date;
+
+          dtInicial.SetFocus;
+        end
+      else
+        begin
+          dtInicial.Enabled := false;
+          dtFinal.Enabled   := false;
+        end;
+    end;
+end;
+
+procedure TfrmConsulta_Venda.consultaHorario ();
+var
+  dInicial, dFinal : String;
+begin
+  with dmconexoes do
+    begin
+      qrVendas.close;
+      qrVendas.SQL.Clear;
+      qrVendas.SQL.Add('SELECT * FROM [lojanova].[dbo].[VENDAS]WHERE 1=1');
+
+
+      //*** Filtro por Data ***//
+      if cbIntervalo.ItemIndex = 1 then
+        begin
+          try
+            dInicial := FormatDateTime('dd-mm-yyyy', dtInicial.Date)+' 00:00:00';
+            dFinal   := FormatDateTime('dd-mm-yyyy',dtFinal.Date)+' 23:59:59';
+
+            qrVendas.sql.Append(' AND (DATAVENDA BETWEEN :PDATAINI AND :PDATAFIM)');
+            qrVendas.Parameters.ParamByName('pDataIni').Value := dInicial;
+            qrVendas.Parameters.ParamByName('pDataFim').Value := dFinal;
+          except
+            on e: Exception do
+              begin
+                Application.MessageBox(pChar('Erro no Intervalo de Datas!'+#13+e.Message),'Aviso - [Consulta de Vendas]',MB_OK+MB_ICONWARNING);
+                dtInicial.SetFocus;
+                exit;
+              end;
+          end;
+        end;
+        qrVendas.Open;
+    end;
+end;
+
+procedure TfrmConsulta_Venda.dsVendaDataChange(Sender: TObject; Field: TField);
+begin
+  with dmconexoes do
+  begin
+      qritensVenda.Close;
+      qrItensVenda.SQL.Clear;
+      qrItensVenda.SQL.Add('select * from itensVenda where codVenda = :pcodVenda');
+      qrItensVenda.Parameters.ParamByName('pcodVenda').Value := qrvendas.FieldByName('codVenda').AsInteger;
+      qrItensVenda.open;
+
+      gridConsultaItens.Refresh;
+  end;
+
+end;
+
+procedure TfrmConsulta_Venda.dtFinalKeyPress(Sender: TObject; var Key: Char);
+begin
+  if key = #13 then
+   btnEfetuarConsultaClick(sender);
+end;
+
+procedure TfrmConsulta_Venda.dtInicialKeyPress(Sender: TObject; var Key: Char);
+begin
+  if key = #13 then
+    dtFinal.SetFocus;
+end;
+
+procedure TfrmConsulta_Venda.FormShow(Sender: TObject);
+begin
+  with dmconexoes do
+
+  begin
+    qrVendas.Close;
+    qrVendas.sql.clear;
+    qrVendas.SQL.Add('select * from vendas order by datavenda desc') ;
+    qrvendas.Open;
+
+  end;
+
+
+end;
+
+function TfrmConsulta_Venda.VerificaCamposConsulta: Boolean;
+var
+  dataInicial, dataFinal: String;
+begin
+  Result := False;
+
+  // Intervalo de Datas
+  if cbIntervalo.ItemIndex = 1 then
+    begin
+      try
+        dataInicial := FormatDateTime('dd-mm-yyyy', dtInicial.Date)+' 00:00:00';
+        dataFinal   := FormatDateTime('dd-mm-yyyy', dtFinal.Date)+' 23:59:59';
+
+        if dtFinal.Date < dtInicial.Date then
+          begin
+            Application.MessageBox('Data Final deve ser Maior que a Data Inicial!', 'Aviso - [AccTransferenciaEstoque]', MB_OK+MB_ICONWARNING);
+            exit;
+          end;
+
+      except
+        on e: Exception do
+          begin
+            Application.MessageBox(pChar('Erro no Intervalo de Datas!'+#13+e.Message),'Aviso - [Na consulta de Vendas]',MB_OK+MB_ICONWARNING);
+            dtInicial.SetFocus;
+            exit;
+          end;
+      end;
+    end;
+end;
+
+end.

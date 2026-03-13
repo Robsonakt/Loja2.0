@@ -84,7 +84,7 @@ begin
   begin
     Close;
     SQL.Clear;
-   SQL.Add('SELECT');
+    SQL.Add('SELECT');
     SQL.Add('  codigo,');
     SQL.Add('  quantidade,');
     SQL.Add('  descricao,');

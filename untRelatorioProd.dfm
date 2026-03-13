@@ -139,7 +139,7 @@ object FrmRelatorioProd: TFrmRelatorioProd
       Top = 145
       Width = 718
       Height = 64
-      DataSource = dmConexoes.dsEstoque
+      DataSource = dmConexoes.dsProduto
       object RLBand2: TRLBand
         Left = 0
         Top = 0
@@ -160,7 +160,7 @@ object FrmRelatorioProd: TFrmRelatorioProd
           Width = 60
           Height = 16
           DataField = 'descricao'
-          DataSource = dmConexoes.dsEstoque
+          DataSource = dmConexoes.dsProduto
           Text = ''
         end
         object RLDBText3: TRLDBText
@@ -169,7 +169,7 @@ object FrmRelatorioProd: TFrmRelatorioProd
           Width = 67
           Height = 16
           DataField = 'quantidade'
-          DataSource = dmConexoes.dsEstoque
+          DataSource = dmConexoes.dsProduto
           Text = ''
         end
         object RLDBText4: TRLDBText
@@ -178,7 +178,7 @@ object FrmRelatorioProd: TFrmRelatorioProd
           Width = 25
           Height = 16
           DataField = 'tipo'
-          DataSource = dmConexoes.dsEstoque
+          DataSource = dmConexoes.dsProduto
           Text = ''
         end
         object RLDBText5: TRLDBText
@@ -187,7 +187,7 @@ object FrmRelatorioProd: TFrmRelatorioProd
           Width = 62
           Height = 16
           DataField = 'valorcusto'
-          DataSource = dmConexoes.dsEstoque
+          DataSource = dmConexoes.dsProduto
           Text = ''
         end
         object RLDBText6: TRLDBText
@@ -196,7 +196,7 @@ object FrmRelatorioProd: TFrmRelatorioProd
           Width = 63
           Height = 16
           DataField = 'valorvenda'
-          DataSource = dmConexoes.dsEstoque
+          DataSource = dmConexoes.dsProduto
           Text = ''
         end
       end

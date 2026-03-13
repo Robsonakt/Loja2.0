@@ -16,15 +16,12 @@ type
     RLBand1: TRLBand;
     RLLabel1: TRLLabel;
     RLLabel2: TRLLabel;
-    RLLabel3: TRLLabel;
-    RLLabel4: TRLLabel;
     RLLabel5: TRLLabel;
     RLBand2: TRLBand;
     RLDBText1: TRLDBText;
     RLDBText2: TRLDBText;
-    RLDBText3: TRLDBText;
-    RLDBText4: TRLDBText;
     RLDBText5: TRLDBText;
+    RLSubDetail1: TRLSubDetail;
   private
     { Private declarations }
   public
@@ -37,5 +34,7 @@ var
 implementation
 
 {$R *.dfm}
+uses
+  untCadastroProd, untVenda, dmconexao, untCadastroUsuario, untLogUser, untConsultaVendas ;
 
 end.

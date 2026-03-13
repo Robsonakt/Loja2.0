@@ -107,6 +107,7 @@ type
     qrClientevalorfiado: TBCDField;
     qrClientedatacadastrocliente: TDateTimeField;
     qrEstoquevalorvendaTotal: TBCDField;
+    dsVenda: TDataSource;
 
     procedure qrEstoqueCalcFields(DataSet: TDataSet);
     procedure CalculoProdutosAfterScroll(DataSet: TDataSet);

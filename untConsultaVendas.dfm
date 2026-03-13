@@ -10,6 +10,8 @@ object frmConsulta_Venda: TfrmConsulta_Venda
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  Position = poScreenCenter
+  OnShow = FormShow
   TextHeight = 15
   object pnFrontal: TPanel
     Left = 0
@@ -218,10 +220,11 @@ object frmConsulta_Venda: TfrmConsulta_Venda
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = []
-          ItemIndex = 0
           ParentFont = False
           TabOrder = 0
           Text = 'Sem Intervalo de Datas'
+          OnChange = cbIntervaloChange
+          OnKeyPress = cbIntervaloKeyPress
           Items.Strings = (
             'Sem Intervalo de Datas'
             'Com Intervalo de Datas')
@@ -236,6 +239,7 @@ object frmConsulta_Venda: TfrmConsulta_Venda
           Color = clMoneyGreen
           Enabled = False
           TabOrder = 1
+          OnKeyPress = dtInicialKeyPress
         end
         object dtFinal: TDateTimePicker
           Left = 120
@@ -247,6 +251,7 @@ object frmConsulta_Venda: TfrmConsulta_Venda
           Color = clMoneyGreen
           Enabled = False
           TabOrder = 2
+          OnKeyPress = dtFinalKeyPress
         end
       end
     end
@@ -398,6 +403,7 @@ object frmConsulta_Venda: TfrmConsulta_Venda
           0000000000000000000000000000000000000000000000000000000000000000
           000000000000}
         TabOrder = 0
+        OnClick = btnRelatorioClick
       end
       object btnExcel: TBitBtn
         Left = 136
@@ -575,18 +581,6 @@ object frmConsulta_Venda: TfrmConsulta_Venda
             Expanded = False
             FieldName = 'DescriProd'
             Width = 157
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'Quantidade'
-            Width = 79
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'ValorProdUni'
-            Width = 111
             Visible = True
           end
           item

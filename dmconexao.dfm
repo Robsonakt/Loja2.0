@@ -495,4 +495,9 @@ object dmConexoes: TdmConexoes
     Left = 373
     Top = 144
   end
+  object dsVenda: TDataSource
+    DataSet = qrVendas
+    Left = 336
+    Top = 81
+  end
 end
