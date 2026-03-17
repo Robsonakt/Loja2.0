@@ -552,7 +552,7 @@ object frmConsulta_Venda: TfrmConsulta_Venda
       Width = 743
       Height = 410
       Align = alClient
-      Caption = 'GroupBox1'
+      Caption = 'Vendas'
       Color = clBtnFace
       ParentBackground = False
       ParentColor = False
@@ -594,12 +594,6 @@ object frmConsulta_Venda: TfrmConsulta_Venda
             FieldName = 'ValorTotal'
             Width = 98
             Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'ValorPago'
-            Width = 129
-            Visible = True
           end>
       end
     end
@@ -609,7 +603,7 @@ object frmConsulta_Venda: TfrmConsulta_Venda
       Width = 743
       Height = 161
       Align = alBottom
-      Caption = 'GroupBox1'
+      Caption = 'Itens vendas'
       Color = 2171170
       ParentBackground = False
       ParentColor = False

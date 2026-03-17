@@ -155,20 +155,14 @@ begin
     if cbIntervalo.ItemIndex = 1 then
     begin
       try
-        dInicial := FormatDateTime('dd-mm-yyyy', dtInicial.Date) + ' 00:00:00';
-        dFinal   := FormatDateTime('dd-mm-yyyy', dtFinal.Date)   + ' 23:59:59';
+        dInicial := FormatDateTime('yyyy-mm-dd', dtInicial.Date) + ' 00:00:00';
+        dFinal   := FormatDateTime('yyyy-mm-dd', dtFinal.Date)   + ' 23:59:59';
         filtro   := ' AND (DATAVENDA BETWEEN ''' + dInicial + ''' AND ''' + dFinal + ''')';
       except
-        on E: Exception do
-        begin
-          Application.MessageBox(PChar('Erro no Intervalo de Datas!' + #13 + E.Message),
-            'Aviso - [Consulta de Vendas]', MB_OK + MB_ICONWARNING);
-          dtInicial.SetFocus;
-          Exit;
-        end;
+
+
       end;
     end;
-
     qrVendas.Close;
     qrVendas.SQL.Clear;
     qrVendas.SQL.Add(SQLVendasFormatado(filtro));
