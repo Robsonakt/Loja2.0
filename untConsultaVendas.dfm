@@ -544,6 +544,7 @@ object frmConsulta_Venda: TfrmConsulta_Venda
           0000000000000000000000000000000000000000000000000000000000000000
           000000000000}
         TabOrder = 1
+        OnClick = btnExcelClick
       end
     end
     object GroupBox1: TGroupBox
