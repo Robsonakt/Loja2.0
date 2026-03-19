@@ -128,7 +128,7 @@ object frmRelatorioVendas: TfrmRelatorioVendas
           Left = 16
           Top = 6
           Width = 64
-          Height = 17
+          Height = 16
           DataField = 'CodVenda'
           DataSource = frmConsulta_Venda.dsVenda
           Text = ''
@@ -151,6 +151,70 @@ object frmRelatorioVendas: TfrmRelatorioVendas
           DataSource = frmConsulta_Venda.dsVenda
           Text = ''
         end
+      end
+    end
+    object RLBand_Sumario: TRLBand
+      Left = 38
+      Top = 191
+      Width = 718
+      Height = 44
+      BandType = btSummary
+      Borders.Sides = sdCustom
+      Borders.DrawLeft = False
+      Borders.DrawTop = True
+      Borders.DrawRight = False
+      Borders.DrawBottom = False
+      object RLLabel_TotQtd: TRLLabel
+        Left = 16
+        Top = 12
+        Width = 90
+        Height = 16
+        Caption = 'Qtd. Vendas:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object RLLabel_QtdVendas: TRLLabel
+        Left = 110
+        Top = 12
+        Width = 60
+        Height = 16
+        Caption = '0'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+      end
+      object RLLabel_TotValor: TRLLabel
+        Left = 340
+        Top = 12
+        Width = 80
+        Height = 16
+        Caption = 'Valor Total:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object RLLabel_ValorTotal: TRLLabel
+        Left = 428
+        Top = 12
+        Width = 100
+        Height = 16
+        Caption = '0,00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
       end
     end
   end

@@ -233,16 +233,36 @@ begin
 end;
 
 procedure TfrmConsulta_Venda.btnRelatorioClick(Sender: TObject);
+var
+  TotalValor: Currency;
+  QtdVendas: Integer;
+  ValorStr: String;
 begin
-  with dmconexoes do
+  if not dmconexoes.qrVendas.Active then
   begin
-    qrVendas.Close;
-    qrVendas.SQL.Clear;
-    qrVendas.SQL.Add(SQLVendasFormatado(''));
-    qrVendas.Open;
-    frmRelatorioVendas := TfrmRelatorioVendas.Create(Self);
-    frmRelatorioVendas.rlr_RelatorioVendas.Preview;
+    ShowMessage('Realize a consulta antes de gerar o relatório.');
+    Exit;
   end;
+
+  // Calcula totais — igual ao que já faz no Excel
+  TotalValor := 0;
+  QtdVendas  := 0;
+  dmconexoes.qrVendas.First;
+  while not dmconexoes.qrVendas.Eof do
+  begin
+    ValorStr := Trim(dmconexoes.qrVendas.FieldByName('ValorTotal').AsString);
+    ValorStr := StringReplace(ValorStr, 'R$', '', [rfReplaceAll]);
+    ValorStr := StringReplace(ValorStr, '.', '', [rfReplaceAll]);
+    ValorStr := Trim(ValorStr);
+    TotalValor := TotalValor + StrToCurrDef(ValorStr, 0);
+    Inc(QtdVendas);
+    dmconexoes.qrVendas.Next;
+  end;
+  dmconexoes.qrVendas.First;
+
+  frmRelatorioVendas := TfrmRelatorioVendas.Create(Self);
+  frmRelatorioVendas.SetTotais(QtdVendas, TotalValor);
+  frmRelatorioVendas.rlr_RelatorioVendas.Preview;
 end;
 
 procedure TfrmConsulta_Venda.cbIntervaloChange(Sender: TObject);

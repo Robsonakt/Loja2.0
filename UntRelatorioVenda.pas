@@ -22,10 +22,15 @@ type
     RLDBText2: TRLDBText;
     RLDBText5: TRLDBText;
     RLSubDetail1: TRLSubDetail;
+    RLBand_Sumario: TRLBand;
+    RLLabel_TotQtd: TRLLabel;
+    RLLabel_QtdVendas: TRLLabel;
+    RLLabel_TotValor: TRLLabel;
+    RLLabel_ValorTotal: TRLLabel;
   private
     { Private declarations }
   public
-    { Public declarations }
+    procedure SetTotais(AQtd: Integer; AValor: Currency);
   end;
 
 var
@@ -35,6 +40,12 @@ implementation
 
 {$R *.dfm}
 uses
-  untCadastroProd, untVenda, dmconexao, untCadastroUsuario, untLogUser, untConsultaVendas ;
+  untCadastroProd, untVenda, dmconexao, untCadastroUsuario, untLogUser, untConsultaVendas;
+
+procedure TfrmRelatorioVendas.SetTotais(AQtd: Integer; AValor: Currency);
+begin
+  RLLabel_QtdVendas.Caption := IntToStr(AQtd);
+  RLLabel_ValorTotal.Caption := FormatFloat('#,##0.00', AValor);
+end;
 
 end.

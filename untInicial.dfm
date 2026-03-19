@@ -156,7 +156,7 @@ object FormularioPrincipal: TFormularioPrincipal
         Width = 300
         Height = 46
         BevelOuter = bvNone
-        Caption = 'vago'
+        Caption = 'Or'#231'amento'
         Color = 6710886
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
