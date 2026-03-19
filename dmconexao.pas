@@ -20,7 +20,7 @@ type
     qrEstoquevalorvenda: TBCDField;
     qrEstoquetipo: TStringField;
     qrEstoquevalorcusto: TBCDField;
-    qrEstoqueCodBarras: TStringField;       // VARCHAR - nao Integer
+    qrEstoqueCodBarras: TStringField;
     qrEstoquelinha: TStringField;
     qrEstoquegrupo: TStringField;
     qrEstoquencm: TStringField;
@@ -118,7 +118,8 @@ type
   public
     function CaixaAberto: Boolean;
     function AbrirCaixa(AValorInicial: Currency): Boolean;
-    function FecharCaixa(AValorFinal: Currency): Boolean;
+    function TotalVendasCaixaAtual: Currency;
+    function FecharCaixa: Boolean;
   end;
 
 var
@@ -161,11 +162,53 @@ begin
   Result := True;
 end;
 
-function TdmConexoes.FecharCaixa(AValorFinal: Currency): Boolean;
+function TdmConexoes.TotalVendasCaixaAtual: Currency;
+var
+  qrTemp: TADOQuery;
+begin
+  Result := 0;
+  qrTemp := TADOQuery.Create(nil);
+  try
+    qrTemp.Connection := conRobson;
+    qrTemp.SQL.Add(
+      'SELECT ISNULL(SUM(ValorTotal), 0) AS TotalVendas ' +
+      'FROM VENDAS ' +
+      'WHERE CAST(DataVenda AS DATE) >= (' +
+      '  SELECT CAST(MAX(DataAbertura) AS DATE) FROM Caixa WHERE Status = ''A''' +
+      ')'
+    );
+    qrTemp.Open;
+    Result := qrTemp.FieldByName('TotalVendas').AsCurrency;
+  finally
+    qrTemp.Free;
+  end;
+end;
+
+function TdmConexoes.FecharCaixa: Boolean;
+var
+  ValorAbertura, TotalVendas, ValorFinal: Currency;
 begin
   Result := False;
   if not CaixaAberto then Exit;
 
+  // Busca o valor de abertura do caixa atual
+  qrCaixa.Close;
+  qrCaixa.SQL.Clear;
+  qrCaixa.SQL.Add(
+    'SELECT ValorAbertura FROM Caixa ' +
+    'WHERE Status = ''A'' ' +
+    'AND DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
+  );
+  qrCaixa.Open;
+  ValorAbertura := qrCaixa.FieldByName('ValorAbertura').AsCurrency;
+
+  // Soma as vendas desde a abertura do caixa
+  TotalVendas := TotalVendasCaixaAtual;
+
+  // Saldo final = valor inicial + total vendas
+  ValorFinal := ValorAbertura + TotalVendas;
+
+  // Fecha o caixa com o saldo calculado
   qrCaixa.Close;
   qrCaixa.SQL.Clear;
   qrCaixa.SQL.Add(
@@ -174,18 +217,15 @@ begin
     'ValorFechamento = :ValorFinal, ' +
     'Status = ''F'' ' +
     'WHERE Status = ''A'' ' +
-    'AND DataAbertura = (' +
-    '  SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'' ' +
-    ')'
+    'AND DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
   );
-  qrCaixa.Parameters.ParamByName('ValorFinal').Value := AValorFinal;
+  qrCaixa.Parameters.ParamByName('ValorFinal').Value := ValorFinal;
   qrCaixa.ExecSQL;
   Result := True;
 end;
 
 // ============================================================
 // ESTOQUE - CALCFIELDS
-// Calcula custo_total e valorvenda automaticamente ao navegar
 // ============================================================
 
 procedure TdmConexoes.qrEstoqueCalcFields(DataSet: TDataSet);
@@ -204,21 +244,18 @@ end;
 
 // ============================================================
 // ESTOQUE - ONCHANGE DO MARKUP
-// Recalcula valor de venda em tempo real quando usuario
-// digita novo markup na DBGrid e pressiona Enter
 // ============================================================
 
 procedure TdmConexoes.qrEstoquemarkupChange(Sender: TField);
 var
-  Custo, Markup, Denominador: Double;
+  Custo, Markup: Double;
 begin
   try
     Custo  := qrEstoquevalorcusto.AsFloat;
     Markup := qrEstoquemarkup.AsFloat;
 
-     qrEstoquevalorvenda.AsFloat   := Custo * (1 + Markup / 100);
-     qrEstoquecusto_total.AsFloat  := qrEstoquequantidade.AsFloat * Custo;
-
+    qrEstoquevalorvenda.AsFloat  := Custo * (1 + Markup / 100);
+    qrEstoquecusto_total.AsFloat := qrEstoquequantidade.AsFloat * Custo;
   except
     on E: Exception do
       ShowMessage('Erro no calculo do Markup: ' + E.Message);

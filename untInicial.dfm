@@ -150,7 +150,7 @@ object FormularioPrincipal: TFormularioPrincipal
         OnMouseEnter = PnAberturaMouseEnter
         OnMouseLeave = PnAberturaMouseLeave
       end
-      object PnVenda: TPanel
+      object PnOrcamento: TPanel
         Left = 20
         Top = 158
         Width = 300
@@ -166,6 +166,7 @@ object FormularioPrincipal: TFormularioPrincipal
         ParentBackground = False
         ParentFont = False
         TabOrder = 2
+        OnClick = PnOrcamentoClick
         OnMouseEnter = PnAberturaMouseEnter
         OnMouseLeave = PnAberturaMouseLeave
       end

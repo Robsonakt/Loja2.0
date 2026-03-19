@@ -14,7 +14,8 @@ uses
   untLocalizaProd in 'untLocalizaProd.pas' {frmLocalizaProd},
   untLogUser in 'untLogUser.pas' {frmLogin},
   untCadastroUsuario in 'untCadastroUsuario.pas' {FrmCadastroUsuario},
-  untconsultaFiado in 'untconsultaFiado.pas' {consulta_vendas};
+  untconsultaFiado in 'untconsultaFiado.pas' {consulta_vendas},
+  untOrcamento in 'untOrcamento.pas' {Form1};
 
 {$R *.res}
 
@@ -27,5 +28,6 @@ begin
   Application.CreateForm(TFrmRelatorioProd, FrmRelatorioProd);
   Application.CreateForm(TfrmLogin, frmLogin);
   Application.CreateForm(Tconsulta_vendas, consulta_vendas);
+  Application.CreateForm(TfrmOrcamento, frmOrcamento);
   Application.Run;
 end.

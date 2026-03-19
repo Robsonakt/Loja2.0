@@ -275,7 +275,7 @@ end;
 
 procedure TfrmCadastroCliente.PnGravarClick(Sender: TObject);
 begin
-     if Application.MessageBox('Deseja gravar o novo cliente?',
+     if Application.MessageBox('Deseja gravar o cliente?',
                             'Cadastro',
                             MB_YESNO + MB_ICONQUESTION) <> IDYES then
         begin

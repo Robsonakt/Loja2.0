@@ -17,7 +17,7 @@ type
     PnConsultFecha: TPanel;
     PnAbertura: TPanel;
     PnConsulta: TPanel;
-    PnVenda: TPanel;
+    PnOrcamento: TPanel;
     PnFechamento: TPanel;
     MainMenu1: TMainMenu;
     Cadastro1: TMenuItem;
@@ -60,6 +60,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure Cadastro2Click(Sender: TObject);
     procedure PnConsultaClick(Sender: TObject);
+    procedure PnOrcamentoClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -76,7 +77,7 @@ implementation
 
 uses
   untCadastroProd, untCadastroCli, untConsultavendas, untRelatorioProd,
-  untVenda, untRelatorioVenda, dmconexao, untCadastroUsuario, untLogUser;
+  untVenda, untRelatorioVenda, dmconexao, untCadastroUsuario, untLogUser, untOrcamento ;
 
 {$R *.dfm}
 
@@ -110,39 +111,64 @@ begin
   frmCadastroCliente.Free;
 end;
 
+
 procedure TFormularioPrincipal.PnFechamentoClick(Sender: TObject);
 var
-  ValorStr: string;
-  ValorFinal: Currency;
+  ValorAbertura, TotalVendas, ValorFinal: Currency;
+  Msg: string;
 begin
   if not dmConexoes.CaixaAberto then
   begin
-    ShowMessage('N'#227'o existe caixa aberto para fechamento.');
+    ShowMessage('Não existe caixa aberto para fechamento.');
     Exit;
   end;
 
-  ValorStr := '0,00';
+  // Busca valor de abertura
+  dmConexoes.qrCaixa.Close;
+  dmConexoes.qrCaixa.SQL.Clear;
+  dmConexoes.qrCaixa.SQL.Add(
+    'SELECT ValorAbertura FROM Caixa WHERE Status = ''A'' ' +
+    'AND DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
+  );
+  dmConexoes.qrCaixa.Open;
+  ValorAbertura := dmConexoes.qrCaixa.FieldByName('ValorAbertura').AsCurrency;
 
-  if not InputQuery('Fechamento de Caixa', 'Informe o valor final em caixa:', ValorStr) then
-    Exit;
+  // Busca total de vendas
+  TotalVendas := dmConexoes.TotalVendasCaixaAtual;
+  ValorFinal  := ValorAbertura + TotalVendas;
 
-  if ValorStr.Trim = '' then
-    Exit;
+  // Exibe resumo para o operador confirmar
+  Msg := 'RESUMO DO CAIXA' + #13#10 +
+         '____________________________' + #13#10 +
+         'Valor inicial:    R$ ' + FormatFloat('#,##0.00', ValorAbertura) + #13#10 +
+         'Total de vendas:  R$ ' + FormatFloat('#,##0.00', TotalVendas)  + #13#10 +
+         '____________________________' + #13#10 +
+         'Saldo final:      R$ ' + FormatFloat('#,##0.00', ValorFinal)   + #13#10#10 +
+         'Deseja fechar o caixa?';
 
-  try
-    ValorFinal := StrToCurr(ValorStr);
-  except
-    ShowMessage('Valor inv'#225'lido.');
-    Exit;
-  end;
-
-  if dmConexoes.FecharCaixa(ValorFinal) then
+  if MessageBox(Handle, PChar(Msg), 'Fechamento de Caixa',
+       MB_YESNO or MB_ICONQUESTION) = IDYES then
   begin
-    ShowMessage('Caixa fechado com sucesso!');
-    AtualizarStatusCaixa;
-  end
-  else
-    ShowMessage('Erro ao fechar o caixa.');
+    if dmConexoes.FecharCaixa then
+    begin
+      ShowMessage('Caixa fechado com sucesso!');
+      AtualizarStatusCaixa;
+    end
+    else
+      ShowMessage('Erro ao fechar o caixa.');
+  end;
+end;
+
+procedure TFormularioPrincipal.PnOrcamentoClick(Sender: TObject);
+var
+  frmOrc: TfrmOrcamento;
+begin
+  frmOrc := TfrmOrcamento.Create(Self);
+  try
+    frmOrc.ShowModal;
+  finally
+    frmOrc.Free;
+  end;
 end;
 
 procedure TFormularioPrincipal.PnAberturaMouseEnter(Sender: TObject);

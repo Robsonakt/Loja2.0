@@ -179,6 +179,10 @@
             <Form>consulta_vendas</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="untOrcamento.pas">
+            <Form>Form1</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
