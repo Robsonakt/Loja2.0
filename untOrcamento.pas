@@ -20,25 +20,21 @@ type
     lblStatus: TLabel;
     lblRodapeDir: TLabel;
     pnlCliente: TPanel;
-
-    // Toolbar
     pnlToolbar: TPanel;
     pnNovo: TPanel;
     pnSalvar: TPanel;
     pnImprimir: TPanel;
-
-    // Cabecalho
     grpCabecalho: TGroupBox;
     lblCliente: TLabel;
     lblVendedor: TLabel;
     lblValidade: TLabel;
     lblObs: TLabel;
+    lblMaoDeObra: TLabel;
     edtCli: TEdit;
     edtVendedor: TEdit;
     edtValidade: TDateTimePicker;
     memoObs: TMemo;
-
-    // Grid de itens
+    edtMaoDeObra: TEdit;
     grpItens: TGroupBox;
     DBGrid1: TDBGrid;
     DSItensOrc: TDataSource;
@@ -48,8 +44,6 @@ type
     fdItensQuantidade: TIntegerField;
     fdItensValorUni: TCurrencyField;
     fdItensValorTotal: TCurrencyField;
-
-    // Adicionar item
     grpAddItem: TGroupBox;
     lblCodProd: TLabel;
     lblDescProd: TLabel;
@@ -58,48 +52,43 @@ type
     lbNomeProd: TLabel;
     edtQuantAdd: TEdit;
     pnAddItem: TPanel;
-
-    // Rodape direito
     pnlDireito: TPanel;
     pnlTotal: TPanel;
     lblTotalLabel: TLabel;
     lblTotalValor: TLabel;
     lblQtdLabel: TLabel;
     lblQtdValor: TLabel;
+    lblMaoDeObraLabel: TLabel;
+    lblMaoDeObraValor: TLabel;
 
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-
     procedure pnNovoClick(Sender: TObject);
     procedure pnNovoMouseEnter(Sender: TObject);
     procedure pnNovoMouseLeave(Sender: TObject);
-
     procedure pnSalvarClick(Sender: TObject);
     procedure pnSalvarMouseEnter(Sender: TObject);
     procedure pnSalvarMouseLeave(Sender: TObject);
-
     procedure pnImprimirClick(Sender: TObject);
     procedure pnImprimirMouseEnter(Sender: TObject);
     procedure pnImprimirMouseLeave(Sender: TObject);
-
     procedure pnCancelarClick(Sender: TObject);
-
     procedure pnAddItemClick(Sender: TObject);
     procedure pnAddItemMouseEnter(Sender: TObject);
     procedure pnAddItemMouseLeave(Sender: TObject);
-
     procedure edtCodProdKeyPress(Sender: TObject; var Key: Char);
     procedure edtCodProdKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure edtQuantAddKeyPress(Sender: TObject; var Key: Char);
     procedure DBGrid1KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure edtCliKeyPress(Sender: TObject; var Key: Char);
+    procedure edtMaoDeObraKeyPress(Sender: TObject; var Key: Char);
+    procedure edtMaoDeObraExit(Sender: TObject);
 
   private
     FTotalOrcamento: Currency;
     FIdOrcamento: Integer;
     procedure LimparTela;
     procedure AtualizarTotal;
-    procedure BuscarProduto;
     procedure AdicionarItem;
     procedure RemoverItemSelecionado;
     procedure HabilitarCampos(AHabilitar: Boolean);
@@ -115,16 +104,12 @@ implementation
 
 {$R *.dfm}
 
-uses dmConexao, untLogUser, untLocalizaProd, untInicial;
+uses dmConexao, untLogUser, untLocalizaProd, untInicial, UntRelatorioOrcamento;
 
 const
   COR_DARK_BG    = 3289650;
   COR_DARK_PANEL = 2171170;
   COR_DARK_BTN   = 3355443;
-
-// ============================================================
-// FORM CREATE / SHOW
-// ============================================================
 
 procedure TfrmOrcamento.FormCreate(Sender: TObject);
 begin
@@ -134,13 +119,9 @@ end;
 
 procedure TfrmOrcamento.FormShow(Sender: TObject);
 begin
-  // Vendedor = usuario logado
   edtVendedor.Text := dmConexoes.qrUsuario.FieldByName('Usuario').AsString;
-
-  // Validade padrao = hoje + 7 dias
   edtValidade.Date := Date + 7;
 
-  // Numero do orcamento
   with dmConexoes.qrComando do
   begin
     Close;
@@ -159,10 +140,6 @@ begin
   ActiveControl := pnNovo;
 end;
 
-// ============================================================
-// HABILITAR / DESABILITAR CAMPOS
-// ============================================================
-
 procedure TfrmOrcamento.HabilitarCampos(AHabilitar: Boolean);
 begin
   if AHabilitar then
@@ -170,6 +147,7 @@ begin
     edtCli.Enabled       := True;
     edtValidade.Enabled  := True;
     memoObs.Enabled      := True;
+    edtMaoDeObra.Enabled := True;
     edtCodProd.Enabled   := True;
     edtQuantAdd.Enabled  := True;
     pnAddItem.Enabled    := True;
@@ -182,6 +160,7 @@ begin
     edtCli.Enabled       := False;
     edtValidade.Enabled  := False;
     memoObs.Enabled      := False;
+    edtMaoDeObra.Enabled := False;
     edtCodProd.Enabled   := False;
     edtQuantAdd.Enabled  := False;
     pnAddItem.Enabled    := False;
@@ -191,41 +170,31 @@ begin
   end;
 end;
 
-// ============================================================
-// BUSCAR PRODUTO
-// ============================================================
-
-procedure TfrmOrcamento.BuscarProduto;
+procedure TfrmOrcamento.AtualizarTotal;
+var
+  TotProd, TotMdo: Currency;
+  Qtd: Integer;
+  ValStr: string;
 begin
-  if Trim(edtCodProd.Text) = '' then
+  TotProd := 0;
+  Qtd     := 0;
+  fdItens.First;
+  while not fdItens.Eof do
   begin
-    lbNomeProd.Caption := 'Digite o codigo do produto';
-    Exit;
+    TotProd := TotProd + fdItens.FieldByName('ValorTotal').AsCurrency;
+    Inc(Qtd);
+    fdItens.Next;
   end;
 
-  with dmConexoes.qrEstoque do
-  begin
-    Close;
-    SQL.Clear;
-    SQL.Add('SELECT * FROM PRODUTOS WHERE CODIGO = :pcod');
-    Parameters.ParamByName('pcod').Value := StrToIntDef(Trim(edtCodProd.Text), 0);
-    Open;
+  ValStr := Trim(edtMaoDeObra.Text);
+  ValStr := StringReplace(ValStr, '.', '', [rfReplaceAll]);
+  ValStr := StringReplace(ValStr, ',', '.', [rfReplaceAll]);
+  TotMdo := StrToCurrDef(ValStr, 0);
 
-    if IsEmpty then
-    begin
-      lbNomeProd.Caption    := 'Produto nao encontrado';
-      lbNomeProd.Font.Color := clRed;
-      edtCodProd.SetFocus;
-    end
-    else
-    begin
-      lbNomeProd.Caption := FieldByName('descricao').AsString +
-        '  |  R$ ' + FormatFloat('#,##0.00', FieldByName('valorvenda').AsCurrency) +
-        '  |  Estoque: ' + FieldByName('quantidade').AsString;
-      lbNomeProd.Font.Color := clLime;
-      edtQuantAdd.SetFocus;
-    end;
-  end;
+  FTotalOrcamento           := TotProd + TotMdo;
+  lblQtdValor.Caption       := IntToStr(Qtd) + ' iten(s)';
+  lblMaoDeObraValor.Caption := 'R$ ' + FormatFloat('#,##0.00', TotMdo);
+  lblTotalValor.Caption     := 'R$ ' + FormatFloat('#,##0.00', FTotalOrcamento);
 end;
 
 procedure TfrmOrcamento.VerificaProduto;
@@ -235,17 +204,19 @@ begin
     qrEstoque.Close;
     qrEstoque.SQL.Clear;
     qrEstoque.SQL.Add('SELECT * FROM PRODUTOS WHERE CODIGO = :pcod');
-    qrEstoque.Parameters.ParamByName('pcod').Value := StrToInt(edtCodProd.Text);
+    qrEstoque.Parameters.ParamByName('pcod').Value := StrToIntDef(edtCodProd.Text, 0);
     qrEstoque.Open;
 
     if qrEstoque.IsEmpty then
     begin
       Application.MessageBox('Produto nao encontrado', 'Atencao', MB_OK + MB_ICONERROR);
+      lbNomeProd.Caption    := 'Produto nao encontrado';
+      lbNomeProd.Font.Color := clRed;
       edtCodProd.SetFocus;
     end
     else
     begin
-      lbNomeProd.Caption    := qrEstoque.FieldByName('descricao').AsString +
+      lbNomeProd.Caption := qrEstoque.FieldByName('descricao').AsString +
         '  |  R$ ' + FormatFloat('#,##0.00', qrEstoque.FieldByName('valorvenda').AsCurrency) +
         '  |  Estoque: ' + qrEstoque.FieldByName('quantidade').AsString;
       lbNomeProd.Font.Color := clLime;
@@ -253,10 +224,6 @@ begin
     end;
   end;
 end;
-
-// ============================================================
-// ADICIONAR ITEM
-// ============================================================
 
 procedure TfrmOrcamento.AdicionarItem;
 var
@@ -300,40 +267,12 @@ begin
   end;
 
   AtualizarTotal;
-
   edtCodProd.Clear;
   edtQuantAdd.Clear;
   lbNomeProd.Caption    := 'Digite o codigo do produto';
   lbNomeProd.Font.Color := clSilver;
   edtCodProd.SetFocus;
 end;
-
-// ============================================================
-// ATUALIZAR TOTAL
-// ============================================================
-
-procedure TfrmOrcamento.AtualizarTotal;
-var
-  Tot: Currency;
-  Qtd: Integer;
-begin
-  Tot := 0;
-  Qtd := 0;
-  fdItens.First;
-  while not fdItens.Eof do
-  begin
-    Tot := Tot + fdItens.FieldByName('ValorTotal').AsCurrency;
-    Inc(Qtd);
-    fdItens.Next;
-  end;
-  FTotalOrcamento       := Tot;
-  lblTotalValor.Caption := 'R$ ' + FormatFloat('#,##0.00', Tot);
-  lblQtdValor.Caption   := IntToStr(Qtd) + ' iten(s)';
-end;
-
-// ============================================================
-// REMOVER ITEM
-// ============================================================
 
 procedure TfrmOrcamento.RemoverItemSelecionado;
 begin
@@ -346,13 +285,10 @@ begin
   end;
 end;
 
-// ============================================================
-// LIMPAR TELA
-// ============================================================
-
 procedure TfrmOrcamento.LimparTela;
 begin
   edtCli.Clear;
+  edtMaoDeObra.Clear;
   edtValidade.Date      := Date + 7;
   memoObs.Clear;
   edtCodProd.Clear;
@@ -376,13 +312,11 @@ begin
   end;
 end;
 
-// ============================================================
-// SALVAR ORCAMENTO
-// ============================================================
-
 procedure TfrmOrcamento.pnSalvarClick(Sender: TObject);
 var
   IdOrc: Integer;
+  ValMdo: Currency;
+  ValStr: string;
 begin
   if Trim(edtCli.Text) = '' then
   begin
@@ -397,25 +331,29 @@ begin
     Exit;
   end;
 
+  ValStr := Trim(edtMaoDeObra.Text);
+  ValStr := StringReplace(ValStr, '.', '', [rfReplaceAll]);
+  ValStr := StringReplace(ValStr, ',', '.', [rfReplaceAll]);
+  ValMdo := StrToCurrDef(ValStr, 0);
+
   with dmConexoes do
   begin
-    // Insere cabecalho
     qrComando.Close;
     qrComando.SQL.Clear;
     qrComando.SQL.Add(
-      'INSERT INTO Orcamento (DataOrcamento, Cliente, Vendedor, Observacoes, ValorTotal, Status) ' +
-      'VALUES (GETDATE(), :Cliente, :Vendedor, :Obs, :ValorTotal, ''A''); ' +
+      'INSERT INTO Orcamento (DataOrcamento, Cliente, Vendedor, Observacoes, MaoDeObra, ValorTotal, Status) ' +
+      'VALUES (GETDATE(), :Cliente, :Vendedor, :Obs, :MaoDeObra, :ValorTotal, ''A''); ' +
       'SELECT SCOPE_IDENTITY() AS NovoId'
     );
-    qrComando.Parameters.ParamByName('Cliente').Value   := edtCli.Text;
-    qrComando.Parameters.ParamByName('Vendedor').Value  := edtVendedor.Text;
-    qrComando.Parameters.ParamByName('Obs').Value       := memoObs.Text;
+    qrComando.Parameters.ParamByName('Cliente').Value    := edtCli.Text;
+    qrComando.Parameters.ParamByName('Vendedor').Value   := edtVendedor.Text;
+    qrComando.Parameters.ParamByName('Obs').Value        := memoObs.Text;
+    qrComando.Parameters.ParamByName('MaoDeObra').Value  := ValMdo;
     qrComando.Parameters.ParamByName('ValorTotal').Value := FTotalOrcamento;
     qrComando.Open;
     IdOrc := qrComando.FieldByName('NovoId').AsInteger;
     qrComando.Close;
 
-    // Insere itens
     fdItens.First;
     while not fdItens.Eof do
     begin
@@ -440,23 +378,54 @@ begin
   Application.MessageBox('Orcamento salvo com sucesso!', 'Sucesso', MB_OK + MB_ICONINFORMATION);
 end;
 
-// ============================================================
-// IMPRIMIR
-// ============================================================
-
 procedure TfrmOrcamento.pnImprimirClick(Sender: TObject);
+var
+  frmRel: TfrmRelatorioOrcamento;
+  ValStr: string;
+  ValMdo, TotProd: Currency;
+  Qtd: Integer;
 begin
   if FIdOrcamento = 0 then
   begin
     ShowMessage('Salve o orcamento antes de imprimir.');
     Exit;
   end;
-  ShowMessage('Impressao sera implementada com RLReport.');
-end;
 
-// ============================================================
-// NOVO
-// ============================================================
+  TotProd := 0;
+  Qtd     := 0;
+  fdItens.First;
+  while not fdItens.Eof do
+  begin
+    TotProd := TotProd + fdItens.FieldByName('ValorTotal').AsCurrency;
+    Inc(Qtd);
+    fdItens.Next;
+  end;
+  fdItens.First;
+
+  ValStr := Trim(edtMaoDeObra.Text);
+  ValStr := StringReplace(ValStr, '.', '', [rfReplaceAll]);
+  ValStr := StringReplace(ValStr, ',', '.', [rfReplaceAll]);
+  ValMdo := StrToCurrDef(ValStr, 0);
+
+  frmRel := TfrmRelatorioOrcamento.Create(Self);
+  try
+    frmRel.SetDados(
+      lblNumOrc.Caption,
+      edtCli.Text,
+      edtVendedor.Text,
+      FormatDateTime('dd/mm/yyyy', edtValidade.Date),
+      memoObs.Text,
+      Qtd,
+      TotProd,
+      ValMdo,
+      TotProd + ValMdo,
+      DSItensOrc   // <-- passa o datasource local diretamente
+    );
+    frmRel.rlr_Orcamento.Preview;
+  finally
+    frmRel.Free;
+  end;
+end;
 
 procedure TfrmOrcamento.pnNovoClick(Sender: TObject);
 begin
@@ -470,10 +439,6 @@ begin
   end;
 end;
 
-// ============================================================
-// CANCELAR
-// ============================================================
-
 procedure TfrmOrcamento.pnCancelarClick(Sender: TObject);
 begin
   if Application.MessageBox('Deseja fechar o orcamento?', 'Fechar',
@@ -481,18 +446,10 @@ begin
     Close;
 end;
 
-// ============================================================
-// ADD ITEM
-// ============================================================
-
 procedure TfrmOrcamento.pnAddItemClick(Sender: TObject);
 begin
   AdicionarItem;
 end;
-
-// ============================================================
-// KEY PRESS / KEY DOWN
-// ============================================================
 
 procedure TfrmOrcamento.edtCodProdKeyPress(Sender: TObject; var Key: Char);
 begin
@@ -545,9 +502,22 @@ begin
   end;
 end;
 
-// ============================================================
-// MOUSE ENTER / LEAVE
-// ============================================================
+procedure TfrmOrcamento.edtMaoDeObraKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then
+  begin
+    Key := #0;
+    AtualizarTotal;
+    edtCodProd.SetFocus;
+  end
+  else if not (Key in ['0'..'9', ',', #8]) then
+    Key := #0;
+end;
+
+procedure TfrmOrcamento.edtMaoDeObraExit(Sender: TObject);
+begin
+  AtualizarTotal;
+end;
 
 procedure TfrmOrcamento.pnNovoMouseEnter(Sender: TObject);
 begin pnNovo.Color := $001E8FBF; pnNovo.Font.Color := clWhite; end;

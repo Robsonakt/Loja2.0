@@ -2,7 +2,7 @@ object frmOrcamento: TfrmOrcamento
   Left = 0
   Top = 0
   Caption = 'Or'#231'amento'
-  ClientHeight = 681
+  ClientHeight = 720
   ClientWidth = 1089
   Color = 3289650
   Font.Charset = DEFAULT_CHARSET
@@ -24,8 +24,8 @@ object frmOrcamento: TfrmOrcamento
     Color = 2171170
     TabOrder = 0
     object lblTitulo: TLabel
-      Left = 10
-      Top = 20
+      Left = 16
+      Top = 13
       Width = 94
       Height = 20
       Caption = 'OR'#199'AMENTO'
@@ -39,7 +39,7 @@ object frmOrcamento: TfrmOrcamento
     object lblNumOrc: TLabel
       Left = 800
       Top = 15
-      Width = 200
+      Width = 270
       Height = 16
       Alignment = taRightJustify
       AutoSize = False
@@ -53,7 +53,7 @@ object frmOrcamento: TfrmOrcamento
   end
   object pnlRodape: TPanel
     Left = 0
-    Top = 640
+    Top = 679
     Width = 1089
     Height = 41
     Align = alBottom
@@ -74,7 +74,7 @@ object frmOrcamento: TfrmOrcamento
       ParentFont = False
     end
     object lblRodapeDir: TLabel
-      Left = 1010
+      Left = 1040
       Top = 13
       Width = 21
       Height = 13
@@ -91,7 +91,7 @@ object frmOrcamento: TfrmOrcamento
     Left = 0
     Top = 46
     Width = 1089
-    Height = 594
+    Height = 633
     Align = alClient
     BevelOuter = bvNone
     Color = 3289650
@@ -166,7 +166,7 @@ object frmOrcamento: TfrmOrcamento
       Left = 10
       Top = 54
       Width = 700
-      Height = 110
+      Height = 120
       Caption = ' Dados do Orcamento '
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
@@ -190,7 +190,7 @@ object frmOrcamento: TfrmOrcamento
         ParentFont = False
       end
       object lblVendedor: TLabel
-        Left = 340
+        Left = 310
         Top = 18
         Width = 50
         Height = 13
@@ -203,7 +203,7 @@ object frmOrcamento: TfrmOrcamento
         ParentFont = False
       end
       object lblValidade: TLabel
-        Left = 530
+        Left = 480
         Top = 18
         Width = 44
         Height = 13
@@ -215,9 +215,22 @@ object frmOrcamento: TfrmOrcamento
         Font.Style = []
         ParentFont = False
       end
-      object lblObs: TLabel
+      object lblMaoDeObra: TLabel
         Left = 12
-        Top = 64
+        Top = 72
+        Width = 90
+        Height = 13
+        Caption = 'M'#227'o de Obra (R$)'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblObs: TLabel
+        Left = 160
+        Top = 72
         Width = 65
         Height = 13
         Caption = 'Observacoes'
@@ -228,43 +241,71 @@ object frmOrcamento: TfrmOrcamento
         Font.Style = []
         ParentFont = False
       end
-      object edtVendedor: TEdit
-        Left = 340
+      object edtCli: TEdit
+        Left = 12
         Top = 36
-        Width = 170
+        Width = 280
         Height = 23
         Color = 2171170
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clSilver
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 0
-      end
-      object edtValidade: TDateTimePicker
-        Left = 530
-        Top = 36
-        Width = 150
-        Height = 23
-        CalColors.TextColor = clWhite
-        CalColors.TitleBackColor = 2171170
-        CalColors.MonthBackColor = 2171170
-        CalColors.TrailingTextColor = clSilver
-        Date = 46099.000000000000000000
-        Time = 0.998666979168774600
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
         Font.Height = -12
         Font.Name = 'Segoe UI'
         Font.Style = []
         ParentFont = False
+        TabOrder = 0
+        OnKeyPress = edtCliKeyPress
+      end
+      object edtVendedor: TEdit
+        Left = 310
+        Top = 36
+        Width = 150
+        Height = 23
+        Color = 2171170
+        Enabled = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 1
       end
-      object memoObs: TMemo
+      object edtValidade: TDateTimePicker
+        Left = 480
+        Top = 36
+        Width = 200
+        Height = 23
+        Date = 46101.000000000000000000
+        Time = 0.011845555556647010
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+      end
+      object edtMaoDeObra: TEdit
         Left = 12
-        Top = 80
-        Width = 668
+        Top = 90
+        Width = 130
+        Height = 23
+        Color = 2171170
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clLime
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 3
+        OnExit = edtMaoDeObraExit
+        OnKeyPress = edtMaoDeObraKeyPress
+      end
+      object memoObs: TMemo
+        Left = 160
+        Top = 90
+        Width = 522
         Height = 22
         Color = 2171170
         Font.Charset = DEFAULT_CHARSET
@@ -274,27 +315,12 @@ object frmOrcamento: TfrmOrcamento
         Font.Style = []
         ParentFont = False
         ScrollBars = ssVertical
-        TabOrder = 2
-      end
-      object edtCli: TEdit
-        Left = 12
-        Top = 35
-        Width = 198
-        Height = 23
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clGray
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 3
-        Text = 'Nome Cliente'
-        OnKeyPress = edtCliKeyPress
+        TabOrder = 4
       end
     end
     object grpItens: TGroupBox
       Left = 10
-      Top = 175
+      Top = 184
       Width = 700
       Height = 260
       Caption = ' Itens do Orcamento  [DEL = remover item selecionado] '
@@ -313,13 +339,11 @@ object frmOrcamento: TfrmOrcamento
         Height = 226
         Color = 2171170
         DataSource = DSItensOrc
-        GradientEndColor = -1
-        GradientStartColor = clBlack
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlack
-        Font.Height = -13
+        Font.Height = -12
         Font.Name = 'Segoe UI'
-        Font.Style = []
+        Font.Style = [fsBold]
         Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection]
         ParentFont = False
         TabOrder = 0
@@ -368,7 +392,7 @@ object frmOrcamento: TfrmOrcamento
     end
     object grpAddItem: TGroupBox
       Left = 10
-      Top = 445
+      Top = 454
       Width = 700
       Height = 80
       Caption = ' Adicionar Item  [F2 = buscar | Enter = confirmar produto] '
@@ -488,7 +512,7 @@ object frmOrcamento: TfrmOrcamento
       Left = 720
       Top = 54
       Width = 358
-      Height = 471
+      Height = 480
       BevelOuter = bvNone
       Color = 3289650
       TabOrder = 4
@@ -496,7 +520,7 @@ object frmOrcamento: TfrmOrcamento
         Left = 0
         Top = 0
         Width = 358
-        Height = 110
+        Height = 150
         BevelOuter = bvNone
         Color = 2171170
         TabOrder = 0
@@ -515,7 +539,7 @@ object frmOrcamento: TfrmOrcamento
         end
         object lblQtdValor: TLabel
           Left = 14
-          Top = 30
+          Top = 28
           Width = 53
           Height = 20
           Caption = '0 iten(s)'
@@ -526,9 +550,35 @@ object frmOrcamento: TfrmOrcamento
           Font.Style = []
           ParentFont = False
         end
+        object lblMaoDeObraLabel: TLabel
+          Left = 14
+          Top = 58
+          Width = 77
+          Height = 13
+          Caption = 'MAO DE OBRA'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clSilver
+          Font.Height = -11
+          Font.Name = 'Segoe UI'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object lblMaoDeObraValor: TLabel
+          Left = 14
+          Top = 74
+          Width = 48
+          Height = 20
+          Caption = 'R$ 0,00'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clYellow
+          Font.Height = -15
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+        end
         object lblTotalLabel: TLabel
           Left = 14
-          Top = 60
+          Top = 106
           Width = 125
           Height = 13
           Caption = 'TOTAL DO ORCAMENTO'
@@ -541,13 +591,13 @@ object frmOrcamento: TfrmOrcamento
         end
         object lblTotalValor: TLabel
           Left = 14
-          Top = 78
-          Width = 72
-          Height = 28
+          Top = 122
+          Width = 62
+          Height = 25
           Caption = 'R$ 0,00'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clLime
-          Font.Height = -20
+          Font.Height = -18
           Font.Name = 'Segoe UI'
           Font.Style = [fsBold]
           ParentFont = False

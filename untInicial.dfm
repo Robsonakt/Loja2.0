@@ -33,9 +33,9 @@ object FormularioPrincipal: TFormularioPrincipal
     object lblRodapeInicial: TLabel
       Left = 16
       Top = 13
-      Width = 172
+      Width = 98
       Height = 13
-      Caption = 'Conectado   |   Sistema de Vendas'
+      Caption = ' Sistema de Vendas'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
       Font.Height = -11
@@ -172,9 +172,9 @@ object FormularioPrincipal: TFormularioPrincipal
       end
       object PnFechamento: TPanel
         Left = 20
-        Top = 214
+        Top = 267
         Width = 300
-        Height = 46
+        Height = 55
         BevelOuter = bvNone
         Caption = 'Fechamento de Vendas'
         Color = 6710886
@@ -192,9 +192,28 @@ object FormularioPrincipal: TFormularioPrincipal
       end
       object PnConsultFecha: TPanel
         Left = 20
-        Top = 270
+        Top = 213
         Width = 300
         Height = 46
+        BevelOuter = bvNone
+        Caption = 'Consulta de Or'#231'amento'
+        Color = 6710886
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -13
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentBackground = False
+        ParentFont = False
+        TabOrder = 4
+        OnMouseEnter = PnAberturaMouseEnter
+        OnMouseLeave = PnAberturaMouseLeave
+      end
+      object Panel1: TPanel
+        Left = 20
+        Top = 330
+        Width = 300
+        Height = 53
         BevelOuter = bvNone
         Caption = 'Consulta de fechamento'
         Color = 6710886
@@ -205,7 +224,7 @@ object FormularioPrincipal: TFormularioPrincipal
         Font.Style = [fsBold]
         ParentBackground = False
         ParentFont = False
-        TabOrder = 4
+        TabOrder = 5
         OnMouseEnter = PnAberturaMouseEnter
         OnMouseLeave = PnAberturaMouseLeave
       end

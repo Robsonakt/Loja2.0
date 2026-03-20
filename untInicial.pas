@@ -50,6 +50,7 @@ type
     lblCaixaLabel: TLabel;
     lblRodapeInicial: TLabel;
     lblRRJ: TLabel;
+    Panel1: TPanel;
 
     procedure PnAberturaMouseEnter(Sender: TObject);
     procedure PnAberturaMouseLeave(Sender: TObject);

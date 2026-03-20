@@ -223,8 +223,8 @@ object dmConexoes: TdmConexoes
     SQL.Strings = (
       ''
       '')
-    Left = 21
-    Top = 432
+    Left = 13
+    Top = 608
     object qrComandaCod_Comanda: TIntegerField
       FieldName = 'Cod_Comanda'
     end
@@ -499,5 +499,20 @@ object dmConexoes: TdmConexoes
     DataSet = qrVendas
     Left = 336
     Top = 81
+  end
+  object qrItensOrcamento: TADOQuery
+    Connection = conRobson
+    CursorType = ctStatic
+    OnCalcFields = qrEstoqueCalcFields
+    Parameters = <>
+    SQL.Strings = (
+      'SELECT * FROM [LojaNova].[dbo].[Produtos]')
+    Left = 469
+    Top = 144
+  end
+  object dsOrcitens: TDataSource
+    DataSet = qrItensOrcamento
+    Left = 568
+    Top = 144
   end
 end
