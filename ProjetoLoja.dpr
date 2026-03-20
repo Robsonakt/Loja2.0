@@ -15,7 +15,8 @@ uses
   untLogUser in 'untLogUser.pas' {frmLogin},
   untCadastroUsuario in 'untCadastroUsuario.pas' {FrmCadastroUsuario},
   untconsultaFiado in 'untconsultaFiado.pas' {consulta_vendas},
-  untOrcamento in 'untOrcamento.pas' {Form1};
+  untOrcamento in 'untOrcamento.pas' {Form1},
+  untRelatorioOrcamento in 'untRelatorioOrcamento.pas' {Form2};
 
 {$R *.res}
 
@@ -29,5 +30,6 @@ begin
   Application.CreateForm(TfrmLogin, frmLogin);
   Application.CreateForm(Tconsulta_vendas, consulta_vendas);
   Application.CreateForm(TfrmOrcamento, frmOrcamento);
+  Application.CreateForm(TForm2, Form2);
   Application.Run;
 end.

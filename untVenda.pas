@@ -196,7 +196,7 @@ begin
     qrEstoque.Parameters.ParamByName('pcod').Value :=  StrToInt(edtCodProd.text);
     qrEstoque.open;
 
-    if qrCliente.IsEmpty then
+    if qrEstoque.IsEmpty then
     begin
       Application.MessageBox('Produto não encontrado', 'Atencao', MB_OK + MB_ICONERROR);
       EdtNameCliente.SetFocus;

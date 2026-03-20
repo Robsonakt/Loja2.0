@@ -228,35 +228,19 @@ object frmOrcamento: TfrmOrcamento
         Font.Style = []
         ParentFont = False
       end
-      object cbCliente: TComboBox
-        Left = 12
-        Top = 36
-        Width = 310
-        Height = 23
-        Color = 2171170
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 0
-        OnKeyPress = cbClienteKeyPress
-      end
       object edtVendedor: TEdit
         Left = 340
         Top = 36
         Width = 170
         Height = 23
         Color = 2171170
-        Enabled = False
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clSilver
         Font.Height = -12
         Font.Name = 'Segoe UI'
         Font.Style = []
         ParentFont = False
-        TabOrder = 1
+        TabOrder = 0
       end
       object edtValidade: TDateTimePicker
         Left = 530
@@ -275,7 +259,7 @@ object frmOrcamento: TfrmOrcamento
         Font.Name = 'Segoe UI'
         Font.Style = []
         ParentFont = False
-        TabOrder = 2
+        TabOrder = 1
       end
       object memoObs: TMemo
         Left = 12
@@ -290,7 +274,22 @@ object frmOrcamento: TfrmOrcamento
         Font.Style = []
         ParentFont = False
         ScrollBars = ssVertical
+        TabOrder = 2
+      end
+      object edtCli: TEdit
+        Left = 12
+        Top = 35
+        Width = 198
+        Height = 23
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clGray
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 3
+        Text = 'Nome Cliente'
+        OnKeyPress = edtCliKeyPress
       end
     end
     object grpItens: TGroupBox
@@ -314,9 +313,11 @@ object frmOrcamento: TfrmOrcamento
         Height = 226
         Color = 2171170
         DataSource = DSItensOrc
+        GradientEndColor = -1
+        GradientStartColor = clBlack
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
-        Font.Height = -12
+        Font.Color = clBlack
+        Font.Height = -13
         Font.Name = 'Segoe UI'
         Font.Style = []
         Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection]
