@@ -206,6 +206,7 @@ object FormularioPrincipal: TFormularioPrincipal
         ParentBackground = False
         ParentFont = False
         TabOrder = 4
+        OnClick = PnConsultFechaClick
         OnMouseEnter = PnAberturaMouseEnter
         OnMouseLeave = PnAberturaMouseLeave
       end
@@ -225,6 +226,7 @@ object FormularioPrincipal: TFormularioPrincipal
         ParentBackground = False
         ParentFont = False
         TabOrder = 5
+        OnClick = Panel1Click
         OnMouseEnter = PnAberturaMouseEnter
         OnMouseLeave = PnAberturaMouseLeave
       end

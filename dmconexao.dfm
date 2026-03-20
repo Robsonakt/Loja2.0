@@ -223,7 +223,7 @@ object dmConexoes: TdmConexoes
     SQL.Strings = (
       ''
       '')
-    Left = 13
+    Left = 29
     Top = 608
     object qrComandaCod_Comanda: TIntegerField
       FieldName = 'Cod_Comanda'

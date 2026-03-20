@@ -1,0 +1,108 @@
+unit UntRelatorioOrcamento;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  Vcl.StdCtrls, Vcl.ComCtrls, Data.DB, RLReport;
+
+type
+  TfrmRelatorioOrcamento = class(TForm)
+    rlr_Orcamento: TRLReport;
+    // Cabecalho do relatorio
+    RLBand_Header: TRLBand;
+    RLLabel_Empresa: TRLLabel;
+    RLLabel_Titulo: TRLLabel;
+    RLSystemInfo_Data: TRLSystemInfo;
+    RLSystemInfo_Hora: TRLSystemInfo;
+    RLLabel_NumOrc: TRLLabel;
+    // Dados do orcamento
+    RLBand_Dados: TRLBand;
+    RLLabel_lbCliente: TRLLabel;
+    RLLabel_Cliente: TRLLabel;
+    RLLabel_lbVendedor: TRLLabel;
+    RLLabel_Vendedor: TRLLabel;
+    RLLabel_lbValidade: TRLLabel;
+    RLLabel_Validade: TRLLabel;
+    RLLabel_lbObs: TRLLabel;
+    RLLabel_Obs: TRLLabel;
+    // Cabecalho da grid
+    RLBand_GridHeader: TRLBand;
+    RLLabel_hCodigo: TRLLabel;
+    RLLabel_hDescricao: TRLLabel;
+    RLLabel_hQtd: TRLLabel;
+    RLLabel_hValUnit: TRLLabel;
+    RLLabel_hValTotal: TRLLabel;
+    // Detalhe (itens)
+    RLSubDetail_Itens: TRLSubDetail;
+    RLBand_Detalhe: TRLBand;
+    RLDBText_Codigo: TRLDBText;
+    RLDBText_Descricao: TRLDBText;
+    RLDBText_Qtd: TRLDBText;
+    RLDBText_ValUnit: TRLDBText;
+    RLDBText_ValTotal: TRLDBText;
+    // Sumario
+    RLBand_Sumario: TRLBand;
+    RLLabel_lbQtdItens: TRLLabel;
+    RLLabel_QtdItens: TRLLabel;
+    RLLabel_lbMaoObra: TRLLabel;
+    RLLabel_MaoObra: TRLLabel;
+    RLLabel_lbTotal: TRLLabel;
+    RLLabel_Total: TRLLabel;
+    RLLabel_Validade_Rodape: TRLLabel;
+  private
+    { Private declarations }
+  public
+    procedure SetDados(
+      const ANumOrc, ACliente, AVendedor, AValidade, AObs: string;
+      AQtdItens: Integer;
+      ATotalProd, AMaoObra, ATotalGeral: Currency;
+      ADataSource: TDataSource
+    );
+  end;
+
+var
+  frmRelatorioOrcamento: TfrmRelatorioOrcamento;
+
+implementation
+
+{$R *.dfm}
+
+uses dmConexao;
+
+procedure TfrmRelatorioOrcamento.SetDados(
+  const ANumOrc, ACliente, AVendedor, AValidade, AObs: string;
+  AQtdItens: Integer;
+  ATotalProd, AMaoObra, ATotalGeral: Currency;
+  ADataSource: TDataSource
+);
+begin
+  RLLabel_NumOrc.Caption   := ANumOrc;
+  RLLabel_Cliente.Caption  := ACliente;
+  RLLabel_Vendedor.Caption := AVendedor;
+  RLLabel_Validade.Caption := AValidade;
+  RLLabel_Obs.Caption      := AObs;
+  RLLabel_QtdItens.Caption := IntToStr(AQtdItens) + ' iten(s)';
+  RLLabel_MaoObra.Caption  := 'R$ ' + FormatFloat('#,##0.00', AMaoObra);
+  RLLabel_Total.Caption    := 'R$ ' + FormatFloat('#,##0.00', ATotalGeral);
+  RLLabel_Validade_Rodape.Caption :=
+    'Este orcamento e valido ate ' + AValidade +
+    '. Apos esta data os precos podem sofrer alteracoes.';
+
+  // Aponta o datasource passado como parametro
+  rlr_Orcamento.DataSource      := ADataSource;
+  RLSubDetail_Itens.DataSource  := ADataSource;
+  RLDBText_Codigo.DataSource    := ADataSource;
+  RLDBText_Codigo.DataField     := 'CodProd';
+  RLDBText_Descricao.DataSource := ADataSource;
+  RLDBText_Descricao.DataField  := 'Descricao';
+  RLDBText_Qtd.DataSource       := ADataSource;
+  RLDBText_Qtd.DataField        := 'Quantidade';
+  RLDBText_ValUnit.DataSource   := ADataSource;
+  RLDBText_ValUnit.DataField    := 'ValorUni';
+  RLDBText_ValTotal.DataSource  := ADataSource;
+  RLDBText_ValTotal.DataField   := 'ValorTotal';
+end;
+
+end.

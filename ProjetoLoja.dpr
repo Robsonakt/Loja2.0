@@ -16,8 +16,9 @@ uses
   untCadastroUsuario in 'untCadastroUsuario.pas' {FrmCadastroUsuario},
   untconsultaFiado in 'untconsultaFiado.pas' {consulta_vendas},
   untOrcamento in 'untOrcamento.pas' {Form1},
-  untRelatorioOrcamento in 'untRelatorioOrcamento.pas' {Form2},
-  untConsultaOrcamento in 'untConsultaOrcamento.pas' {ConsultaOrcamento};
+  UntRelatorioOrcamento in 'UntRelatorioOrcamento.pas' {Form2},
+  untConsultaOrcamento in 'untConsultaOrcamento.pas' {ConsultaOrcamento},
+  untConsultaFechamento in 'untConsultaFechamento.pas' {frmConsultaFechamento};
 
 {$R *.res}
 
@@ -32,6 +33,7 @@ begin
   Application.CreateForm(Tconsulta_vendas, consulta_vendas);
   Application.CreateForm(TfrmOrcamento, frmOrcamento);
   Application.CreateForm(TfrmRelatorioOrcamento, frmRelatorioOrcamento);
-  Application.CreateForm(TConsultaOrcamento, ConsultaOrcamento);
+  Application.CreateForm(TfrmConsultaOrcamento, frmConsultaOrcamento);
+  Application.CreateForm(TfrmConsultaFechamento, frmConsultaFechamento);
   Application.Run;
 end.

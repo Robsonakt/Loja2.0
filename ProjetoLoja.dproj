@@ -183,12 +183,16 @@
             <Form>Form1</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="untRelatorioOrcamento.pas">
+        <DCCReference Include="UntRelatorioOrcamento.pas">
             <Form>Form2</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="untConsultaOrcamento.pas">
             <Form>ConsultaOrcamento</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="untConsultaFechamento.pas">
+            <Form>frmConsultaFechamento</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Base">

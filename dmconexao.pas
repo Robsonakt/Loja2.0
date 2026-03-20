@@ -156,10 +156,11 @@ begin
   qrCaixa.Close;
   qrCaixa.SQL.Clear;
   qrCaixa.SQL.Add(
-    'INSERT INTO Caixa (DataAbertura, ValorAbertura, Status) ' +
-    'VALUES (GETDATE(), :Valor, ''A'')'
+    'INSERT INTO Caixa (DataAbertura, ValorAbertura, Status, UsuarioAbertura) ' +
+    'VALUES (GETDATE(), :Valor, ''A'', :Usuario)'
   );
-  qrCaixa.Parameters.ParamByName('Valor').Value := AValorInicial;
+  qrCaixa.Parameters.ParamByName('Valor').Value   := AValorInicial;
+  qrCaixa.Parameters.ParamByName('Usuario').Value := qrUsuario.FieldByName('Usuario').AsString;
   qrCaixa.ExecSQL;
   Result := True;
 end;
@@ -193,7 +194,6 @@ begin
   Result := False;
   if not CaixaAberto then Exit;
 
-  // Busca o valor de abertura do caixa atual
   qrCaixa.Close;
   qrCaixa.SQL.Clear;
   qrCaixa.SQL.Add(
@@ -204,24 +204,22 @@ begin
   qrCaixa.Open;
   ValorAbertura := qrCaixa.FieldByName('ValorAbertura').AsCurrency;
 
-  // Soma as vendas desde a abertura do caixa
   TotalVendas := TotalVendasCaixaAtual;
+  ValorFinal  := ValorAbertura + TotalVendas;
 
-  // Saldo final = valor inicial + total vendas
-  ValorFinal := ValorAbertura + TotalVendas;
-
-  // Fecha o caixa com o saldo calculado
   qrCaixa.Close;
   qrCaixa.SQL.Clear;
   qrCaixa.SQL.Add(
     'UPDATE Caixa SET ' +
     'DataFechamento = GETDATE(), ' +
     'ValorFechamento = :ValorFinal, ' +
-    'Status = ''F'' ' +
+    'Status = ''F'', ' +
+    'UsuarioFechamento = :Usuario ' +
     'WHERE Status = ''A'' ' +
     'AND DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
   );
   qrCaixa.Parameters.ParamByName('ValorFinal').Value := ValorFinal;
+  qrCaixa.Parameters.ParamByName('Usuario').Value    := qrUsuario.FieldByName('Usuario').AsString;
   qrCaixa.ExecSQL;
   Result := True;
 end;

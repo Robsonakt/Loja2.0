@@ -62,6 +62,8 @@ type
     procedure Cadastro2Click(Sender: TObject);
     procedure PnConsultaClick(Sender: TObject);
     procedure PnOrcamentoClick(Sender: TObject);
+    procedure PnConsultFechaClick(Sender: TObject);
+    procedure Panel1Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -78,7 +80,7 @@ implementation
 
 uses
   untCadastroProd, untCadastroCli, untConsultavendas, untRelatorioProd,
-  untVenda, untRelatorioVenda, dmconexao, untCadastroUsuario, untLogUser, untOrcamento ;
+  untVenda, untRelatorioVenda, dmconexao, untCadastroUsuario, untLogUser, untOrcamento, untConsultaOrcamento, untConsultaFechamento ;
 
 {$R *.dfm}
 
@@ -195,6 +197,17 @@ begin
     Exit;
 end;
 
+procedure TFormularioPrincipal.PnConsultFechaClick(Sender: TObject);
+begin
+      Application.CreateForm(TfrmConsultaOrcamento, frmConsultaOrcamento);
+    try
+      frmConsultaOrcamento.ShowModal;
+    finally
+      frmConsultaOrcamento.Free;
+    end;
+    Exit;
+end;
+
 procedure TFormularioPrincipal.Estoque1Click(Sender: TObject);
 begin
   Application.CreateForm(TfrmCadastroProdutos, frmCadastroProdutos);
@@ -208,6 +221,17 @@ begin
   Application.CreateForm(TfrmLogin, frmLogin);
   frmLogin.ShowModal;
   frmLogin.Free;
+end;
+
+procedure TFormularioPrincipal.Panel1Click(Sender: TObject);
+var frmFech: TfrmConsultaFechamento;
+begin
+  frmFech := TfrmConsultaFechamento.Create(Self);
+  try
+    frmFech.ShowModal;
+  finally
+    frmFech.Free;
+  end;
 end;
 
 procedure TFormularioPrincipal.PnAberturaClick(Sender: TObject);
