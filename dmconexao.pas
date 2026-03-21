@@ -122,6 +122,7 @@ type
     function AbrirCaixa(AValorInicial: Currency): Boolean;
     function TotalVendasCaixaAtual: Currency;
     function FecharCaixa: Boolean;
+    function VerificarLicenca: Integer;
   end;
 
 var
@@ -222,6 +223,35 @@ begin
   qrCaixa.Parameters.ParamByName('Usuario').Value    := qrUsuario.FieldByName('Usuario').AsString;
   qrCaixa.ExecSQL;
   Result := True;
+end;
+
+// ============================================================
+// LICENCA
+// Retorna: -1 = Expirada/Sem licenca, N >= 0 = dias restantes
+// ============================================================
+
+function TdmConexoes.VerificarLicenca: Integer;
+var
+  qrTemp: TADOQuery;
+begin
+  Result := -1;
+  qrTemp := TADOQuery.Create(nil);
+  try
+    qrTemp.Connection := conRobson;
+    qrTemp.SQL.Add(
+      'SELECT DATEDIFF(DAY, GETDATE(), DataExpiracao) AS DiasRestantes ' +
+      'FROM Licenca WHERE Ativo = 1'
+    );
+    qrTemp.Open;
+
+    if qrTemp.IsEmpty then Exit;
+
+    Result := qrTemp.FieldByName('DiasRestantes').AsInteger;
+    if Result < 0 then
+      Result := -1;
+  finally
+    qrTemp.Free;
+  end;
 end;
 
 // ============================================================

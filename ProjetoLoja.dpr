@@ -18,7 +18,8 @@ uses
   untOrcamento in 'untOrcamento.pas' {Form1},
   UntRelatorioOrcamento in 'UntRelatorioOrcamento.pas' {Form2},
   untConsultaOrcamento in 'untConsultaOrcamento.pas' {ConsultaOrcamento},
-  untConsultaFechamento in 'untConsultaFechamento.pas' {frmConsultaFechamento};
+  untConsultaFechamento in 'untConsultaFechamento.pas' {frmConsultaFechamento},
+  untLicenca in 'untLicenca.pas' {frmLicenca};
 
 {$R *.res}
 
@@ -35,5 +36,6 @@ begin
   Application.CreateForm(TfrmRelatorioOrcamento, frmRelatorioOrcamento);
   Application.CreateForm(TfrmConsultaOrcamento, frmConsultaOrcamento);
   Application.CreateForm(TfrmConsultaFechamento, frmConsultaFechamento);
+  Application.CreateForm(TfrmLicenca, frmLicenca);
   Application.Run;
 end.

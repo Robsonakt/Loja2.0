@@ -1,0 +1,204 @@
+unit untLicenca;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  Vcl.StdCtrls, Vcl.ExtCtrls, Data.Win.ADODB;
+
+type
+  TfrmLicenca = class(TForm)
+    pnlTopo: TPanel;
+    lblTitulo: TLabel;
+    pnlCorpo: TPanel;
+    lblCodigoMaqLabel: TLabel;
+    lblCodigoMaq: TLabel;
+    lblCodigoAtivLabel: TLabel;
+    edtCodigoAtiv: TEdit;
+    lblInstrucao: TLabel;
+    lblDiasLabel: TLabel;
+    lblDias: TLabel;
+    pnAtivar: TPanel;
+    pnFechar: TPanel;
+
+    procedure FormShow(Sender: TObject);
+    procedure pnAtivarClick(Sender: TObject);
+    procedure pnAtivarMouseEnter(Sender: TObject);
+    procedure pnAtivarMouseLeave(Sender: TObject);
+    procedure pnFecharClick(Sender: TObject);
+    procedure pnFecharMouseEnter(Sender: TObject);
+    procedure pnFecharMouseLeave(Sender: TObject);
+    procedure edtCodigoAtivKeyPress(Sender: TObject; var Key: Char);
+
+  private
+    function GerarCodigoMaquina: string;
+    function GerarCodigoEsperado: string;
+    function DiasRestantes: Integer;
+  public
+    { Public declarations }
+  end;
+
+var
+  frmLicenca: TfrmLicenca;
+
+implementation
+
+{$R *.dfm}
+
+uses dmConexao;
+
+const
+  COR_DARK_BG    = 3289650;
+  COR_DARK_PANEL = 2171170;
+  COR_DARK_BTN   = 3355443;
+  ANIVERSARIO    = '10121998'; // Sua data de aniversario ddmmyyyy
+
+// ============================================================
+// GERA CODIGO DA MAQUINA (data atual formatada)
+// ============================================================
+
+function TfrmLicenca.GerarCodigoMaquina: string;
+begin
+  Result := FormatDateTime('ddmmyyyy', Date);
+end;
+
+// ============================================================
+// GERA CODIGO ESPERADO = ANIVERSARIO + DATA_ATUAL (soma)
+// ============================================================
+
+function TfrmLicenca.GerarCodigoEsperado: string;
+var
+  nAniv, nData, nResultado: Int64;
+begin
+  nAniv      := StrToInt64Def(ANIVERSARIO, 0);
+  nData      := StrToInt64Def(GerarCodigoMaquina, 0);
+  nResultado := nAniv + nData;
+  Result     := IntToStr(nResultado);
+end;
+
+// ============================================================
+// DIAS RESTANTES DA LICENCA
+// ============================================================
+
+function TfrmLicenca.DiasRestantes: Integer;
+begin
+  Result := dmConexoes.VerificarLicenca;
+end;
+
+// ============================================================
+// FORM SHOW
+// ============================================================
+
+procedure TfrmLicenca.FormShow(Sender: TObject);
+var
+  Dias: Integer;
+begin
+  lblCodigoMaq.Caption := GerarCodigoMaquina;
+
+  Dias := DiasRestantes;
+  if Dias = -1 then
+  begin
+    lblDias.Caption    := 'Licenca EXPIRADA';
+    lblDias.Font.Color := clRed;
+  end
+  else
+  begin
+    lblDias.Caption    := IntToStr(Dias) + ' dia(s) restante(s)';
+    lblDias.Font.Color := clLime;
+  end;
+
+  edtCodigoAtiv.Clear;
+  edtCodigoAtiv.SetFocus;
+end;
+
+// ============================================================
+// ATIVAR
+// ============================================================
+
+procedure TfrmLicenca.pnAtivarClick(Sender: TObject);
+var
+  CodigoDigitado, CodigoEsperado: string;
+  qrTemp: TADOQuery;
+begin
+  CodigoDigitado := Trim(edtCodigoAtiv.Text);
+  CodigoEsperado := GerarCodigoEsperado;
+
+  if CodigoDigitado <> CodigoEsperado then
+  begin
+    Application.MessageBox(
+      'Codigo de ativacao invalido. Entre em contato com o suporte.',
+      'Licenca', MB_OK + MB_ICONERROR
+    );
+    edtCodigoAtiv.Clear;
+    edtCodigoAtiv.SetFocus;
+    Exit;
+  end;
+
+  // Renova a licenca por mais 30 dias a partir de hoje
+  qrTemp := TADOQuery.Create(nil);
+  try
+    qrTemp.Connection := dmConexoes.conRobson;
+    qrTemp.SQL.Add(
+      'UPDATE Licenca SET DataInstalacao = GETDATE() WHERE Ativo = 1'
+    );
+    qrTemp.ExecSQL;
+  finally
+    qrTemp.Free;
+  end;
+
+  Application.MessageBox(
+    'Licenca renovada com sucesso! O sistema estara disponivel por mais 30 dias.',
+    'Licenca', MB_OK + MB_ICONINFORMATION
+  );
+  ModalResult := mrOk;
+end;
+
+// ============================================================
+// FECHAR
+// ============================================================
+
+procedure TfrmLicenca.pnFecharClick(Sender: TObject);
+begin
+  // Se licenca expirada nao deixa fechar sem ativar
+  if DiasRestantes = -1 then
+  begin
+    Application.MessageBox(
+      'Licenca expirada. E necessario ativar para continuar.',
+      'Licenca', MB_OK + MB_ICONWARNING
+    );
+    Exit;
+  end;
+  ModalResult := mrCancel;
+end;
+
+// ============================================================
+// KEY PRESS
+// ============================================================
+
+procedure TfrmLicenca.edtCodigoAtivKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then
+  begin
+    Key := #0;
+    pnAtivarClick(nil);
+  end
+  else if not (Key in ['0'..'9', #8]) then
+    Key := #0;
+end;
+
+// ============================================================
+// MOUSE ENTER / LEAVE
+// ============================================================
+
+procedure TfrmLicenca.pnAtivarMouseEnter(Sender: TObject);
+begin pnAtivar.Color := clGreen; pnAtivar.Font.Color := clWhite; end;
+procedure TfrmLicenca.pnAtivarMouseLeave(Sender: TObject);
+begin pnAtivar.Color := COR_DARK_BTN; pnAtivar.Font.Color := clWhite; end;
+
+procedure TfrmLicenca.pnFecharMouseEnter(Sender: TObject);
+begin pnFechar.Color := clRed; pnFechar.Font.Color := clWhite; end;
+procedure TfrmLicenca.pnFecharMouseLeave(Sender: TObject);
+begin pnFechar.Color := COR_DARK_BTN; pnFechar.Font.Color := clWhite; end;
+
+end.
