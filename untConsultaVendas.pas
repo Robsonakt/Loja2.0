@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids,
-  Vcl.StdCtrls, Vcl.Buttons, Vcl.ComCtrls, Vcl.ExtCtrls,ShellAPI,ComObj,Math;
+  Vcl.StdCtrls, Vcl.Buttons, Vcl.ComCtrls, Vcl.ExtCtrls, ShellAPI, ComObj, Math;
 
 type
   TfrmConsulta_Venda = class(TForm)
@@ -55,7 +55,7 @@ uses
   untVenda, dmconexao, untCadastroUsuario, untLogUser;
 
 // -------------------------------------------------------
-// SQL de Vendas com formatação R$ direto na query
+// SQL de Vendas
 // -------------------------------------------------------
 function SQLVendasFormatado(filtroData: string): string;
 begin
@@ -72,7 +72,7 @@ begin
 end;
 
 // -------------------------------------------------------
-// SQL de Itens com formatação R$ direto na query
+// SQL de Itens - corrigido para usar TADOQuery temporaria
 // -------------------------------------------------------
 function SQLItensFormatado(codVenda: Integer): string;
 begin
@@ -110,12 +110,25 @@ begin
     Exit;
   end;
 
-  OutputPath := ExtractFilePath(Application.ExeName) + 'RelatorioVendas.xlsx';
+   with TSaveDialog.Create(nil) do
+  try
+    Title       := 'Salvar Relatorio de Vendas';
+    Filter      := 'Arquivo Excel (*.xlsx)|*.xlsx';
+    DefaultExt  := 'xlsx';
+    FileName    := 'RelatorioVendas.xlsx';
+    InitialDir  := ExtractFilePath(Application.ExeName);
+    Options     := [ofOverwritePrompt, ofPathMustExist];
+
+    if not Execute then Exit;
+    OutputPath := FileName;
+  finally
+    Free;
+  end;
 
   try
     XL := CreateOleObject('Excel.Application');
   except
-    Application.MessageBox('Microsoft Excel não encontrado.',
+    Application.MessageBox('Microsoft Excel nao encontrado.',
       'Aviso - [Excel Vendas]', MB_OK + MB_ICONERROR);
     Exit;
   end;
@@ -126,18 +139,16 @@ begin
     WS := WB.Worksheets[1];
     WS.Name := 'Vendas';
 
-    // --- Título ---
     WS.Range['A1:D1'].Merge;
-    WS.Cells[1, 1].Value               := 'Relatório de Vendas';
+    WS.Cells[1, 1].Value               := 'Relatorio de Vendas';
     WS.Cells[1, 1].Font.Bold           := True;
     WS.Cells[1, 1].Font.Size           := 14;
     WS.Cells[1, 1].Font.Color          := $007E3F1F;
     WS.Cells[1, 1].HorizontalAlignment := 3;
     WS.Rows[1].RowHeight               := 30;
 
-    // --- Cabeçalho ---
     Row := 2;
-    WS.Cells[Row, 1].Value := 'Cód. Venda';
+    WS.Cells[Row, 1].Value := 'Cod. Venda';
     WS.Cells[Row, 2].Value := 'Produto';
     WS.Cells[Row, 3].Value := 'Data Venda';
     WS.Cells[Row, 4].Value := 'Valor Total';
@@ -151,27 +162,21 @@ begin
     end;
     WS.Rows[Row].RowHeight := 20;
 
-    // --- Dados direto do qrVendas ---
     Row := 3;
     dmconexoes.qrVendas.First;
     while not dmconexoes.qrVendas.Eof do
     begin
       WS.Cells[Row, 1].Value               := dmconexoes.qrVendas.FieldByName('CodVenda').AsString;
       WS.Cells[Row, 1].HorizontalAlignment := 3;
-
       WS.Cells[Row, 2].Value               := dmconexoes.qrVendas.FieldByName('DescriProd').AsString;
-
       WS.Cells[Row, 3].Value               := dmconexoes.qrVendas.FieldByName('DataVenda').AsString;
       WS.Cells[Row, 3].HorizontalAlignment := 3;
-
       WS.Cells[Row, 4].Value               := dmconexoes.qrVendas.FieldByName('ValorTotal').AsString;
       WS.Cells[Row, 4].HorizontalAlignment := 4;
-
       Inc(Row);
       dmconexoes.qrVendas.Next;
     end;
 
-    // --- Calcula total percorrendo o dataset novamente ---
     TotalGeral := 0;
     dmconexoes.qrVendas.First;
     while not dmconexoes.qrVendas.Eof do
@@ -180,37 +185,28 @@ begin
       ValorStr := StringReplace(ValorStr, 'R$', '', [rfReplaceAll]);
       ValorStr := StringReplace(ValorStr, '.', '', [rfReplaceAll]);
       ValorStr := Trim(ValorStr);
-      // Não troca vírgula — usa diretamente com separador pt-BR
       TotalGeral := TotalGeral + StrToCurrDef(ValorStr, 0);
       dmconexoes.qrVendas.Next;
     end;
 
-    // --- Linha de Totais ---
     TotRow := Row;
-
     WS.Cells[TotRow, 1].Value               := 'TOTAIS';
     WS.Cells[TotRow, 1].Font.Bold           := True;
     WS.Cells[TotRow, 1].Interior.Color      := $00D2E1F2;
     WS.Cells[TotRow, 1].HorizontalAlignment := 3;
-
     WS.Cells[TotRow, 2].Value               := 'Qtd. de Vendas: ' + IntToStr(TotRow - 3);
     WS.Cells[TotRow, 2].Font.Bold           := True;
     WS.Cells[TotRow, 2].Interior.Color      := $00D2E1F2;
-
     WS.Cells[TotRow, 3].Interior.Color      := $00D2E1F2;
-
     WS.Cells[TotRow, 4].Value               := 'R$ ' + FormatFloat('#,##0.00', TotalGeral);
     WS.Cells[TotRow, 4].Font.Bold           := True;
     WS.Cells[TotRow, 4].Interior.Color      := $00D2E1F2;
     WS.Cells[TotRow, 4].HorizontalAlignment := 4;
-
-    // --- Largura das colunas ---
     WS.Columns[1].ColumnWidth := 12;
     WS.Columns[2].ColumnWidth := 40;
     WS.Columns[3].ColumnWidth := 14;
     WS.Columns[4].ColumnWidth := 18;
 
-    // --- Salva ---
     WB.SaveAs(OutputPath);
     WB.Close(False);
     XL.Quit;
@@ -240,11 +236,10 @@ var
 begin
   if not dmconexoes.qrVendas.Active then
   begin
-    ShowMessage('Realize a consulta antes de gerar o relatório.');
+    ShowMessage('Realize a consulta antes de gerar o relatorio.');
     Exit;
   end;
 
-  // Calcula totais — igual ao que já faz no Excel
   TotalValor := 0;
   QtdVendas  := 0;
   dmconexoes.qrVendas.First;
@@ -264,6 +259,7 @@ begin
   frmRelatorioVendas.SetTotais(QtdVendas, TotalValor);
   frmRelatorioVendas.rlr_RelatorioVendas.Preview;
 end;
+
 
 procedure TfrmConsulta_Venda.cbIntervaloChange(Sender: TObject);
 begin
@@ -318,8 +314,6 @@ begin
         dFinal   := FormatDateTime('yyyy-mm-dd', dtFinal.Date)   + ' 23:59:59';
         filtro   := ' AND (DATAVENDA BETWEEN ''' + dInicial + ''' AND ''' + dFinal + ''')';
       except
-
-
       end;
     end;
     qrVendas.Close;
@@ -329,13 +323,23 @@ begin
   end;
 end;
 
+// -------------------------------------------------------
+// CORRECAO: usa TADOQuery temporaria para carregar itens
+// evita conflito com fields persistentes do qrItensVenda
+// -------------------------------------------------------
 procedure TfrmConsulta_Venda.dsVendaDataChange(Sender: TObject; Field: TField);
+var
+  CodVenda: Integer;
 begin
+  if dmconexoes.qrVendas.IsEmpty then Exit;
+
+  CodVenda := dmconexoes.qrVendas.FieldByName('CodVenda').AsInteger;
+
   with dmconexoes do
   begin
     qrItensVenda.Close;
     qrItensVenda.SQL.Clear;
-    qrItensVenda.SQL.Add(SQLItensFormatado(qrVendas.FieldByName('CodVenda').AsInteger));
+    qrItensVenda.SQL.Add(SQLItensFormatado(CodVenda));
     qrItensVenda.Open;
     gridConsultaItens.Refresh;
   end;
@@ -357,10 +361,10 @@ procedure TfrmConsulta_Venda.FormShow(Sender: TObject);
 begin
   with dmconexoes do
   begin
-  dmconexoes.qrVendas.Close;
-  dmconexoes.qrItensVenda.Close;
-  dtInicial.Date := Date;
-  dtFinal.Date   := Date;
+    qrVendas.Close;
+    qrItensVenda.Close;
+    dtInicial.Date := Date;
+    dtFinal.Date   := Date;
   end;
 end;
 
@@ -392,5 +396,7 @@ begin
   end;
   Result := True;
 end;
+
+
 
 end.

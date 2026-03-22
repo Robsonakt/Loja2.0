@@ -89,7 +89,6 @@ type
     procedure DSItensVendaDataChange(Sender: TObject; Field: TField);
 
   private
-    // cache do produto selecionado (evita reabrir qrEstoque)
     FProdQtdeEstoque: Integer;
     procedure AddMemo(ctexto: string);
     procedure VerificaCliente;
@@ -97,6 +96,7 @@ type
     procedure InsereProd;
     procedure LimparTela;
     procedure AtualizarCodVenda;
+    procedure RecalcularTotal;
   public
     { Public declarations }
   end;
@@ -116,6 +116,22 @@ implementation
 uses dmConexao, untInicial, untCadastroProd, untLocalizaProd, untLocalizaCli;
 
 // ============================================================
+// RECALCULA TOTAL A PARTIR DO FDPRODUTO
+// ============================================================
+
+procedure TfrmCaixaVendas.RecalcularTotal;
+begin
+  totalvalor := 0;
+  fdProduto.First;
+  while not fdProduto.Eof do
+  begin
+    totalvalor := totalvalor + fdProduto.FieldByName('ValorTotal').AsCurrency;
+    fdProduto.Next;
+  end;
+  lbvalorDinheiro.Caption := FormatFloat('"R$" #,##0.00', totalvalor);
+end;
+
+// ============================================================
 // AUXILIARES PRIVADAS
 // ============================================================
 
@@ -132,7 +148,7 @@ begin
   edtQuant.Clear;
   edtValorTotal.Clear;
   edtDataVenda.Clear;
-  lbvalorDinheiro.Caption := '';
+  lbvalorDinheiro.Caption := 'R$ 0,00';
   lbNomeCli.Caption       := '';
   lbNomeProd.Caption      := '.';
   FProdQtdeEstoque        := 0;
@@ -183,42 +199,40 @@ begin
 end;
 
 // ============================================================
-// VERIFICA Produto
+// VERIFICA PRODUTO
 // ============================================================
 
 procedure TfrmCaixaVendas.VerificaProduto;
 begin
   with dmConexoes do
   begin
-    qrEstoque.close;
-    qrEstoque.sql.clear;
-    qrEstoque.sql.Add('SELECT * FROM PRODUTOS WHERE CODIGO = :pcod');
-    qrEstoque.Parameters.ParamByName('pcod').Value :=  StrToInt(edtCodProd.text);
-    qrEstoque.open;
+    qrEstoque.Close;
+    qrEstoque.SQL.Clear;
+    qrEstoque.SQL.Add('SELECT * FROM PRODUTOS WHERE CODIGO = :pcod');
+    qrEstoque.Parameters.ParamByName('pcod').Value := StrToIntDef(edtCodProd.Text, 0);
+    qrEstoque.Open;
 
     if qrEstoque.IsEmpty then
     begin
-      Application.MessageBox('Produto não encontrado', 'Atencao', MB_OK + MB_ICONERROR);
-      EdtNameCliente.SetFocus;
+      Application.MessageBox('Produto nao encontrado', 'Atencao', MB_OK + MB_ICONERROR);
+      edtCodProd.SetFocus;
     end
     else
     begin
       lbNomeProd.Caption := qrEstoque.FieldByName('descricao').AsString;
+      FProdQtdeEstoque   := qrEstoque.FieldByName('quantidade').AsInteger;
       edtQuant.SetFocus;
     end;
   end;
-
 end;
 
 // ============================================================
 // INSERE PRODUTO NA GRID (FDMemTable)
-// Nao usa qrEstoque - usa cache FProdQtdeEstoque e lbNomeProd
 // ============================================================
 
 procedure TfrmCaixaVendas.InsereProd;
 var
-   i: Integer;
-   valorUni: Currency;
+  i: Integer;
 begin
   fdProduto.Active := True;
   fdProduto.Insert;
@@ -229,8 +243,9 @@ begin
   fdProduto.FieldByName('Quantidade').AsInteger  := StrToIntDef(edtQuant.Text, 0);
   fdProduto.FieldByName('ValorTotal').AsCurrency := dmConexoes.qrEstoque.FieldByName('valorvenda').AsCurrency * StrToIntDef(edtQuant.Text, 0);
   fdProduto.Post;
-  totalvalor := totalvalor + fdProduto.FieldByName('ValorTotal').AsCurrency;
-  lbvalorDinheiro.Caption := FormatFloat('"R$" #,##0.00', totalvalor);
+
+  // Recalcula total do zero para garantir precisao
+  RecalcularTotal;
 
   // Monta cupom no Memo
   Memo1.Lines.Clear;
@@ -268,14 +283,16 @@ end;
 procedure TfrmCaixaVendas.FormShow(Sender: TObject);
 begin
   edtValorProd.Clear;
-  edtQuantRest.clear;
+  edtQuantRest.Clear;
   cfg_Empresa  := 'NOME DA EMPRESA';
   cfg_Endereco := 'ENDERECO DA EMPRESA';
   cfg_Telefone := '(00) 0000-0000';
 
   FProdQtdeEstoque := 0;
+  totalvalor := 0;
   fdProduto.Open;
   AtualizarCodVenda;
+  lbvalorDinheiro.Caption := 'R$ 0,00';
   EdtNameCliente.SetFocus;
 end;
 
@@ -288,25 +305,20 @@ begin
   if Key = #13 then
   begin
     Key := #0;
-    LocalizaCodigoCli := dmconexoes.qrCliente.FieldByName('codcli').asstring;
+    LocalizaCodigoCli := dmConexoes.qrCliente.FieldByName('codcli').AsString;
     VerificaCliente;
   end;
 end;
 
-procedure TfrmCaixaVendas.EdtNameClienteKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TfrmCaixaVendas.EdtNameClienteKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-  with dmconexoes do
+  if Key = VK_F2 then
   begin
-    if key = vk_f2 then
-      begin
-        Application.CreateForm(TfrmLocalizaCli, frmLocalizaCli);
-        frmLocalizaCli.ShowModal;
-        frmLocalizaCli.Free;
-
-        EdtNameCliente.text :=  LocalizaCodigoCli;
-        EdtNameClienteKeyPress(self,keyEnter);
-      end;
+    Application.CreateForm(TfrmLocalizaCli, frmLocalizaCli);
+    frmLocalizaCli.ShowModal;
+    frmLocalizaCli.Free;
+    EdtNameCliente.Text := LocalizaCodigoCli;
+    EdtNameClienteKeyPress(Self, keyEnter);
   end;
 end;
 
@@ -324,41 +336,26 @@ end;
 
 // ============================================================
 // EVENTOS DOS CAMPOS - PRODUTO
-// Usa TADOQuery temporaria para nao interferir no qrEstoque
-// que possui fields persistentes no DataModule
 // ============================================================
 
-procedure TfrmCaixaVendas.edtCodProdKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-var
-  KeyChar: Char;
+procedure TfrmCaixaVendas.edtCodProdKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-  with dmconexoes do
-  if Key = vk_f2 then
-    begin
-        Application.CreateForm(TfrmLocalizaProd, frmLocalizaProd);
-        frmLocalizaProd.ShowModal;
-        frmLocalizaProd.Free;
-
-        edtCodProd.text :=  LocalizaCodigoProd;
-        EdtCodProdKeyPress(self,keyEnter);
-
-    end;
-
+  if Key = VK_F2 then
+  begin
+    Application.CreateForm(TfrmLocalizaProd, frmLocalizaProd);
+    frmLocalizaProd.ShowModal;
+    frmLocalizaProd.Free;
+    edtCodProd.Text := LocalizaCodigoProd;
+    edtCodProdKeyPress(Self, keyEnter);
+  end;
 end;
 
 procedure TfrmCaixaVendas.edtCodProdKeyPress(Sender: TObject; var Key: Char);
 begin
- if (Key = #13) and (edtCodProd.Text <> '') then
+  if (Key = #13) and (edtCodProd.Text <> '') then
   begin
-    try
     Key := #0;
-    LocalizaCodigoProd := dmconexoes.qrEstoque.FieldByName('CODIGO').asstring;
     VerificaProduto;
-    finally
-
-    end;
-
   end;
 end;
 
@@ -369,21 +366,20 @@ begin
   if Key = #13 then
   begin
     valorUni := dmConexoes.qrEstoque.FieldByName('valorvenda').AsCurrency;
-    // guarda formatado para exibição
-    edtValorProd.Text := FormatFloat('"R$" #,##0.00', valorUni);
-    // calcula direto com a variável, sem ler o texto formatado
+    edtValorProd.Text  := FormatFloat('"R$" #,##0.00', valorUni);
     edtValorTotal.Text := FormatFloat('#,##0.00', valorUni * StrToIntDef(edtQuant.Text, 0));
     edtValorTotal.SetFocus;
   end;
-
 end;
 
 procedure TfrmCaixaVendas.edtValorTotalKeyPress(Sender: TObject; var Key: Char);
 begin
   if Key = #13 then
-    PnConfirmaItem.Color := clGreen; PnConfirmaItem.Font.Color := clWhite;
+  begin
+    PnConfirmaItem.Color      := clGreen;
+    PnConfirmaItem.Font.Color := clWhite;
     PnConfirmaItem.SetFocus;
-
+  end;
 end;
 
 procedure TfrmCaixaVendas.edtDataVendaKeyPress(Sender: TObject; var Key: Char);
@@ -396,71 +392,70 @@ begin
 end;
 
 // ============================================================
-// GRID - DELETE item com tecla DEL
+// GRID - DELETE item com tecla DEL e recalcula total
 // ============================================================
 
-procedure TfrmCaixaVendas.DBGrid1KeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TfrmCaixaVendas.DBGrid1KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if Key = VK_DELETE then
   begin
-    if application.MessageBox('Deseja deletar o produto?', 'Atenção',
-      MB_ICONQUESTION + MB_YESNO) = idYes then
+    if Application.MessageBox('Deseja deletar o produto?', 'Atencao',
+      MB_ICONQUESTION + MB_YESNO) = IDYES then
     begin
       fdProduto.Delete;
+      // Recalcula total apos remover item
+      RecalcularTotal;
     end;
   end;
 end;
 
-procedure TfrmCaixaVendas.DSItensVendaDataChange(Sender: TObject;
-  Field: TField);
+procedure TfrmCaixaVendas.DSItensVendaDataChange(Sender: TObject; Field: TField);
 begin
-
+  // nada
 end;
 
 // ============================================================
-// PAINEL CONFIRMA ITEM
+// PAINEL CONFIRMA ITEM - corrigido: atualiza quantidade em memoria
 // ============================================================
 
 procedure TfrmCaixaVendas.PnConfirmaItemClick(Sender: TObject);
 begin
-
-  with dmconexoes do
+  with dmConexoes do
   begin
+    qrComando.Close;
+    qrComando.SQL.Clear;
+    qrComando.SQL.Add('SELECT MAX(CodVenda) AS ULTIMOCODIGO FROM [LojaNova].[dbo].[vendas]');
+    qrComando.Open;
 
-    qrcomando.close;
-    qrcomando.sql.clear;
-    qrcomando.sql.Add('SELECT MAX(CodVenda) AS ULTIMOCODIGO FROM [ROBSON].[dbo].[vendas]');
-    qrcomando.open;
-    if qrEstoque.FieldByName('quantidade').AsInteger -
-      StrToInt(edtQuant.text) <= 0 then
+    if qrEstoque.FieldByName('quantidade').AsInteger - StrToIntDef(edtQuant.Text, 0) <= 0 then
     begin
-      if application.MessageBox
-        ('Você ficara sem estoque deste produto, Deseja continuar a venda ?',
-        'Atenção  ', MB_YESNO + MB_ICONINFORMATION) = 6 then
+      if Application.MessageBox(
+        'Voce ficara sem estoque deste produto, Deseja continuar a venda?',
+        'Atencao', MB_YESNO + MB_ICONINFORMATION) = IDYES then
       begin
+        // Apenas armazena em memoria - SEM post no banco
         InsereProd;
       end
       else
       begin
-        application.MessageBox('Venda  de produto Cancelada', 'Atenção  ',
-          MB_OK + MB_ICONINFORMATION);
-
+        Application.MessageBox('Venda de produto Cancelada', 'Atencao', MB_OK + MB_ICONINFORMATION);
       end;
     end
     else
     begin
+      // Apenas armazena em memoria - SEM post no banco
       InsereProd;
     end;
-    edtCodVenda.text := Inttostr(qrcomando.FieldByName('ULTIMOCODIGO')
-      .AsInteger + 1);
+
+    edtCodVenda.Text := IntToStr(qrComando.FieldByName('ULTIMOCODIGO').AsInteger + 1);
   end;
-  PnVenda.Enabled := true;
-  Pnfiado.Enabled := true;
+
+  PnVenda.Enabled := True;
+  Pnfiado.Enabled := True;
   edtCodProd.SetFocus;
   edtQuant.Clear;
   edtValorProd.Clear;
-  edtValorTotal.clear;
+  edtValorTotal.Clear;
   edtQuantRest.Clear;
 end;
 
@@ -475,9 +470,8 @@ var
   sValorPago: string;
   proximoCodItem: Integer;
 begin
-  // Pergunta sobre troco
   if Application.MessageBox('Precisa de ajuda com o troco?', 'Troco',
-    MB_YESNO + MB_ICONQUESTION) = idYes then
+    MB_YESNO + MB_ICONQUESTION) = IDYES then
   begin
     sValorPago := '';
     if InputQuery('Valor Recebido', 'Digite o valor recebido pelo cliente:', sValorPago) then
@@ -510,7 +504,6 @@ begin
     qrItensVenda.SQL.Add('SELECT * FROM [LojaNova].[dbo].[ItensVenda]');
     qrItensVenda.Open;
 
-    // 1. Busca proximo CodVenda
     qrComando.Close;
     qrComando.SQL.Clear;
     qrComando.SQL.Add('SELECT ISNULL(MAX(CodVenda), 0) + 1 AS PROXIMOVENDA FROM [LojaNova].[dbo].[VENDAS]');
@@ -526,7 +519,6 @@ begin
     qrVendas.Post;
     qrVendas.Close;
 
-    // 2. Busca proximo CodItem
     qrComando.Close;
     qrComando.SQL.Clear;
     qrComando.SQL.Add('SELECT ISNULL(MAX(CodItem), 0) + 1 AS PROXIMOITEM FROM [LojaNova].[dbo].[ItensVenda]');
@@ -536,31 +528,20 @@ begin
     fdProduto.First;
     while not fdProduto.Eof do
     begin
-      // Atualiza estoque de cada produto
-      if qrEstoque.Locate('codigo', fdProduto.FieldByName('CodProd').AsInteger, [loCaseInsensitive]) then
-      begin
-        qrEstoque.Edit;
-        qrEstoque.FieldByName('quantidade').Value :=
-          qrEstoque.FieldByName('quantidade').AsInteger -
-          fdProduto.FieldByName('Quantidade').AsInteger;
-        qrEstoque.Post;
-      end;
-
-      // Grava item da venda
       qrItensVenda.Insert;
-      qrItensVenda.FieldByName('CodItem').AsInteger       := proximoCodItem;  // usa a variavel
+      qrItensVenda.FieldByName('CodItem').AsInteger       := proximoCodItem;
       qrItensVenda.FieldByName('CodVenda').AsString       := fdProduto.FieldByName('CodVenda').AsString;
       qrItensVenda.FieldByName('Descricao').AsString      := fdProduto.FieldByName('Descricao').AsString;
       qrItensVenda.FieldByName('ValorTotal').AsCurrency   := fdProduto.FieldByName('ValorTotal').AsCurrency;
       qrItensVenda.FieldByName('Quantidade').AsInteger    := fdProduto.FieldByName('Quantidade').AsInteger;
       qrItensVenda.FieldByName('ValorProdUni').AsCurrency := fdProduto.FieldByName('ValorUni').AsCurrency;
       qrItensVenda.FieldByName('DataVenda').AsDateTime    := StrToDateTime(edtDataVenda.Text);
-      qrItensVenda.Post;                    // apenas um Post
-
-      proximoCodItem := proximoCodItem + 1; // incrementa para o proximo item
+      qrItensVenda.Post;
+      proximoCodItem := proximoCodItem + 1;
       fdProduto.Next;
     end;
-    if Application.MessageBox('Deseja imprimir o comprovante?', 'Atencao', MB_YESNO) = idYes then
+
+    if Application.MessageBox('Deseja imprimir o comprovante?', 'Atencao', MB_YESNO) = IDYES then
     begin
       ACBrPosPrinter1.Ativar;
       ACBrPosPrinter1.Buffer.Text := Memo1.Text;
@@ -570,19 +551,21 @@ begin
     else
       Application.MessageBox('Venda Feita com Sucesso', 'Venda', MB_OK + MB_ICONINFORMATION);
 
-    EdtNameCliente.Clear;
-    edtCodProd.Clear;
-    edtValorProd.Clear;
-    edtQuant.Clear;
-    edtValorTotal.Clear;
-    edtDataVenda.Clear;
-    lbvalorDinheiro.Caption := '';
-    lbNomeCli.Caption       := '';
-    lbNomeProd.Caption      := '.';
-    totalvalor := 0;
-    EdtNameCliente.SetFocus;
-    fdProduto.Close;
-    fdProduto.Open;
+      fdProduto.First;
+    while not fdProduto.Eof do
+    begin
+      if qrEstoque.Locate('codigo', fdProduto.FieldByName('CodProd').AsInteger, [loCaseInsensitive]) then
+      begin
+        qrEstoque.Edit;
+        qrEstoque.FieldByName('quantidade').Value :=
+          qrEstoque.FieldByName('quantidade').AsInteger -
+          fdProduto.FieldByName('Quantidade').AsInteger;
+        qrEstoque.Post;
+      end;
+      fdProduto.Next;
+    end;
+    fdProduto.First;
+    LimparTela;
   end;
 end;
 
@@ -596,22 +579,6 @@ var
 begin
   with dmConexoes do
   begin
-    // Atualiza estoque de cada produto da venda
-    fdProduto.First;
-    while not fdProduto.Eof do
-    begin
-      if qrEstoque.Locate('codigo', fdProduto.FieldByName('CodProd').AsInteger, [loCaseInsensitive]) then
-      begin
-        qrEstoque.Edit;
-        qrEstoque.FieldByName('quantidade').Value :=
-          qrEstoque.FieldByName('quantidade').AsInteger -
-          fdProduto.FieldByName('Quantidade').AsInteger;
-        qrEstoque.Post;
-      end;
-      fdProduto.Next;
-    end;
-
-    // Atualiza valor fiado do cliente
     qrCliente.Close;
     qrCliente.SQL.Clear;
     qrCliente.SQL.Add('SELECT * FROM [LojaNova].[dbo].[Cliente] WHERE codcli = :pcod');
@@ -627,28 +594,30 @@ begin
     end;
 
     Application.MessageBox('Venda Fiado Registrada!', 'Fiado', MB_OK + MB_ICONINFORMATION);
-
-    EdtNameCliente.Clear;
-    edtCodProd.Clear;
-    edtValorProd.Clear;
-    edtQuant.Clear;
-    edtValorTotal.Clear;
-    edtDataVenda.Clear;
-    lbvalorDinheiro.Caption := '';
-    lbNomeCli.Caption       := '';
-    lbNomeProd.Caption      := '.';
-    totalvalor := 0;
-    EdtNameCliente.SetFocus;
-    fdProduto.Close;
-    fdProduto.Open;
+    // Atualiza estoque de cada produto
+    fdProduto.First;
+    while not fdProduto.Eof do
+    begin
+      if qrEstoque.Locate('codigo', fdProduto.FieldByName('CodProd').AsInteger, [loCaseInsensitive]) then
+      begin
+        qrEstoque.Edit;
+        qrEstoque.FieldByName('quantidade').Value :=
+          qrEstoque.FieldByName('quantidade').AsInteger -
+          fdProduto.FieldByName('Quantidade').AsInteger;
+        qrEstoque.Post;
+      end;
+      fdProduto.Next;
+    end;
+    fdProduto.First;
+    LimparTela;
   end;
 end;
+
 // ============================================================
-// PAINEL IMPRESSORA - Reimprime cupom
+// PAINEL IMPRESSORA
 // ============================================================
 
 procedure TfrmCaixaVendas.PnImpressoraClick(Sender: TObject);
-
 begin
 end;
 

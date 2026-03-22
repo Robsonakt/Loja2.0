@@ -147,25 +147,38 @@ begin
   qrCaixa.Open;
   Result := not qrCaixa.IsEmpty;
 end;
-
 function TdmConexoes.AbrirCaixa(AValorInicial: Currency): Boolean;
+var
+  qrTemp: TADOQuery;
+  ProxCod: Integer;
 begin
   Result := False;
   if AValorInicial < 0 then Exit;
   if CaixaAberto then Exit;
 
+  // Busca o proximo CodVenda
+  qrTemp := TADOQuery.Create(nil);
+  try
+    qrTemp.Connection := conRobson;
+    qrTemp.SQL.Add('SELECT ISNULL(MAX(CodVenda), 0) + 1 AS PROXIMO FROM VENDAS');
+    qrTemp.Open;
+    ProxCod := qrTemp.FieldByName('PROXIMO').AsInteger;
+  finally
+    qrTemp.Free;
+  end;
+
   qrCaixa.Close;
   qrCaixa.SQL.Clear;
   qrCaixa.SQL.Add(
-    'INSERT INTO Caixa (DataAbertura, ValorAbertura, Status, UsuarioAbertura) ' +
-    'VALUES (GETDATE(), :Valor, ''A'', :Usuario)'
+    'INSERT INTO Caixa (DataAbertura, ValorAbertura, Status, UsuarioAbertura, CodVendaInicial) ' +
+    'VALUES (GETDATE(), :Valor, ''A'', :Usuario, :CodInicial)'
   );
-  qrCaixa.Parameters.ParamByName('Valor').Value   := AValorInicial;
-  qrCaixa.Parameters.ParamByName('Usuario').Value := qrUsuario.FieldByName('Usuario').AsString;
+  qrCaixa.Parameters.ParamByName('Valor').Value      := AValorInicial;
+  qrCaixa.Parameters.ParamByName('Usuario').Value    := qrUsuario.FieldByName('Usuario').AsString;
+  qrCaixa.Parameters.ParamByName('CodInicial').Value := ProxCod;
   qrCaixa.ExecSQL;
   Result := True;
 end;
-
 function TdmConexoes.TotalVendasCaixaAtual: Currency;
 var
   qrTemp: TADOQuery;
@@ -175,11 +188,11 @@ begin
   try
     qrTemp.Connection := conRobson;
     qrTemp.SQL.Add(
-      'SELECT ISNULL(SUM(ValorTotal), 0) AS TotalVendas ' +
-      'FROM VENDAS ' +
-      'WHERE CAST(DataVenda AS DATE) >= (' +
-      '  SELECT CAST(MAX(DataAbertura) AS DATE) FROM Caixa WHERE Status = ''A''' +
-      ')'
+      'SELECT ISNULL(SUM(v.ValorTotal), 0) AS TotalVendas ' +
+      'FROM VENDAS v ' +
+      'INNER JOIN Caixa c ON c.Status = ''A'' ' +
+      '  AND v.CodVenda >= c.CodVendaInicial ' +
+      '  AND c.DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
     );
     qrTemp.Open;
     Result := qrTemp.FieldByName('TotalVendas').AsCurrency;

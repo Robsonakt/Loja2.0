@@ -18,12 +18,9 @@ type
     lblStatus: TLabel;
     lblRodapeDir: TLabel;
     pnlCorpo: TPanel;
-
-    // Toolbar
     pnlToolbar: TPanel;
     pnConsultar: TPanel;
-
-    // Filtros
+    pnFechar: TPanel;
     grpFiltro: TGroupBox;
     lblIntervalo: TLabel;
     lblDataIni: TLabel;
@@ -33,8 +30,6 @@ type
     dtDataIni: TDateTimePicker;
     dtDataFim: TDateTimePicker;
     cbStatus: TComboBox;
-
-    // Grid
     grpGrid: TGroupBox;
     gridFechamento: TDBGrid;
     dsFechamento: TDataSource;
@@ -48,8 +43,6 @@ type
     fdStatus: TStringField;
     fdUsuarioAbertura: TStringField;
     fdUsuarioFechamento: TStringField;
-
-    // Totalizadores
     grpTotais: TGroupBox;
     lblTotAberturaLabel: TLabel;
     lblTotAbertura: TLabel;
@@ -63,11 +56,15 @@ type
     procedure pnConsultarClick(Sender: TObject);
     procedure pnConsultarMouseEnter(Sender: TObject);
     procedure pnConsultarMouseLeave(Sender: TObject);
+    procedure pnFecharClick(Sender: TObject);
+    procedure pnFecharMouseEnter(Sender: TObject);
+    procedure pnFecharMouseLeave(Sender: TObject);
     procedure cbIntervaloChange(Sender: TObject);
 
   private
     procedure Consultar;
     procedure AtualizarTotais;
+    procedure LimparTotais;
   public
     { Public declarations }
   end;
@@ -100,6 +97,11 @@ begin
   dtDataFim.Date := Date;
   fdFechamento.Close;
   fdFechamento.Open;
+  LimparTotais;
+end;
+
+procedure TfrmConsultaFechamento.LimparTotais;
+begin
   lblTotAbertura.Caption := 'R$ 0,00';
   lblTotVendas.Caption   := 'R$ 0,00';
   lblTotSaldo.Caption    := 'R$ 0,00';
@@ -130,6 +132,7 @@ begin
 
   fdFechamento.Close;
   fdFechamento.Open;
+  LimparTotais;
 
   qrTemp := TADOQuery.Create(nil);
   try
@@ -228,6 +231,11 @@ begin
   Consultar;
 end;
 
+procedure TfrmConsultaFechamento.pnFecharClick(Sender: TObject);
+begin
+  Close;
+end;
+
 procedure TfrmConsultaFechamento.cbIntervaloChange(Sender: TObject);
 begin
   if cbIntervalo.ItemIndex = 1 then
@@ -251,5 +259,9 @@ begin pnConsultar.Color := $001E8FBF; pnConsultar.Font.Color := clWhite; end;
 procedure TfrmConsultaFechamento.pnConsultarMouseLeave(Sender: TObject);
 begin pnConsultar.Color := COR_DARK_BTN; pnConsultar.Font.Color := clWhite; end;
 
+procedure TfrmConsultaFechamento.pnFecharMouseEnter(Sender: TObject);
+begin pnFechar.Color := clRed; pnFechar.Font.Color := clWhite; end;
+procedure TfrmConsultaFechamento.pnFecharMouseLeave(Sender: TObject);
+begin pnFechar.Color := COR_DARK_BTN; pnFechar.Font.Color := clWhite; end;
 
 end.
