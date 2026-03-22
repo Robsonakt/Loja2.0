@@ -248,6 +248,7 @@ object frmCadastroCliente: TfrmCadastroCliente
       ParentBackground = False
       ParentFont = False
       TabOrder = 11
+      OnClick = PnPagoClick
       OnMouseEnter = PnPagoMouseEnter
       OnMouseLeave = PnNovoMouseLeave
     end

@@ -149,15 +149,21 @@ begin
     'Informe o valor recebido:',
     sValorPago) then Exit;
 
-  sValorPago := StringReplace(sValorPago, '.', '', [rfReplaceAll]);
-  sValorPago := StringReplace(sValorPago, ',', '.', [rfReplaceAll]);
-  ValorPago  := StrToCurrDef(sValorPago, 0);
+    sValorPago := StringReplace(sValorPago, '.', '', [rfReplaceAll]);
+    sValorPago := StringReplace(sValorPago, ',', FormatSettings.DecimalSeparator, [rfReplaceAll]);
+    sValorPago := Trim(sValorPago);
 
-  if ValorPago <= 0 then
-  begin
-    ShowMessage('Valor invalido.');
-    Exit;
-  end;
+    try
+      ValorPago := StrToCurr(sValorPago);
+    except
+      ValorPago := 0;
+    end;
+
+    if ValorPago <= 0 then
+    begin
+      ShowMessage('Valor invalido. Use virgula como separador. Ex: 20,98');
+      Exit;
+    end;
 
   if ValorPago > ValorFiadoAtual then
   begin
@@ -183,18 +189,22 @@ begin
   dmConexoes.qrCliente.FieldByName('valorfiado').AsCurrency := NovoFiado;
   dmConexoes.qrCliente.Post;
 
-  // Adiciona valor ao caixa aberto (se houver)
+  // Registra pagamento vinculado ao caixa atual
   if dmConexoes.CaixaAberto then
   begin
     qrTemp := TADOQuery.Create(nil);
     try
       qrTemp.Connection := dmConexoes.conRobson;
+
+      // Busca o Id do caixa aberto
       qrTemp.SQL.Add(
-        'UPDATE Caixa SET ValorFechamento = ISNULL(ValorFechamento, 0) + :Valor ' +
+        'INSERT INTO PagamentoFiado (IdCaixa, CodCli, ValorPago) ' +
+        'SELECT TOP 1 Id, :CodCli, :Valor FROM Caixa ' +
         'WHERE Status = ''A'' ' +
-        'AND DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
+        'ORDER BY DataAbertura DESC'
       );
-      qrTemp.Parameters.ParamByName('Valor').Value := ValorPago;
+      qrTemp.Parameters.ParamByName('CodCli').Value := dmConexoes.qrCliente.FieldByName('CodCli').AsInteger;
+      qrTemp.Parameters.ParamByName('Valor').Value  := ValorPago;
       qrTemp.ExecSQL;
     finally
       qrTemp.Free;

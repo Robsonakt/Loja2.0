@@ -8,7 +8,7 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Vcl.Imaging.pngimage, Vcl.ExtCtrls, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.Menus, Vcl.StdCtrls;
+  FireDAC.Comp.Client, Vcl.Menus, Vcl.StdCtrls, Data.Win.ADODB;
 
 type
   TFormularioPrincipal = class(TForm)
@@ -114,11 +114,11 @@ begin
   frmCadastroCliente.Free;
 end;
 
-
 procedure TFormularioPrincipal.PnFechamentoClick(Sender: TObject);
 var
-  ValorAbertura, TotalVendas, ValorFinal: Currency;
+  ValorAbertura, TotalVendas, TotalFiado, ValorFinal: Currency;
   Msg: string;
+  qrFiado: TADOQuery;
 begin
   if not dmConexoes.CaixaAberto then
   begin
@@ -136,15 +136,36 @@ begin
   dmConexoes.qrCaixa.Open;
   ValorAbertura := dmConexoes.qrCaixa.FieldByName('ValorAbertura').AsCurrency;
 
-  // Busca total de vendas
+  // Busca total de vendas (somente vendas, sem fiado)
   TotalVendas := dmConexoes.TotalVendasCaixaAtual;
-  ValorFinal  := ValorAbertura + TotalVendas;
 
-  // Exibe resumo para o operador confirmar
+  // Busca total de fiado pago neste caixa
+  TotalFiado := 0;
+  qrFiado := TADOQuery.Create(nil);
+  try
+    qrFiado.Connection := dmConexoes.conRobson;
+    qrFiado.SQL.Add(
+      'SELECT ISNULL(SUM(pf.ValorPago), 0) AS TotalFiado ' +
+      'FROM PagamentoFiado pf ' +
+      'INNER JOIN Caixa c ON c.Id = pf.IdCaixa ' +
+      'AND c.Status = ''A'' ' +
+      'AND c.DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
+    );
+    qrFiado.Open;
+    TotalFiado := qrFiado.FieldByName('TotalFiado').AsCurrency;
+  finally
+    qrFiado.Free;
+  end;
+
+  // Saldo final = abertura + vendas + fiado recebido
+  ValorFinal := ValorAbertura + TotalVendas + TotalFiado;
+
+  // Exibe resumo separando cada valor
   Msg := 'RESUMO DO CAIXA' + #13#10 +
          '____________________________' + #13#10 +
          'Valor inicial:    R$ ' + FormatFloat('#,##0.00', ValorAbertura) + #13#10 +
          'Total de vendas:  R$ ' + FormatFloat('#,##0.00', TotalVendas)  + #13#10 +
+         'Fiado recebido:   R$ ' + FormatFloat('#,##0.00', TotalFiado)   + #13#10 +
          '____________________________' + #13#10 +
          'Saldo final:      R$ ' + FormatFloat('#,##0.00', ValorFinal)   + #13#10#10 +
          'Deseja fechar o caixa?';

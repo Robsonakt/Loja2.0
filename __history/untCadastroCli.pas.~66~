@@ -1,0 +1,554 @@
+unit untCadastroCli;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.WinXPickers, Vcl.StdCtrls, Vcl.Mask,
+  Vcl.ExtCtrls, Vcl.DBCtrls, Data.DB;
+
+type
+  TfrmCadastroCliente = class(TForm)
+    Panel1: TPanel;
+    PnNovo: TPanel;
+    PnEditar: TPanel;
+    PnCancelar: TPanel;
+    PnExcluir: TPanel;
+    PnGravar: TPanel;
+    PnSair: TPanel;
+    PnUltimo: TPanel;
+    PnProximo: TPanel;
+    PnAnterior: TPanel;
+    PnPrimeiro: TPanel;
+    PnLocaliza: TPanel;
+    PnPago: TPanel;
+    Panel2: TPanel;
+    lbEndereco: TLabel;
+    LbNomeCli: TLabel;
+    lbNumero: TLabel;
+    lbNumeroTelefone: TLabel;
+    LbDataNascCli: TLabel;
+    edtNomeCliente: TDBEdit;
+    edtEndereco: TDBEdit;
+    edtTel: TDBEdit;
+    edtNResidente: TDBEdit;
+    DBEdit6: TDBEdit;
+    Label3: TLabel;
+    Label1: TLabel;
+    DBEdit4: TDBEdit;
+    DBEdit2: TDBEdit;
+    DatePicker1: TDatePicker;
+    procedure PnNovoClick(Sender: TObject);
+    procedure PnEditarClick(Sender: TObject);
+    procedure PnCancelarClick(Sender: TObject);
+    procedure PnExcluirClick(Sender: TObject);
+    procedure PnGravarClick(Sender: TObject);
+    procedure PnSairClick(Sender: TObject);
+    procedure PnLocalizaClick(Sender: TObject);
+    procedure PnPrimeiroClick(Sender: TObject);
+    procedure PnAnteriorClick(Sender: TObject);
+    procedure PnProximoClick(Sender: TObject);
+    procedure PnUltimoClick(Sender: TObject);
+    procedure PnNovoMouseLeave(Sender: TObject);
+    procedure PnNovoMouseEnter(Sender: TObject);
+    procedure PnEditarMouseEnter(Sender: TObject);
+    procedure PnCancelarMouseEnter(Sender: TObject);
+    procedure PnExcluirMouseEnter(Sender: TObject);
+    procedure PnGravarMouseEnter(Sender: TObject);
+    procedure PnPagoMouseEnter(Sender: TObject);
+    procedure PnSairMouseEnter(Sender: TObject);
+    procedure PnLocalizaMouseEnter(Sender: TObject);
+    procedure PnEditarMouseLeave(Sender: TObject);
+    procedure PnAnteriorMouseEnter(Sender: TObject);
+    procedure PnAnteriorMouseLeave(Sender: TObject);
+    procedure PnProximoMouseEnter(Sender: TObject);
+    procedure PnProximoMouseLeave(Sender: TObject);
+    procedure PnUltimoMouseEnter(Sender: TObject);
+    procedure PnUltimoMouseLeave(Sender: TObject);
+    procedure PnSairMouseLeave(Sender: TObject);
+    procedure PnPrimeiroMouseEnter(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure edtNomeClienteKeyPress(Sender: TObject; var Key: Char);
+    procedure edtEnderecoKeyPress(Sender: TObject; var Key: Char);
+    procedure edtNResidenteKeyPress(Sender: TObject; var Key: Char);
+    procedure PnPagoClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmCadastroCliente: TfrmCadastroCliente;
+
+implementation
+
+{$R *.dfm}
+
+uses dmconexao, untLocalizaCli, Data.Win.ADODB;
+
+procedure TfrmCadastroCliente.edtEnderecoKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then
+    edtNResidente.SetFocus;
+end;
+
+procedure TfrmCadastroCliente.edtNomeClienteKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then
+    edtEndereco.SetFocus;
+end;
+
+procedure TfrmCadastroCliente.edtNResidenteKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then
+    edtTel.SetFocus;
+end;
+
+procedure TfrmCadastroCliente.FormShow(Sender: TObject);
+begin
+  with dmConexoes do
+  begin
+    qrCliente.Close;
+    qrCliente.SQL.Clear;
+    qrCliente.SQL.Add('SELECT * FROM [LojaNova].[dbo].[cliente]');
+    qrCliente.Open;
+    qrCliente.First;
+  end;
+end;
+
+// ============================================================
+// PAGO - deduz valor pago do fiado e adiciona ao caixa
+// ============================================================
+
+procedure TfrmCadastroCliente.PnPagoClick(Sender: TObject);
+var
+  sValorPago: string;
+  ValorPago, ValorFiadoAtual, NovoFiado: Currency;
+  qrTemp: TADOQuery;
+begin
+  if dmConexoes.qrCliente.IsEmpty then
+  begin
+    ShowMessage('Nenhum cliente selecionado.');
+    Exit;
+  end;
+
+  ValorFiadoAtual := dmConexoes.qrCliente.FieldByName('valorfiado').AsCurrency;
+
+  if ValorFiadoAtual <= 0 then
+  begin
+    ShowMessage('Este cliente nao possui valor em aberto.');
+    Exit;
+  end;
+
+  // Pergunta o valor pago
+  sValorPago := FormatFloat('#,##0.00', ValorFiadoAtual);
+  if not InputQuery('Pagamento de Fiado',
+    'Cliente: ' + dmConexoes.qrCliente.FieldByName('nome').AsString + #13#10 +
+    'Valor em aberto: R$ ' + FormatFloat('#,##0.00', ValorFiadoAtual) + #13#10 +
+    'Informe o valor recebido:',
+    sValorPago) then Exit;
+
+  sValorPago := StringReplace(sValorPago, '.', '', [rfReplaceAll]);
+  sValorPago := StringReplace(sValorPago, ',', '.', [rfReplaceAll]);
+  ValorPago  := StrToCurrDef(sValorPago, 0);
+
+  if ValorPago <= 0 then
+  begin
+    ShowMessage('Valor invalido.');
+    Exit;
+  end;
+
+  if ValorPago > ValorFiadoAtual then
+  begin
+    if Application.MessageBox(
+      PChar('O valor informado (R$ ' + FormatFloat('#,##0.00', ValorPago) +
+            ') e maior que o valor em aberto (R$ ' + FormatFloat('#,##0.00', ValorFiadoAtual) + ').' +
+            #13#10 + 'Deseja continuar?'),
+      'Atencao', MB_YESNO + MB_ICONWARNING) <> IDYES then Exit;
+  end;
+
+  // Confirma pagamento
+  if Application.MessageBox(
+    PChar('Confirmar recebimento de R$ ' + FormatFloat('#,##0.00', ValorPago) +
+          ' do cliente ' + dmConexoes.qrCliente.FieldByName('nome').AsString + '?'),
+    'Confirmar Pagamento', MB_YESNO + MB_ICONQUESTION) <> IDYES then Exit;
+
+  // Calcula novo valor fiado
+  NovoFiado := ValorFiadoAtual - ValorPago;
+  if NovoFiado < 0 then NovoFiado := 0;
+
+  // Atualiza valor fiado do cliente
+  dmConexoes.qrCliente.Edit;
+  dmConexoes.qrCliente.FieldByName('valorfiado').AsCurrency := NovoFiado;
+  dmConexoes.qrCliente.Post;
+
+  // Registra pagamento vinculado ao caixa atual
+  if dmConexoes.CaixaAberto then
+  begin
+    qrTemp := TADOQuery.Create(nil);
+    try
+      qrTemp.Connection := dmConexoes.conRobson;
+
+      // Busca o Id do caixa aberto
+      qrTemp.SQL.Add(
+        'INSERT INTO PagamentoFiado (IdCaixa, CodCli, ValorPago) ' +
+        'SELECT TOP 1 Id, :CodCli, :Valor FROM Caixa ' +
+        'WHERE Status = ''A'' ' +
+        'ORDER BY DataAbertura DESC'
+      );
+      qrTemp.Parameters.ParamByName('CodCli').Value := dmConexoes.qrCliente.FieldByName('CodCli').AsInteger;
+      qrTemp.Parameters.ParamByName('Valor').Value  := ValorPago;
+      qrTemp.ExecSQL;
+    finally
+      qrTemp.Free;
+    end;
+  end;
+
+  Application.MessageBox(
+    PChar('Pagamento registrado com sucesso!' + #13#10 +
+          'Valor recebido: R$ ' + FormatFloat('#,##0.00', ValorPago) + #13#10 +
+          'Saldo restante: R$ ' + FormatFloat('#,##0.00', NovoFiado)),
+    'Pagamento', MB_OK + MB_ICONINFORMATION
+  );
+end;
+
+procedure TfrmCadastroCliente.PnAnteriorClick(Sender: TObject);
+begin
+  with dmConexoes.qrCliente do
+  begin
+    if not Bof then
+      Prior
+    else
+      ShowMessage('Primeiro registro!');
+  end;
+end;
+
+procedure TfrmCadastroCliente.PnAnteriorMouseEnter(Sender: TObject);
+begin
+  TPanel(Sender).Color      := $00333333;
+  TPanel(Sender).Font.Color := clWhite;
+end;
+
+procedure TfrmCadastroCliente.PnAnteriorMouseLeave(Sender: TObject);
+begin
+  TPanel(Sender).Color      := $00666666;
+  TPanel(Sender).Font.Color := 0;
+end;
+
+procedure TfrmCadastroCliente.PnPagoMouseEnter(Sender: TObject);
+begin
+  TPanel(Sender).Color      := clGreen;
+  TPanel(Sender).Font.Color := clWhite;
+end;
+
+procedure TfrmCadastroCliente.PnCancelarClick(Sender: TObject);
+begin
+  with dmConexoes do
+  begin
+    qrCliente.Close;
+    qrCliente.SQL.Clear;
+    qrCliente.SQL.Add('SELECT * FROM [LojaNova].[dbo].[Cliente]');
+    qrCliente.Open;
+    qrCliente.First;
+  end;
+
+  MessageDlg('Cadastro cancelado', mtInformation, [mbOK], 0);
+
+  PnEditar.Enabled   := True;
+  PnExcluir.Enabled  := True;
+  PnPrimeiro.Enabled := True;
+  PnAnterior.Enabled := True;
+  PnProximo.Enabled  := True;
+  PnUltimo.Enabled   := True;
+  PnCancelar.Enabled := True;
+  PnSair.Enabled     := True;
+  PnGravar.Enabled   := False;
+
+  PnEditar.Font.Color   := 0;
+  PnExcluir.Font.Color  := 0;
+  PnPrimeiro.Font.Color := 0;
+  PnAnterior.Font.Color := 0;
+  PnProximo.Font.Color  := 0;
+  PnUltimo.Font.Color   := 0;
+  PnSair.Font.Color     := 0;
+  PnGravar.Font.Color   := $00333333;
+
+  edtNomeCliente.Enabled := not edtNomeCliente.Enabled;
+  edtEndereco.Enabled    := not edtEndereco.Enabled;
+  edtTel.Enabled         := not edtTel.Enabled;
+  edtNResidente.Enabled  := not edtNResidente.Enabled;
+  DatePicker1.Enabled    := not DatePicker1.Enabled;
+end;
+
+procedure TfrmCadastroCliente.PnCancelarMouseEnter(Sender: TObject);
+begin
+  TPanel(Sender).Color      := $00333333;
+  TPanel(Sender).Font.Color := clWhite;
+end;
+
+procedure TfrmCadastroCliente.PnEditarClick(Sender: TObject);
+begin
+  edtNomeCliente.Enabled := True;
+  edtEndereco.Enabled    := True;
+  edtTel.Enabled         := True;
+  edtNResidente.Enabled  := True;
+  DatePicker1.Enabled    := True;
+
+  PnGravar.Enabled      := True;
+  PnCancelar.Enabled    := True;
+  PnGravar.Font.Color   := 0;
+  PnCancelar.Font.Color := 0;
+
+  PnEditar.Font.Color   := $00333333;
+  PnExcluir.Font.Color  := $00333333;
+  PnPrimeiro.Font.Color := $00333333;
+  PnAnterior.Font.Color := $00333333;
+  PnProximo.Font.Color  := $00333333;
+  PnUltimo.Font.Color   := $00333333;
+
+  PnEditar.Enabled   := False;
+  PnExcluir.Enabled  := False;
+  PnPrimeiro.Enabled := False;
+  PnAnterior.Enabled := False;
+  PnProximo.Enabled  := False;
+  PnUltimo.Enabled   := False;
+end;
+
+procedure TfrmCadastroCliente.PnEditarMouseEnter(Sender: TObject);
+begin
+  TPanel(Sender).Color      := $00333333;
+  TPanel(Sender).Font.Color := clWhite;
+end;
+
+procedure TfrmCadastroCliente.PnEditarMouseLeave(Sender: TObject);
+begin
+  TPanel(Sender).Color      := $00666666;
+  TPanel(Sender).Font.Color := 0;
+end;
+
+procedure TfrmCadastroCliente.PnExcluirClick(Sender: TObject);
+begin
+  if MessageDlg('Deseja excluir este registro?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+  begin
+    try
+      dmConexoes.qrCliente.Delete;
+      ShowMessage('Registro excluido com sucesso!');
+    except
+      on E: Exception do
+        ShowMessage('Erro ao excluir: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmCadastroCliente.PnExcluirMouseEnter(Sender: TObject);
+begin
+  TPanel(Sender).Color      := $00333333;
+  TPanel(Sender).Font.Color := clWhite;
+end;
+
+procedure TfrmCadastroCliente.PnGravarClick(Sender: TObject);
+begin
+  if Application.MessageBox('Deseja gravar o cliente?', 'Cadastro',
+    MB_YESNO + MB_ICONQUESTION) <> IDYES then
+  begin
+    PnGravar.Enabled      := False;
+    PnGravar.Font.Color   := $00333333;
+    edtNomeCliente.Enabled := False;
+    edtEndereco.Enabled    := False;
+    edtTel.Enabled         := False;
+    edtNResidente.Enabled  := False;
+    DatePicker1.Enabled    := False;
+    Exit;
+  end;
+
+  edtNomeCliente.Enabled := False;
+  edtEndereco.Enabled    := False;
+  edtTel.Enabled         := False;
+  edtNResidente.Enabled  := False;
+  DatePicker1.Enabled    := False;
+
+  with dmConexoes do
+  begin
+    qrCliente.Edit;
+    qrCliente.FieldByName('DataCadastrocliente').AsDateTime := DatePicker1.Date;
+    qrCliente.Post;
+    Application.MessageBox('Cliente Cadastrado com Sucesso', 'Cadastro', MB_OK + MB_ICONINFORMATION);
+  end;
+
+  PnCancelar.Enabled    := True;
+  PnGravar.Enabled      := False;
+  PnGravar.Font.Color   := $00333333;
+  PnCancelar.Font.Color := 0;
+  PnPrimeiro.Font.Color := 0;
+  PnAnterior.Font.Color := 0;
+  PnProximo.Font.Color  := 0;
+  PnUltimo.Font.Color   := 0;
+  PnExcluir.Font.Color  := 0;
+
+  PnEditar.Enabled   := True;
+  PnExcluir.Enabled  := True;
+  PnPrimeiro.Enabled := True;
+  PnAnterior.Enabled := True;
+  PnProximo.Enabled  := True;
+  PnUltimo.Enabled   := True;
+  PnSair.Enabled     := True;
+end;
+
+procedure TfrmCadastroCliente.PnGravarMouseEnter(Sender: TObject);
+begin
+  TPanel(Sender).Color      := clMoneyGreen;
+  TPanel(Sender).Font.Color := clWhite;
+end;
+
+procedure TfrmCadastroCliente.PnLocalizaClick(Sender: TObject);
+begin
+  Application.CreateForm(TfrmLocalizaCli, frmLocalizaCli);
+  frmLocalizaCli.ShowModal;
+  frmLocalizaCli.Free;
+
+  if Trim(LocalizaCodigoCli) <> '' then
+  begin
+    with dmConexoes do
+    begin
+      qrCliente.Close;
+      qrCliente.SQL.Clear;
+      qrCliente.SQL.Add('SELECT * FROM [LojaNova].[dbo].[Cliente]');
+      qrCliente.SQL.Add('WHERE CODCLI = :pCodigo');
+      qrCliente.Parameters.ParamByName('pCodigo').Value := LocalizaCodigoCli;
+      qrCliente.Open;
+    end;
+    LocalizaCodigoCli := '';
+  end;
+
+  PnLocaliza.ParentDoubleBuffered := False;
+end;
+
+procedure TfrmCadastroCliente.PnLocalizaMouseEnter(Sender: TObject);
+begin
+  TPanel(Sender).Color      := $00333333;
+  TPanel(Sender).Font.Color := clWhite;
+end;
+
+procedure TfrmCadastroCliente.PnNovoClick(Sender: TObject);
+begin
+  with dmConexoes do
+  begin
+    qrCliente.Close;
+    qrCliente.SQL.Clear;
+    qrCliente.SQL.Add('SELECT * FROM [LojaNova].[dbo].[Cliente]');
+    qrCliente.Open;
+    qrCliente.First;
+    qrCliente.Insert;
+
+    PnEditar.Enabled   := not PnEditar.Enabled;
+    PnExcluir.Enabled  := not PnExcluir.Enabled;
+    PnPrimeiro.Enabled := not PnPrimeiro.Enabled;
+    PnAnterior.Enabled := not PnAnterior.Enabled;
+    PnProximo.Enabled  := not PnProximo.Enabled;
+    PnUltimo.Enabled   := not PnUltimo.Enabled;
+    PnSair.Enabled     := not PnSair.Enabled;
+    PnGravar.Enabled   := True;
+    PnCancelar.Enabled := True;
+
+    PnEditar.Font.Color   := $00333333;
+    PnExcluir.Font.Color  := $00333333;
+    PnPrimeiro.Font.Color := $00333333;
+    PnAnterior.Font.Color := $00333333;
+    PnProximo.Font.Color  := $00333333;
+    PnUltimo.Font.Color   := $00333333;
+    PnSair.Font.Color     := $00333333;
+    PnCancelar.Font.Color := 0;
+    PnGravar.Font.Color   := 0;
+
+    edtNomeCliente.Enabled := not edtNomeCliente.Enabled;
+    edtEndereco.Enabled    := not edtEndereco.Enabled;
+    edtTel.Enabled         := not edtTel.Enabled;
+    edtNResidente.Enabled  := not edtNResidente.Enabled;
+    DatePicker1.Enabled    := not DatePicker1.Enabled;
+
+    edtNomeCliente.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroCliente.PnNovoMouseEnter(Sender: TObject);
+begin
+  TPanel(Sender).Color      := $00333333;
+  TPanel(Sender).Font.Color := clWhite;
+end;
+
+procedure TfrmCadastroCliente.PnNovoMouseLeave(Sender: TObject);
+begin
+  TPanel(Sender).Color      := $00666666;
+  TPanel(Sender).Font.Color := 0;
+end;
+
+procedure TfrmCadastroCliente.PnPrimeiroClick(Sender: TObject);
+begin
+  dmConexoes.qrCliente.First;
+end;
+
+procedure TfrmCadastroCliente.PnPrimeiroMouseEnter(Sender: TObject);
+begin
+  TPanel(Sender).Color      := $00333333;
+  TPanel(Sender).Font.Color := clWhite;
+end;
+
+procedure TfrmCadastroCliente.PnProximoClick(Sender: TObject);
+begin
+  with dmConexoes.qrCliente do
+  begin
+    if not Eof then
+      Next
+    else
+      ShowMessage('Ultimo registro!');
+  end;
+end;
+
+procedure TfrmCadastroCliente.PnProximoMouseEnter(Sender: TObject);
+begin
+  TPanel(Sender).Color      := $00333333;
+  TPanel(Sender).Font.Color := clWhite;
+end;
+
+procedure TfrmCadastroCliente.PnProximoMouseLeave(Sender: TObject);
+begin
+  TPanel(Sender).Color      := $00666666;
+  TPanel(Sender).Font.Color := 0;
+end;
+
+procedure TfrmCadastroCliente.PnSairClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TfrmCadastroCliente.PnSairMouseEnter(Sender: TObject);
+begin
+  TPanel(Sender).Color      := $00333333;
+  TPanel(Sender).Font.Color := clWhite;
+end;
+
+procedure TfrmCadastroCliente.PnSairMouseLeave(Sender: TObject);
+begin
+  TPanel(Sender).Color      := $00666666;
+  TPanel(Sender).Font.Color := 0;
+end;
+
+procedure TfrmCadastroCliente.PnUltimoClick(Sender: TObject);
+begin
+  dmConexoes.qrCliente.Last;
+end;
+
+procedure TfrmCadastroCliente.PnUltimoMouseEnter(Sender: TObject);
+begin
+  TPanel(Sender).Color      := $00333333;
+  TPanel(Sender).Font.Color := clWhite;
+end;
+
+procedure TfrmCadastroCliente.PnUltimoMouseLeave(Sender: TObject);
+begin
+  TPanel(Sender).Color      := $00666666;
+  TPanel(Sender).Font.Color := 0;
+end;
+
+end.
