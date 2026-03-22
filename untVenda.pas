@@ -469,6 +469,7 @@ var
   troco: Currency;
   sValorPago: string;
   proximoCodItem: Integer;
+  proximoCodVenda: Integer;
 begin
   if Application.MessageBox('Precisa de ajuda com o troco?', 'Troco',
     MB_YESNO + MB_ICONQUESTION) = IDYES then
@@ -494,22 +495,19 @@ begin
 
   with dmConexoes do
   begin
-    qrVendas.Close;
-    qrVendas.SQL.Clear;
-    qrVendas.SQL.Add('SELECT * FROM [LojaNova].[dbo].[VENDAS]');
-    qrVendas.Open;
-
-    qrItensVenda.Close;
-    qrItensVenda.SQL.Clear;
-    qrItensVenda.SQL.Add('SELECT * FROM [LojaNova].[dbo].[ItensVenda]');
-    qrItensVenda.Open;
-
+    // 1. Busca proximo CodVenda ANTES de gravar
     qrComando.Close;
     qrComando.SQL.Clear;
     qrComando.SQL.Add('SELECT ISNULL(MAX(CodVenda), 0) + 1 AS PROXIMOVENDA FROM [LojaNova].[dbo].[VENDAS]');
     qrComando.Open;
-    edtCodVenda.Text := qrComando.FieldByName('PROXIMOVENDA').AsString;
+    proximoCodVenda := qrComando.FieldByName('PROXIMOVENDA').AsInteger;
+    edtCodVenda.Text := IntToStr(proximoCodVenda);
 
+    // 2. Grava a venda
+    qrVendas.Close;
+    qrVendas.SQL.Clear;
+    qrVendas.SQL.Add('SELECT * FROM [LojaNova].[dbo].[VENDAS]');
+    qrVendas.Open;
     qrVendas.Insert;
     qrVendas.FieldByName('ValorTotal').AsCurrency := totalvalor;
     qrVendas.FieldByName('ValorPago').AsCurrency  := totalvalor;
@@ -519,18 +517,25 @@ begin
     qrVendas.Post;
     qrVendas.Close;
 
+    // 3. Busca proximo CodItem
     qrComando.Close;
     qrComando.SQL.Clear;
     qrComando.SQL.Add('SELECT ISNULL(MAX(CodItem), 0) + 1 AS PROXIMOITEM FROM [LojaNova].[dbo].[ItensVenda]');
     qrComando.Open;
     proximoCodItem := qrComando.FieldByName('PROXIMOITEM').AsInteger;
 
+    // 4. Abre itens e grava cada um com proximoCodVenda correto
+    qrItensVenda.Close;
+    qrItensVenda.SQL.Clear;
+    qrItensVenda.SQL.Add('SELECT * FROM [LojaNova].[dbo].[ItensVenda]');
+    qrItensVenda.Open;
+
     fdProduto.First;
     while not fdProduto.Eof do
     begin
       qrItensVenda.Insert;
       qrItensVenda.FieldByName('CodItem').AsInteger       := proximoCodItem;
-      qrItensVenda.FieldByName('CodVenda').AsString       := fdProduto.FieldByName('CodVenda').AsString;
+      qrItensVenda.FieldByName('CodVenda').AsInteger      := proximoCodVenda; // <- CORRIGIDO
       qrItensVenda.FieldByName('Descricao').AsString      := fdProduto.FieldByName('Descricao').AsString;
       qrItensVenda.FieldByName('ValorTotal').AsCurrency   := fdProduto.FieldByName('ValorTotal').AsCurrency;
       qrItensVenda.FieldByName('Quantidade').AsInteger    := fdProduto.FieldByName('Quantidade').AsInteger;
@@ -551,7 +556,8 @@ begin
     else
       Application.MessageBox('Venda Feita com Sucesso', 'Venda', MB_OK + MB_ICONINFORMATION);
 
-      fdProduto.First;
+    // 5. Atualiza estoque
+    fdProduto.First;
     while not fdProduto.Eof do
     begin
       if qrEstoque.Locate('codigo', fdProduto.FieldByName('CodProd').AsInteger, [loCaseInsensitive]) then
@@ -564,7 +570,7 @@ begin
       end;
       fdProduto.Next;
     end;
-    fdProduto.First;
+
     LimparTela;
   end;
 end;
