@@ -36,8 +36,8 @@ type
     Label3: TLabel;
     Label1: TLabel;
     DBEdit4: TDBEdit;
-    DBEdit2: TDBEdit;
     DatePicker1: TDatePicker;
+    DBEdit2: TDBEdit;
     procedure PnNovoClick(Sender: TObject);
     procedure PnEditarClick(Sender: TObject);
     procedure PnCancelarClick(Sender: TObject);

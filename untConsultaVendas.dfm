@@ -22,7 +22,6 @@ object frmConsulta_Venda: TfrmConsulta_Venda
     BevelOuter = bvNone
     Color = 3289650
     TabOrder = 0
-    ExplicitWidth = 1089
     object pnSuperior: TPanel
       Left = 0
       Top = 0
@@ -32,7 +31,6 @@ object frmConsulta_Venda: TfrmConsulta_Venda
       BevelOuter = bvNone
       Color = 2171170
       TabOrder = 0
-      ExplicitWidth = 1089
       object lblTitulo: TLabel
         Left = 16
         Top = 13
@@ -56,7 +54,6 @@ object frmConsulta_Venda: TfrmConsulta_Venda
       BevelOuter = bvNone
       Color = 2171170
       TabOrder = 1
-      ExplicitWidth = 1089
       object lblRodapeDir: TLabel
         Left = 1040
         Top = 13

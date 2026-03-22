@@ -203,7 +203,8 @@ end;
 
 function TdmConexoes.FecharCaixa: Boolean;
 var
-  ValorAbertura, TotalVendas, ValorFinal: Currency;
+  ValorAbertura, TotalVendas, TotalFiado, ValorFinal: Currency;
+  qrFiado: TADOQuery;
 begin
   Result := False;
   if not CaixaAberto then Exit;
@@ -219,7 +220,26 @@ begin
   ValorAbertura := qrCaixa.FieldByName('ValorAbertura').AsCurrency;
 
   TotalVendas := TotalVendasCaixaAtual;
-  ValorFinal  := ValorAbertura + TotalVendas;
+
+  // Busca fiado pago neste caixa
+  TotalFiado := 0;
+  qrFiado := TADOQuery.Create(nil);
+  try
+    qrFiado.Connection := conRobson;
+    qrFiado.SQL.Add(
+      'SELECT ISNULL(SUM(pf.ValorPago), 0) AS TotalFiado ' +
+      'FROM PagamentoFiado pf ' +
+      'INNER JOIN Caixa c ON c.Id = pf.IdCaixa ' +
+      'AND c.Status = ''A'' ' +
+      'AND c.DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
+    );
+    qrFiado.Open;
+    TotalFiado := qrFiado.FieldByName('TotalFiado').AsCurrency;
+  finally
+    qrFiado.Free;
+  end;
+
+  ValorFinal := ValorAbertura + TotalVendas + TotalFiado;
 
   qrCaixa.Close;
   qrCaixa.SQL.Clear;

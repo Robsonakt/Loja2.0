@@ -1,0 +1,313 @@
+unit untConsultaFechamento;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  Data.DB, Data.Win.ADODB, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
+  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.ComCtrls;
+
+type
+  TfrmConsultaFechamento = class(TForm)
+    pnlTopo: TPanel;
+    lblTitulo: TLabel;
+    pnlRodape: TPanel;
+    lblStatus: TLabel;
+    lblRodapeDir: TLabel;
+    pnlCorpo: TPanel;
+
+    // Toolbar
+    pnlToolbar: TPanel;
+    pnConsultar: TPanel;
+    pnFechar: TPanel;
+
+    // Filtros
+    grpFiltro: TGroupBox;
+    lblIntervalo: TLabel;
+    lblDataIni: TLabel;
+    lblDataFim: TLabel;
+    lblStatusFiltro: TLabel;
+    cbIntervalo: TComboBox;
+    dtDataIni: TDateTimePicker;
+    dtDataFim: TDateTimePicker;
+    cbStatus: TComboBox;
+
+    // Grid
+    grpGrid: TGroupBox;
+    gridFechamento: TDBGrid;
+    dsFechamento: TDataSource;
+    fdFechamento: TFDMemTable;
+    fdId: TIntegerField;
+    fdDataAbertura: TStringField;
+    fdUsuarioAbertura: TStringField;
+    fdDataFechamento: TStringField;
+    fdUsuarioFechamento: TStringField;
+    fdValorAbertura: TCurrencyField;
+    fdQtdVendas: TIntegerField;
+    fdValorVendas: TCurrencyField;
+    fdValorFiado: TCurrencyField;
+    fdLucro: TCurrencyField;
+    fdSaldoFinal: TCurrencyField;
+    fdStatus: TStringField;
+
+    // Totalizadores
+    grpTotais: TGroupBox;
+    lblTotAberturaLabel: TLabel;
+    lblTotAbertura: TLabel;
+    lblTotQtdLabel: TLabel;
+    lblTotQtd: TLabel;
+    lblTotVendasLabel: TLabel;
+    lblTotVendas: TLabel;
+    lblTotFiadoLabel: TLabel;
+    lblTotFiado: TLabel;
+    lblTotLucroLabel: TLabel;
+    lblTotLucro: TLabel;
+    lblTotSaldoLabel: TLabel;
+    lblTotSaldo: TLabel;
+
+    procedure FormShow(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure pnConsultarClick(Sender: TObject);
+    procedure pnConsultarMouseEnter(Sender: TObject);
+    procedure pnConsultarMouseLeave(Sender: TObject);
+    procedure pnFecharClick(Sender: TObject);
+    procedure pnFecharMouseEnter(Sender: TObject);
+    procedure pnFecharMouseLeave(Sender: TObject);
+    procedure cbIntervaloChange(Sender: TObject);
+
+  private
+    procedure Consultar;
+    procedure AtualizarTotais;
+  public
+    { Public declarations }
+  end;
+
+var
+  frmConsultaFechamento: TfrmConsultaFechamento;
+
+implementation
+
+{$R *.dfm}
+
+uses dmConexao;
+
+const
+  COR_DARK_BG    = 3289650;
+  COR_DARK_PANEL = 2171170;
+  COR_DARK_BTN   = 3355443;
+
+procedure TfrmConsultaFechamento.FormCreate(Sender: TObject);
+begin
+  // nada
+end;
+
+procedure TfrmConsultaFechamento.FormShow(Sender: TObject);
+begin
+  cbIntervalo.ItemIndex := 0;
+  cbStatus.ItemIndex    := 0;
+  cbIntervaloChange(nil);
+  dtDataIni.Date := Date;
+  dtDataFim.Date := Date;
+  fdFechamento.Close;
+  fdFechamento.Open;
+  lblTotAbertura.Caption := 'R$ 0,00';
+  lblTotQtd.Caption      := '0';
+  lblTotVendas.Caption   := 'R$ 0,00';
+  lblTotFiado.Caption    := 'R$ 0,00';
+  lblTotLucro.Caption    := 'R$ 0,00';
+  lblTotSaldo.Caption    := 'R$ 0,00';
+end;
+
+// ============================================================
+// CONSULTAR
+// ============================================================
+
+procedure TfrmConsultaFechamento.Consultar;
+var
+  qrTemp: TADOQuery;
+  sWhere: string;
+begin
+  sWhere := '';
+
+  if cbIntervalo.ItemIndex = 1 then
+    sWhere := sWhere +
+      ' AND CAST(c.DataAbertura AS DATE) BETWEEN ' +
+      QuotedStr(FormatDateTime('yyyy-mm-dd', dtDataIni.Date)) +
+      ' AND ' +
+      QuotedStr(FormatDateTime('yyyy-mm-dd', dtDataFim.Date));
+
+  case cbStatus.ItemIndex of
+    1: sWhere := sWhere + ' AND c.Status = ''A''';
+    2: sWhere := sWhere + ' AND c.Status = ''F''';
+  end;
+
+  fdFechamento.Close;
+  fdFechamento.Open;
+
+  qrTemp := TADOQuery.Create(nil);
+  try
+    qrTemp.Connection := dmConexoes.conRobson;
+    qrTemp.SQL.Add(
+      'SELECT ' +
+      '  c.Id, ' +
+      '  c.DataAbertura, ' +
+      '  c.DataFechamento, ' +
+      '  ISNULL(c.ValorAbertura, 0) AS ValorAbertura, ' +
+      '  ISNULL(c.ValorFechamento, 0) AS ValorFechamento, ' +
+      '  c.Status, ' +
+      '  ISNULL(c.UsuarioAbertura, ''---'') AS UsuarioAbertura, ' +
+      '  ISNULL(c.UsuarioFechamento, ''---'') AS UsuarioFechamento, ' +
+      // Quantidade de vendas
+      '  ISNULL(( ' +
+      '    SELECT COUNT(v.CodVenda) FROM VENDAS v ' +
+      '    WHERE v.CodVenda >= c.CodVendaInicial ' +
+      '    AND (c.DataFechamento IS NULL OR ' +
+      '         CAST(v.DataVenda AS DATE) <= CAST(c.DataFechamento AS DATE)) ' +
+      '  ), 0) AS QtdVendas, ' +
+      // Valor total das vendas
+      '  ISNULL(( ' +
+      '    SELECT SUM(v.ValorTotal) FROM VENDAS v ' +
+      '    WHERE v.CodVenda >= c.CodVendaInicial ' +
+      '    AND (c.DataFechamento IS NULL OR ' +
+      '         CAST(v.DataVenda AS DATE) <= CAST(c.DataFechamento AS DATE)) ' +
+      '  ), 0) AS TotalVendas, ' +
+      // Fiado pago neste caixa
+      '  ISNULL(( ' +
+      '    SELECT SUM(pf.ValorPago) FROM PagamentoFiado pf ' +
+      '    WHERE pf.IdCaixa = c.Id ' +
+      '  ), 0) AS TotalFiado, ' +
+      // Lucro
+      '  ISNULL(( ' +
+      '    SELECT SUM((iv.ValorProdUni - p.valorcusto) * iv.Quantidade) ' +
+      '    FROM ItensVenda iv ' +
+      '    LEFT JOIN PRODUTOS p ON p.descricao = iv.Descricao ' +
+      '    INNER JOIN VENDAS v ON v.CodVenda = iv.CodVenda ' +
+      '    WHERE v.CodVenda >= c.CodVendaInicial ' +
+      '    AND (c.DataFechamento IS NULL OR ' +
+      '         CAST(v.DataVenda AS DATE) <= CAST(c.DataFechamento AS DATE)) ' +
+      '  ), 0) AS TotalLucro ' +
+      'FROM Caixa c WHERE 1=1 ' + sWhere +
+      ' ORDER BY c.DataAbertura DESC'
+    );
+    qrTemp.Open;
+
+    while not qrTemp.Eof do
+    begin
+      fdFechamento.Insert;
+      fdFechamento.FieldByName('Id').AsInteger := qrTemp.FieldByName('Id').AsInteger;
+
+      fdFechamento.FieldByName('DataAbertura').AsString :=
+        FormatDateTime('dd/mm/yyyy hh:nn', qrTemp.FieldByName('DataAbertura').AsDateTime);
+
+      if qrTemp.FieldByName('DataFechamento').IsNull then
+        fdFechamento.FieldByName('DataFechamento').AsString := '---'
+      else
+        fdFechamento.FieldByName('DataFechamento').AsString :=
+          FormatDateTime('dd/mm/yyyy hh:nn', qrTemp.FieldByName('DataFechamento').AsDateTime);
+
+      fdFechamento.FieldByName('UsuarioAbertura').AsString   := qrTemp.FieldByName('UsuarioAbertura').AsString;
+      fdFechamento.FieldByName('UsuarioFechamento').AsString := qrTemp.FieldByName('UsuarioFechamento').AsString;
+      fdFechamento.FieldByName('ValorAbertura').AsCurrency   := qrTemp.FieldByName('ValorAbertura').AsCurrency;
+      fdFechamento.FieldByName('QtdVendas').AsInteger        := qrTemp.FieldByName('QtdVendas').AsInteger;
+      fdFechamento.FieldByName('ValorVendas').AsCurrency     := qrTemp.FieldByName('TotalVendas').AsCurrency;
+      fdFechamento.FieldByName('ValorFiado').AsCurrency      := qrTemp.FieldByName('TotalFiado').AsCurrency;
+      fdFechamento.FieldByName('Lucro').AsCurrency           := qrTemp.FieldByName('TotalLucro').AsCurrency;
+      fdFechamento.FieldByName('SaldoFinal').AsCurrency      := qrTemp.FieldByName('ValorFechamento').AsCurrency;
+
+      if qrTemp.FieldByName('Status').AsString = 'A' then
+        fdFechamento.FieldByName('Status').AsString := 'Aberto'
+      else
+        fdFechamento.FieldByName('Status').AsString := 'Fechado';
+
+      fdFechamento.Post;
+      qrTemp.Next;
+    end;
+  finally
+    qrTemp.Free;
+  end;
+
+  AtualizarTotais;
+end;
+
+// ============================================================
+// ATUALIZAR TOTAIS
+// ============================================================
+
+procedure TfrmConsultaFechamento.AtualizarTotais;
+var
+  TotAbertura, TotVendas, TotFiado, TotLucro, TotSaldo: Currency;
+  TotQtd: Integer;
+begin
+  TotAbertura := 0;
+  TotQtd      := 0;
+  TotVendas   := 0;
+  TotFiado    := 0;
+  TotLucro    := 0;
+  TotSaldo    := 0;
+
+  fdFechamento.First;
+  while not fdFechamento.Eof do
+  begin
+    TotAbertura := TotAbertura + fdFechamento.FieldByName('ValorAbertura').AsCurrency;
+    TotQtd      := TotQtd      + fdFechamento.FieldByName('QtdVendas').AsInteger;
+    TotVendas   := TotVendas   + fdFechamento.FieldByName('ValorVendas').AsCurrency;
+    TotFiado    := TotFiado    + fdFechamento.FieldByName('ValorFiado').AsCurrency;
+    TotLucro    := TotLucro    + fdFechamento.FieldByName('Lucro').AsCurrency;
+    TotSaldo    := TotSaldo    + fdFechamento.FieldByName('SaldoFinal').AsCurrency;
+    fdFechamento.Next;
+  end;
+
+  lblTotAbertura.Caption := 'R$ ' + FormatFloat('#,##0.00', TotAbertura);
+  lblTotQtd.Caption      := IntToStr(TotQtd) + ' venda(s)';
+  lblTotVendas.Caption   := 'R$ ' + FormatFloat('#,##0.00', TotVendas);
+  lblTotFiado.Caption    := 'R$ ' + FormatFloat('#,##0.00', TotFiado);
+  lblTotLucro.Caption    := 'R$ ' + FormatFloat('#,##0.00', TotLucro);
+  lblTotSaldo.Caption    := 'R$ ' + FormatFloat('#,##0.00', TotSaldo);
+end;
+
+// ============================================================
+// EVENTOS
+// ============================================================
+
+procedure TfrmConsultaFechamento.pnConsultarClick(Sender: TObject);
+begin
+  Consultar;
+end;
+
+procedure TfrmConsultaFechamento.pnFecharClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TfrmConsultaFechamento.cbIntervaloChange(Sender: TObject);
+begin
+  if cbIntervalo.ItemIndex = 1 then
+  begin
+    dtDataIni.Enabled := True;
+    dtDataFim.Enabled := True;
+  end
+  else
+  begin
+    dtDataIni.Enabled := False;
+    dtDataFim.Enabled := False;
+  end;
+end;
+
+// ============================================================
+// MOUSE ENTER / LEAVE
+// ============================================================
+
+procedure TfrmConsultaFechamento.pnConsultarMouseEnter(Sender: TObject);
+begin pnConsultar.Color := $001E8FBF; pnConsultar.Font.Color := clWhite; end;
+procedure TfrmConsultaFechamento.pnConsultarMouseLeave(Sender: TObject);
+begin pnConsultar.Color := COR_DARK_BTN; pnConsultar.Font.Color := clWhite; end;
+
+procedure TfrmConsultaFechamento.pnFecharMouseEnter(Sender: TObject);
+begin pnFechar.Color := clRed; pnFechar.Font.Color := clWhite; end;
+procedure TfrmConsultaFechamento.pnFecharMouseLeave(Sender: TObject);
+begin pnFechar.Color := COR_DARK_BTN; pnFechar.Font.Color := clWhite; end;
+
+end.

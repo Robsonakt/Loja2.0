@@ -116,9 +116,9 @@ end;
 
 procedure TFormularioPrincipal.PnFechamentoClick(Sender: TObject);
 var
-  ValorAbertura, TotalVendas, TotalFiado, ValorFinal: Currency;
+  ValorAbertura, TotalVendas, TotalFiado, TotalLucro, ValorFinal: Currency;
   Msg: string;
-  qrFiado: TADOQuery;
+  qrFiado, qrLucro: TADOQuery;
 begin
   if not dmConexoes.CaixaAberto then
   begin
@@ -157,17 +157,38 @@ begin
     qrFiado.Free;
   end;
 
+  // Busca lucro das vendas deste caixa
+  TotalLucro := 0;
+  qrLucro := TADOQuery.Create(nil);
+  try
+    qrLucro.Connection := dmConexoes.conRobson;
+    qrLucro.SQL.Add(
+      'SELECT ISNULL(SUM((iv.ValorProdUni - p.valorcusto) * iv.Quantidade), 0) AS TotalLucro ' +
+      'FROM ItensVenda iv ' +
+      'LEFT JOIN PRODUTOS p ON p.descricao = iv.Descricao ' +
+      'INNER JOIN VENDAS v ON v.CodVenda = iv.CodVenda ' +
+      'INNER JOIN Caixa c ON c.Status = ''A'' ' +
+      '  AND v.CodVenda >= c.CodVendaInicial ' +
+      '  AND c.DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
+    );
+    qrLucro.Open;
+    TotalLucro := qrLucro.FieldByName('TotalLucro').AsCurrency;
+  finally
+    qrLucro.Free;
+  end;
+
   // Saldo final = abertura + vendas + fiado recebido
   ValorFinal := ValorAbertura + TotalVendas + TotalFiado;
 
-  // Exibe resumo separando cada valor
+  // Exibe resumo
   Msg := 'RESUMO DO CAIXA' + #13#10 +
          '____________________________' + #13#10 +
          'Valor inicial:    R$ ' + FormatFloat('#,##0.00', ValorAbertura) + #13#10 +
          'Total de vendas:  R$ ' + FormatFloat('#,##0.00', TotalVendas)  + #13#10 +
          'Fiado recebido:   R$ ' + FormatFloat('#,##0.00', TotalFiado)   + #13#10 +
          '____________________________' + #13#10 +
-         'Saldo final:      R$ ' + FormatFloat('#,##0.00', ValorFinal)   + #13#10#10 +
+         'Saldo final:      R$ ' + FormatFloat('#,##0.00', ValorFinal)   + #13#10 +
+         'Lucro do caixa:   R$ ' + FormatFloat('#,##0.00', TotalLucro)   + #13#10#10 +
          'Deseja fechar o caixa?';
 
   if MessageBox(Handle, PChar(Msg), 'Fechamento de Caixa',

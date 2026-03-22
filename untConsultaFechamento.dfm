@@ -2,8 +2,8 @@ object frmConsultaFechamento: TfrmConsultaFechamento
   Left = 0
   Top = 0
   Caption = 'Consulta de Fechamento'
-  ClientHeight = 620
-  ClientWidth = 1200
+  ClientHeight = 660
+  ClientWidth = 1400
   Color = 3289650
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWhite
@@ -17,7 +17,7 @@ object frmConsultaFechamento: TfrmConsultaFechamento
   object pnlTopo: TPanel
     Left = 0
     Top = 0
-    Width = 1200
+    Width = 1400
     Height = 46
     Align = alTop
     BevelOuter = bvNone
@@ -39,8 +39,8 @@ object frmConsultaFechamento: TfrmConsultaFechamento
   end
   object pnlRodape: TPanel
     Left = 0
-    Top = 579
-    Width = 1200
+    Top = 619
+    Width = 1400
     Height = 41
     Align = alBottom
     BevelOuter = bvNone
@@ -60,7 +60,7 @@ object frmConsultaFechamento: TfrmConsultaFechamento
       ParentFont = False
     end
     object lblRodapeDir: TLabel
-      Left = 1150
+      Left = 1350
       Top = 13
       Width = 21
       Height = 13
@@ -76,8 +76,8 @@ object frmConsultaFechamento: TfrmConsultaFechamento
   object pnlCorpo: TPanel
     Left = 0
     Top = 46
-    Width = 1200
-    Height = 533
+    Width = 1400
+    Height = 573
     Align = alClient
     BevelOuter = bvNone
     Color = 3289650
@@ -85,7 +85,7 @@ object frmConsultaFechamento: TfrmConsultaFechamento
     object pnlToolbar: TPanel
       Left = 0
       Top = 0
-      Width = 1200
+      Width = 1400
       Height = 44
       BevelOuter = bvNone
       Color = 2171170
@@ -109,11 +109,30 @@ object frmConsultaFechamento: TfrmConsultaFechamento
         OnMouseEnter = pnConsultarMouseEnter
         OnMouseLeave = pnConsultarMouseLeave
       end
+      object pnFechar: TPanel
+        Left = 150
+        Top = 6
+        Width = 100
+        Height = 32
+        Caption = 'FECHAR'
+        Color = 3355443
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentBackground = False
+        ParentFont = False
+        TabOrder = 1
+        OnClick = pnFecharClick
+        OnMouseEnter = pnFecharMouseEnter
+        OnMouseLeave = pnFecharMouseLeave
+      end
     end
     object grpFiltro: TGroupBox
       Left = 10
       Top = 54
-      Width = 1180
+      Width = 1380
       Height = 64
       Caption = ' Filtro '
       Font.Charset = DEFAULT_CHARSET
@@ -189,6 +208,7 @@ object frmConsultaFechamento: TfrmConsultaFechamento
         Font.Style = []
         ParentFont = False
         TabOrder = 0
+        OnChange = cbIntervaloChange
         Items.Strings = (
           'Sem Intervalo de Datas'
           'Com Intervalo de Datas')
@@ -198,8 +218,8 @@ object frmConsultaFechamento: TfrmConsultaFechamento
         Top = 34
         Width = 150
         Height = 23
-        Date = 46101.000000000000000000
-        Time = 0.611860717595845900
+        Date = 46103.000000000000000000
+        Time = 0.654590601850941300
         Enabled = False
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
@@ -214,8 +234,8 @@ object frmConsultaFechamento: TfrmConsultaFechamento
         Top = 34
         Width = 150
         Height = 23
-        Date = 46101.000000000000000000
-        Time = 0.611860717595845900
+        Date = 46103.000000000000000000
+        Time = 0.654590601850941300
         Enabled = False
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
@@ -247,7 +267,7 @@ object frmConsultaFechamento: TfrmConsultaFechamento
     object grpGrid: TGroupBox
       Left = 10
       Top = 128
-      Width = 1180
+      Width = 1380
       Height = 320
       Caption = ' Historico de Caixa '
       Font.Charset = DEFAULT_CHARSET
@@ -261,7 +281,7 @@ object frmConsultaFechamento: TfrmConsultaFechamento
       object gridFechamento: TDBGrid
         Left = 10
         Top = 22
-        Width = 1158
+        Width = 1358
         Height = 286
         Color = 2171170
         DataSource = dsFechamento
@@ -274,10 +294,10 @@ object frmConsultaFechamento: TfrmConsultaFechamento
         ParentFont = False
         ReadOnly = True
         TabOrder = 0
-        TitleFont.Charset = ANSI_CHARSET
-        TitleFont.Color = clBlack
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clSilver
         TitleFont.Height = -12
-        TitleFont.Name = 'Segoe UI Black'
+        TitleFont.Name = 'Segoe UI'
         TitleFont.Style = [fsBold]
         Columns = <
           item
@@ -291,7 +311,7 @@ object frmConsultaFechamento: TfrmConsultaFechamento
             Expanded = False
             FieldName = 'UsuarioAbertura'
             Title.Caption = 'Aberto por'
-            Width = 120
+            Width = 100
             Visible = True
           end
           item
@@ -305,28 +325,48 @@ object frmConsultaFechamento: TfrmConsultaFechamento
             Expanded = False
             FieldName = 'UsuarioFechamento'
             Title.Caption = 'Fechado por'
-            Width = 120
+            Width = 100
             Visible = True
           end
           item
             Expanded = False
             FieldName = 'ValorAbertura'
             Title.Caption = 'Vl. Abertura'
-            Width = 110
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'QtdVendas'
+            Title.Caption = 'Qtd. Vendas'
+            Width = 90
             Visible = True
           end
           item
             Expanded = False
             FieldName = 'ValorVendas'
-            Title.Caption = 'Total Vendas'
+            Title.Caption = 'Vlr. Vendas'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ValorFiado'
+            Title.Caption = 'Fiado Recebido'
             Width = 110
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'Lucro'
+            Width = 100
             Visible = True
           end
           item
             Expanded = False
             FieldName = 'SaldoFinal'
             Title.Caption = 'Saldo Final'
-            Width = 110
+            Width = 100
             Visible = True
           end
           item
@@ -340,8 +380,8 @@ object frmConsultaFechamento: TfrmConsultaFechamento
     object grpTotais: TGroupBox
       Left = 10
       Top = 458
-      Width = 1180
-      Height = 64
+      Width = 1380
+      Height = 104
       Caption = ' Totais da Consulta '
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
@@ -377,12 +417,38 @@ object frmConsultaFechamento: TfrmConsultaFechamento
         Font.Style = [fsBold]
         ParentFont = False
       end
-      object lblTotVendasLabel: TLabel
-        Left = 380
-        Top = 20
-        Width = 68
+      object lblTotQtdLabel: TLabel
+        Left = 20
+        Top = 55
+        Width = 65
         Height = 13
-        Caption = 'Total Vendas:'
+        Caption = 'Qtd. Vendas:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblTotQtd: TLabel
+        Left = 108
+        Top = 55
+        Width = 64
+        Height = 17
+        Caption = '0 venda(s)'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -13
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblTotVendasLabel: TLabel
+        Left = 280
+        Top = 20
+        Width = 60
+        Height = 13
+        Caption = 'Vlr. Vendas:'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clSilver
         Font.Height = -11
@@ -391,7 +457,59 @@ object frmConsultaFechamento: TfrmConsultaFechamento
         ParentFont = False
       end
       object lblTotVendas: TLabel
-        Left = 468
+        Left = 363
+        Top = 20
+        Width = 44
+        Height = 17
+        Caption = 'R$ 0,00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -13
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblTotFiadoLabel: TLabel
+        Left = 560
+        Top = 20
+        Width = 83
+        Height = 13
+        Caption = 'Fiado Recebido:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblTotFiado: TLabel
+        Left = 658
+        Top = 20
+        Width = 44
+        Height = 17
+        Caption = 'R$ 0,00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clYellow
+        Font.Height = -13
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblTotLucroLabel: TLabel
+        Left = 840
+        Top = 20
+        Width = 31
+        Height = 13
+        Caption = 'Lucro:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblTotLucro: TLabel
+        Left = 888
         Top = 20
         Width = 44
         Height = 17
@@ -404,11 +522,11 @@ object frmConsultaFechamento: TfrmConsultaFechamento
         ParentFont = False
       end
       object lblTotSaldoLabel: TLabel
-        Left = 740
+        Left = 1048
         Top = 20
-        Width = 60
+        Width = 105
         Height = 13
-        Caption = 'Saldo Final:'
+        Caption = 'Saldo Final do caixa:'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clSilver
         Font.Height = -11
@@ -417,13 +535,13 @@ object frmConsultaFechamento: TfrmConsultaFechamento
         ParentFont = False
       end
       object lblTotSaldo: TLabel
-        Left = 818
+        Left = 1168
         Top = 20
         Width = 44
         Height = 17
         Caption = 'R$ 0,00'
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clYellow
+        Font.Color = clAqua
         Font.Height = -13
         Font.Name = 'Segoe UI'
         Font.Style = [fsBold]
@@ -433,7 +551,7 @@ object frmConsultaFechamento: TfrmConsultaFechamento
   end
   object dsFechamento: TDataSource
     DataSet = fdFechamento
-    Left = 900
+    Left = 1200
     Top = 560
   end
   object fdFechamento: TFDMemTable
@@ -447,7 +565,7 @@ object frmConsultaFechamento: TfrmConsultaFechamento
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
     StoreDefs = True
-    Left = 820
+    Left = 1120
     Top = 560
     object fdId: TIntegerField
       FieldName = 'Id'
@@ -473,8 +591,19 @@ object frmConsultaFechamento: TfrmConsultaFechamento
       FieldName = 'ValorAbertura'
       DisplayFormat = '"R$" #,##0.00'
     end
+    object fdQtdVendas: TIntegerField
+      FieldName = 'QtdVendas'
+    end
     object fdValorVendas: TCurrencyField
       FieldName = 'ValorVendas'
+      DisplayFormat = '"R$" #,##0.00'
+    end
+    object fdValorFiado: TCurrencyField
+      FieldName = 'ValorFiado'
+      DisplayFormat = '"R$" #,##0.00'
+    end
+    object fdLucro: TCurrencyField
+      FieldName = 'Lucro'
       DisplayFormat = '"R$" #,##0.00'
     end
     object fdSaldoFinal: TCurrencyField

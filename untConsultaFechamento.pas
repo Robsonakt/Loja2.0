@@ -18,9 +18,13 @@ type
     lblStatus: TLabel;
     lblRodapeDir: TLabel;
     pnlCorpo: TPanel;
+
+    // Toolbar
     pnlToolbar: TPanel;
     pnConsultar: TPanel;
     pnFechar: TPanel;
+
+    // Filtros
     grpFiltro: TGroupBox;
     lblIntervalo: TLabel;
     lblDataIni: TLabel;
@@ -30,24 +34,37 @@ type
     dtDataIni: TDateTimePicker;
     dtDataFim: TDateTimePicker;
     cbStatus: TComboBox;
+
+    // Grid
     grpGrid: TGroupBox;
     gridFechamento: TDBGrid;
     dsFechamento: TDataSource;
     fdFechamento: TFDMemTable;
     fdId: TIntegerField;
     fdDataAbertura: TStringField;
+    fdUsuarioAbertura: TStringField;
     fdDataFechamento: TStringField;
+    fdUsuarioFechamento: TStringField;
     fdValorAbertura: TCurrencyField;
+    fdQtdVendas: TIntegerField;
     fdValorVendas: TCurrencyField;
+    fdValorFiado: TCurrencyField;
+    fdLucro: TCurrencyField;
     fdSaldoFinal: TCurrencyField;
     fdStatus: TStringField;
-    fdUsuarioAbertura: TStringField;
-    fdUsuarioFechamento: TStringField;
+
+    // Totalizadores
     grpTotais: TGroupBox;
     lblTotAberturaLabel: TLabel;
     lblTotAbertura: TLabel;
+    lblTotQtdLabel: TLabel;
+    lblTotQtd: TLabel;
     lblTotVendasLabel: TLabel;
     lblTotVendas: TLabel;
+    lblTotFiadoLabel: TLabel;
+    lblTotFiado: TLabel;
+    lblTotLucroLabel: TLabel;
+    lblTotLucro: TLabel;
     lblTotSaldoLabel: TLabel;
     lblTotSaldo: TLabel;
 
@@ -64,7 +81,6 @@ type
   private
     procedure Consultar;
     procedure AtualizarTotais;
-    procedure LimparTotais;
   public
     { Public declarations }
   end;
@@ -97,13 +113,11 @@ begin
   dtDataFim.Date := Date;
   fdFechamento.Close;
   fdFechamento.Open;
-  LimparTotais;
-end;
-
-procedure TfrmConsultaFechamento.LimparTotais;
-begin
   lblTotAbertura.Caption := 'R$ 0,00';
+  lblTotQtd.Caption      := '0';
   lblTotVendas.Caption   := 'R$ 0,00';
+  lblTotFiado.Caption    := 'R$ 0,00';
+  lblTotLucro.Caption    := 'R$ 0,00';
   lblTotSaldo.Caption    := 'R$ 0,00';
 end;
 
@@ -120,33 +134,96 @@ begin
 
   if cbIntervalo.ItemIndex = 1 then
     sWhere := sWhere +
-      ' AND CAST(DataAbertura AS DATE) BETWEEN ' +
+      ' AND CAST(c.DataAbertura AS DATE) BETWEEN ' +
       QuotedStr(FormatDateTime('yyyy-mm-dd', dtDataIni.Date)) +
       ' AND ' +
       QuotedStr(FormatDateTime('yyyy-mm-dd', dtDataFim.Date));
 
   case cbStatus.ItemIndex of
-    1: sWhere := sWhere + ' AND Status = ''A''';
-    2: sWhere := sWhere + ' AND Status = ''F''';
+    1: sWhere := sWhere + ' AND c.Status = ''A''';
+    2: sWhere := sWhere + ' AND c.Status = ''F''';
   end;
 
   fdFechamento.Close;
   fdFechamento.Open;
-  LimparTotais;
 
   qrTemp := TADOQuery.Create(nil);
   try
     qrTemp.Connection := dmConexoes.conRobson;
     qrTemp.SQL.Add(
-      'SELECT c.Id, c.DataAbertura, c.DataFechamento, ' +
-      'c.ValorAbertura, c.ValorFechamento, c.Status, ' +
-      'ISNULL(c.UsuarioAbertura, ''---'') AS UsuarioAbertura, ' +
-      'ISNULL(c.UsuarioFechamento, ''---'') AS UsuarioFechamento, ' +
-      'ISNULL(( ' +
-      '  SELECT SUM(v.ValorTotal) FROM VENDAS v ' +
-      '  WHERE CAST(v.DataVenda AS DATE) >= CAST(c.DataAbertura AS DATE) ' +
-      '  AND (c.DataFechamento IS NULL OR CAST(v.DataVenda AS DATE) <= CAST(c.DataFechamento AS DATE)) ' +
-      '), 0) AS TotalVendas ' +
+      'SELECT ' +
+      '  c.Id, ' +
+      '  c.DataAbertura, ' +
+      '  c.DataFechamento, ' +
+      '  ISNULL(c.ValorAbertura, 0) AS ValorAbertura, ' +
+      '  c.Status, ' +
+      '  ISNULL(c.UsuarioAbertura, ''---'') AS UsuarioAbertura, ' +
+      '  ISNULL(c.UsuarioFechamento, ''---'') AS UsuarioFechamento, ' +
+      // Quantidade de vendas
+      '  ISNULL(( ' +
+      '    SELECT COUNT(v.CodVenda) FROM VENDAS v ' +
+      '    WHERE c.CodVendaInicial IS NOT NULL ' +
+      '    AND v.CodVenda >= c.CodVendaInicial ' +
+      '    AND v.CodVenda < ISNULL(( ' +
+      '      SELECT MIN(c2.CodVendaInicial) FROM Caixa c2 ' +
+      '      WHERE c2.CodVendaInicial > c.CodVendaInicial ' +
+      '      AND c2.CodVendaInicial IS NOT NULL ' +
+      '    ), 999999999) ' +
+      '    AND (c.DataFechamento IS NULL OR ' +
+      '         CAST(v.DataVenda AS DATE) <= CAST(c.DataFechamento AS DATE)) ' +
+      '  ), 0) AS QtdVendas, ' +
+      // Valor total das vendas
+      '  ISNULL(( ' +
+      '    SELECT SUM(v.ValorTotal) FROM VENDAS v ' +
+      '    WHERE c.CodVendaInicial IS NOT NULL ' +
+      '    AND v.CodVenda >= c.CodVendaInicial ' +
+      '    AND v.CodVenda < ISNULL(( ' +
+      '      SELECT MIN(c2.CodVendaInicial) FROM Caixa c2 ' +
+      '      WHERE c2.CodVendaInicial > c.CodVendaInicial ' +
+      '      AND c2.CodVendaInicial IS NOT NULL ' +
+      '    ), 999999999) ' +
+      '    AND (c.DataFechamento IS NULL OR ' +
+      '         CAST(v.DataVenda AS DATE) <= CAST(c.DataFechamento AS DATE)) ' +
+      '  ), 0) AS TotalVendas, ' +
+      // Fiado pago neste caixa
+      '  ISNULL(( ' +
+      '    SELECT SUM(pf.ValorPago) FROM PagamentoFiado pf ' +
+      '    WHERE pf.IdCaixa = c.Id ' +
+      '  ), 0) AS TotalFiado, ' +
+      // Lucro
+      '  ISNULL(( ' +
+      '    SELECT SUM((iv.ValorProdUni - p.valorcusto) * iv.Quantidade) ' +
+      '    FROM ItensVenda iv ' +
+      '    LEFT JOIN PRODUTOS p ON p.descricao = iv.Descricao ' +
+      '    INNER JOIN VENDAS v ON v.CodVenda = iv.CodVenda ' +
+      '    WHERE c.CodVendaInicial IS NOT NULL ' +
+      '    AND v.CodVenda >= c.CodVendaInicial ' +
+      '    AND v.CodVenda < ISNULL(( ' +
+      '      SELECT MIN(c2.CodVendaInicial) FROM Caixa c2 ' +
+      '      WHERE c2.CodVendaInicial > c.CodVendaInicial ' +
+      '      AND c2.CodVendaInicial IS NOT NULL ' +
+      '    ), 999999999) ' +
+      '    AND (c.DataFechamento IS NULL OR ' +
+      '         CAST(v.DataVenda AS DATE) <= CAST(c.DataFechamento AS DATE)) ' +
+      '  ), 0) AS TotalLucro, ' +
+      // Saldo final = abertura + vendas + fiado
+      '  ISNULL(c.ValorAbertura, 0) + ' +
+      '  ISNULL(( ' +
+      '    SELECT SUM(v.ValorTotal) FROM VENDAS v ' +
+      '    WHERE c.CodVendaInicial IS NOT NULL ' +
+      '    AND v.CodVenda >= c.CodVendaInicial ' +
+      '    AND v.CodVenda < ISNULL(( ' +
+      '      SELECT MIN(c2.CodVendaInicial) FROM Caixa c2 ' +
+      '      WHERE c2.CodVendaInicial > c.CodVendaInicial ' +
+      '      AND c2.CodVendaInicial IS NOT NULL ' +
+      '    ), 999999999) ' +
+      '    AND (c.DataFechamento IS NULL OR ' +
+      '         CAST(v.DataVenda AS DATE) <= CAST(c.DataFechamento AS DATE)) ' +
+      '  ), 0) + ' +
+      '  ISNULL(( ' +
+      '    SELECT SUM(pf.ValorPago) FROM PagamentoFiado pf ' +
+      '    WHERE pf.IdCaixa = c.Id ' +
+      '  ), 0) AS SaldoCalculado ' +
       'FROM Caixa c WHERE 1=1 ' + sWhere +
       ' ORDER BY c.DataAbertura DESC'
     );
@@ -166,20 +243,14 @@ begin
         fdFechamento.FieldByName('DataFechamento').AsString :=
           FormatDateTime('dd/mm/yyyy hh:nn', qrTemp.FieldByName('DataFechamento').AsDateTime);
 
-      fdFechamento.FieldByName('ValorAbertura').AsCurrency :=
-        qrTemp.FieldByName('ValorAbertura').AsCurrency;
-
-      fdFechamento.FieldByName('ValorVendas').AsCurrency :=
-        qrTemp.FieldByName('TotalVendas').AsCurrency;
-
-      fdFechamento.FieldByName('SaldoFinal').AsCurrency :=
-        qrTemp.FieldByName('ValorFechamento').AsCurrency;
-
-      fdFechamento.FieldByName('UsuarioAbertura').AsString :=
-        qrTemp.FieldByName('UsuarioAbertura').AsString;
-
-      fdFechamento.FieldByName('UsuarioFechamento').AsString :=
-        qrTemp.FieldByName('UsuarioFechamento').AsString;
+      fdFechamento.FieldByName('UsuarioAbertura').AsString   := qrTemp.FieldByName('UsuarioAbertura').AsString;
+      fdFechamento.FieldByName('UsuarioFechamento').AsString := qrTemp.FieldByName('UsuarioFechamento').AsString;
+      fdFechamento.FieldByName('ValorAbertura').AsCurrency   := qrTemp.FieldByName('ValorAbertura').AsCurrency;
+      fdFechamento.FieldByName('QtdVendas').AsInteger        := qrTemp.FieldByName('QtdVendas').AsInteger;
+      fdFechamento.FieldByName('ValorVendas').AsCurrency     := qrTemp.FieldByName('TotalVendas').AsCurrency;
+      fdFechamento.FieldByName('ValorFiado').AsCurrency      := qrTemp.FieldByName('TotalFiado').AsCurrency;
+      fdFechamento.FieldByName('Lucro').AsCurrency           := qrTemp.FieldByName('TotalLucro').AsCurrency;
+      fdFechamento.FieldByName('SaldoFinal').AsCurrency      := qrTemp.FieldByName('SaldoCalculado').AsCurrency;
 
       if qrTemp.FieldByName('Status').AsString = 'A' then
         fdFechamento.FieldByName('Status').AsString := 'Aberto'
@@ -202,23 +273,33 @@ end;
 
 procedure TfrmConsultaFechamento.AtualizarTotais;
 var
-  TotAbertura, TotVendas, TotSaldo: Currency;
+  TotAbertura, TotVendas, TotFiado, TotLucro, TotSaldo: Currency;
+  TotQtd: Integer;
 begin
   TotAbertura := 0;
+  TotQtd      := 0;
   TotVendas   := 0;
+  TotFiado    := 0;
+  TotLucro    := 0;
   TotSaldo    := 0;
 
   fdFechamento.First;
   while not fdFechamento.Eof do
   begin
     TotAbertura := TotAbertura + fdFechamento.FieldByName('ValorAbertura').AsCurrency;
+    TotQtd      := TotQtd      + fdFechamento.FieldByName('QtdVendas').AsInteger;
     TotVendas   := TotVendas   + fdFechamento.FieldByName('ValorVendas').AsCurrency;
+    TotFiado    := TotFiado    + fdFechamento.FieldByName('ValorFiado').AsCurrency;
+    TotLucro    := TotLucro    + fdFechamento.FieldByName('Lucro').AsCurrency;
     TotSaldo    := TotSaldo    + fdFechamento.FieldByName('SaldoFinal').AsCurrency;
     fdFechamento.Next;
   end;
 
   lblTotAbertura.Caption := 'R$ ' + FormatFloat('#,##0.00', TotAbertura);
+  lblTotQtd.Caption      := IntToStr(TotQtd) + ' venda(s)';
   lblTotVendas.Caption   := 'R$ ' + FormatFloat('#,##0.00', TotVendas);
+  lblTotFiado.Caption    := 'R$ ' + FormatFloat('#,##0.00', TotFiado);
+  lblTotLucro.Caption    := 'R$ ' + FormatFloat('#,##0.00', TotLucro);
   lblTotSaldo.Caption    := 'R$ ' + FormatFloat('#,##0.00', TotSaldo);
 end;
 

@@ -339,6 +339,8 @@ object frmCadastroCliente: TfrmCadastroCliente
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
       ParentFont = False
+      Transparent = False
+      Visible = False
     end
     object Label1: TLabel
       Left = 24
@@ -416,16 +418,6 @@ object frmCadastroCliente: TfrmCadastroCliente
       Enabled = False
       TabOrder = 5
     end
-    object DBEdit2: TDBEdit
-      Left = 25
-      Top = 304
-      Width = 211
-      Height = 23
-      DataField = 'valor'
-      DataSource = dmConexoes.dsCliente
-      Enabled = False
-      TabOrder = 6
-    end
     object DatePicker1: TDatePicker
       Left = 310
       Top = 304
@@ -438,7 +430,18 @@ object frmCadastroCliente: TfrmCadastroCliente
       Font.Height = -16
       Font.Name = 'Segoe UI'
       Font.Style = []
+      TabOrder = 6
+    end
+    object DBEdit2: TDBEdit
+      Left = 25
+      Top = 304
+      Width = 211
+      Height = 23
+      DataField = 'valor'
+      DataSource = dmConexoes.dsCliente
+      Enabled = False
       TabOrder = 7
+      Visible = False
     end
   end
 end
