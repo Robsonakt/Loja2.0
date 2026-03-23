@@ -471,27 +471,42 @@ var
   proximoCodItem: Integer;
   proximoCodVenda: Integer;
 begin
-  if Application.MessageBox('Precisa de ajuda com o troco?', 'Troco',
-    MB_YESNO + MB_ICONQUESTION) = IDYES then
-  begin
-    sValorPago := '';
-    if InputQuery('Valor Recebido', 'Digite o valor recebido pelo cliente:', sValorPago) then
+    if Application.MessageBox('Deseja imprimir o comprovante?', 'Atencao', MB_YESNO) = IDYES then
     begin
-      valorPago := StrToCurrDef(sValorPago, 0);
-      if valorPago < totalvalor then
-      begin
-        Application.MessageBox('Valor insuficiente para cobrir a venda!', 'Atencao',
-          MB_OK + MB_ICONWARNING);
-        Exit;
+      try
+        ACBrPosPrinter1.Ativar;
+        ACBrPosPrinter1.Buffer.Text := Memo1.Text;
+        ACBrPosPrinter1.Imprimir;
+        ACBrPosPrinter1.CortarPapel;
+        Application.MessageBox('Venda Feita com Sucesso', 'Venda', MB_OK + MB_ICONINFORMATION);
+      except
+        on E: Exception do
+        begin
+          if Application.MessageBox(
+            PChar('Impressora nao encontrada ou sem conexao.' + #13#10 +
+                  'Deseja finalizar a venda sem imprimir o comprovante?'),
+            'Aviso - Impressora', MB_YESNO + MB_ICONWARNING) = IDYES then
+          begin
+            Application.MessageBox('Venda Feita com Sucesso sem impressao.', 'Venda', MB_OK + MB_ICONINFORMATION);
+          end
+          else
+          begin
+            // Cancela tudo - desfaz a venda gravada
+            dmConexoes.qrVendas.Close;
+            dmConexoes.qrVendas.SQL.Clear;
+            dmConexoes.qrVendas.SQL.Add('DELETE FROM ItensVenda WHERE CodVenda = ' + IntToStr(proximoCodVenda));
+            dmConexoes.qrVendas.ExecSQL;
+            dmConexoes.qrVendas.SQL.Clear;
+            dmConexoes.qrVendas.SQL.Add('DELETE FROM VENDAS WHERE CodVenda = ' + IntToStr(proximoCodVenda));
+            dmConexoes.qrVendas.ExecSQL;
+            Application.MessageBox('Venda cancelada. Conecte a impressora e tente novamente.', 'Cancelado', MB_OK + MB_ICONINFORMATION);
+            Exit;
+          end;
+        end;
       end;
-      troco := valorPago - totalvalor;
-      Application.MessageBox(
-        PChar('Troco: R$ ' + FormatFloat('#,##0.00', troco)),
-        'Troco', MB_OK + MB_ICONINFORMATION);
     end
     else
-      Exit;
-  end;
+      Application.MessageBox('Venda Feita com Sucesso', 'Venda', MB_OK + MB_ICONINFORMATION);
 
   with dmConexoes do
   begin
@@ -546,16 +561,27 @@ begin
       fdProduto.Next;
     end;
 
-    if Application.MessageBox('Deseja imprimir o comprovante?', 'Atencao', MB_YESNO) = IDYES then
+      if Application.MessageBox('Deseja imprimir o comprovante?', 'Atencao', MB_YESNO) = IDYES then
     begin
-      ACBrPosPrinter1.Ativar;
-      ACBrPosPrinter1.Buffer.Text := Memo1.Text;
-      ACBrPosPrinter1.Imprimir;
-      ACBrPosPrinter1.CortarPapel;
+      try
+        ACBrPosPrinter1.Ativar;
+        ACBrPosPrinter1.Buffer.Text := Memo1.Text;
+        ACBrPosPrinter1.Imprimir;
+        ACBrPosPrinter1.CortarPapel;
+        Application.MessageBox('Venda Feita com Sucesso', 'Venda', MB_OK + MB_ICONINFORMATION);
+      except
+        on E: Exception do
+        begin
+          Application.MessageBox(
+            PChar('Impressora nao encontrada ou sem conexao.' + #13#10 +
+                  'A venda foi registrada normalmente.' + #13#10#10 +
+                  'Verifique a conexao da impressora para proximas vendas.'),
+            'Aviso - Impressora', MB_OK + MB_ICONWARNING);
+        end;
+      end;
     end
     else
       Application.MessageBox('Venda Feita com Sucesso', 'Venda', MB_OK + MB_ICONINFORMATION);
-
     // 5. Atualiza estoque
     fdProduto.First;
     while not fdProduto.Eof do

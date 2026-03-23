@@ -2,13 +2,12 @@ object dmConexoes: TdmConexoes
   Height = 716
   Width = 777
   object conRobson: TADOConnection
-    Connected = True
     ConnectionString = 
       'Provider=SQLOLEDB.1;Password=@66E$Y$;Persist Security Info=True;' +
-      'User ID=sa;Initial Catalog=LojaNova;Data Source=DESKTOP-N0H3V0A;' +
-      'Use Procedure for Prepare=1;Auto Translate=True;Packet Size=4096' +
-      ';Workstation ID=DEV3;Use Encryption for Data=False;Tag with colu' +
-      'mn collation when possible=False'
+      'User ID=sa;Initial Catalog=LojaNova;Data Source=.;Use Procedure ' +
+      'for Prepare=1;Auto Translate=True;Packet Size=4096;Workstation I' +
+      'D=DEV3;Use Encryption for Data=False;Tag with column collation w' +
+      'hen possible=False'
     LoginPrompt = False
     Provider = 'SQLOLEDB.1'
     Left = 40
