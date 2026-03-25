@@ -662,7 +662,7 @@ object frmCaixaVendas: TfrmCaixaVendas
   end
   object ACBrPosPrinter1: TACBrPosPrinter
     Modelo = ppEscPosEpson
-    Porta = 'USB'
+    Porta = 'COM3'
     ConfigBarras.MostrarCodigo = False
     ConfigBarras.LarguraLinha = 0
     ConfigBarras.Altura = 0

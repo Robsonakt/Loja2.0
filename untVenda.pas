@@ -7,7 +7,8 @@ uses
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Data.DB, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
-  ACBrBase, ACBrPosPrinter, ACBrUtil.Strings, ACBrUtil.Base, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
+  ACBrBase, ACBrPosPrinter, ACBrUtil.Strings, ACBrUtil.Base,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client,
   Vcl.Buttons, Vcl.StdCtrls, Vcl.Mask, Vcl.ExtCtrls, Vcl.DBCtrls,
   Vcl.Grids, Vcl.DBGrids, Vcl.ComCtrls;
 
@@ -282,12 +283,15 @@ end;
 
 procedure TfrmCaixaVendas.FormShow(Sender: TObject);
 begin
+  // Carrega configuracoes do INI via dmConexoes
+  dmConexoes.CarregarConfiguracoes;
+
+  cfg_Empresa  := dmConexoes.NomeEmpresa;
+  cfg_Endereco := dmConexoes.EnderecoEmpresa;
+  cfg_Telefone := dmConexoes.TelefoneEmpresa;
+
   edtValorProd.Clear;
   edtQuantRest.Clear;
-  cfg_Empresa  := 'NOME DA EMPRESA';
-  cfg_Endereco := 'ENDERECO DA EMPRESA';
-  cfg_Telefone := '(00) 0000-0000';
-
   FProdQtdeEstoque := 0;
   totalvalor := 0;
   fdProduto.Open;
@@ -403,7 +407,6 @@ begin
       MB_ICONQUESTION + MB_YESNO) = IDYES then
     begin
       fdProduto.Delete;
-      // Recalcula total apos remover item
       RecalcularTotal;
     end;
   end;
@@ -415,7 +418,7 @@ begin
 end;
 
 // ============================================================
-// PAINEL CONFIRMA ITEM - corrigido: atualiza quantidade em memoria
+// PAINEL CONFIRMA ITEM
 // ============================================================
 
 procedure TfrmCaixaVendas.PnConfirmaItemClick(Sender: TObject);
@@ -432,20 +435,12 @@ begin
       if Application.MessageBox(
         'Voce ficara sem estoque deste produto, Deseja continuar a venda?',
         'Atencao', MB_YESNO + MB_ICONINFORMATION) = IDYES then
-      begin
-        // Apenas armazena em memoria - SEM post no banco
-        InsereProd;
-      end
+        InsereProd
       else
-      begin
         Application.MessageBox('Venda de produto Cancelada', 'Atencao', MB_OK + MB_ICONINFORMATION);
-      end;
     end
     else
-    begin
-      // Apenas armazena em memoria - SEM post no banco
       InsereProd;
-    end;
 
     edtCodVenda.Text := IntToStr(qrComando.FieldByName('ULTIMOCODIGO').AsInteger + 1);
   end;
@@ -471,42 +466,27 @@ var
   proximoCodItem: Integer;
   proximoCodVenda: Integer;
 begin
-    if Application.MessageBox('Deseja imprimir o comprovante?', 'Atencao', MB_YESNO) = IDYES then
+  if Application.MessageBox('Precisa de ajuda com o troco?', 'Troco',
+    MB_YESNO + MB_ICONQUESTION) = IDYES then
+  begin
+    sValorPago := '';
+    if InputQuery('Valor Recebido', 'Digite o valor recebido pelo cliente:', sValorPago) then
     begin
-      try
-        ACBrPosPrinter1.Ativar;
-        ACBrPosPrinter1.Buffer.Text := Memo1.Text;
-        ACBrPosPrinter1.Imprimir;
-        ACBrPosPrinter1.CortarPapel;
-        Application.MessageBox('Venda Feita com Sucesso', 'Venda', MB_OK + MB_ICONINFORMATION);
-      except
-        on E: Exception do
-        begin
-          if Application.MessageBox(
-            PChar('Impressora nao encontrada ou sem conexao.' + #13#10 +
-                  'Deseja finalizar a venda sem imprimir o comprovante?'),
-            'Aviso - Impressora', MB_YESNO + MB_ICONWARNING) = IDYES then
-          begin
-            Application.MessageBox('Venda Feita com Sucesso sem impressao.', 'Venda', MB_OK + MB_ICONINFORMATION);
-          end
-          else
-          begin
-            // Cancela tudo - desfaz a venda gravada
-            dmConexoes.qrVendas.Close;
-            dmConexoes.qrVendas.SQL.Clear;
-            dmConexoes.qrVendas.SQL.Add('DELETE FROM ItensVenda WHERE CodVenda = ' + IntToStr(proximoCodVenda));
-            dmConexoes.qrVendas.ExecSQL;
-            dmConexoes.qrVendas.SQL.Clear;
-            dmConexoes.qrVendas.SQL.Add('DELETE FROM VENDAS WHERE CodVenda = ' + IntToStr(proximoCodVenda));
-            dmConexoes.qrVendas.ExecSQL;
-            Application.MessageBox('Venda cancelada. Conecte a impressora e tente novamente.', 'Cancelado', MB_OK + MB_ICONINFORMATION);
-            Exit;
-          end;
-        end;
+      valorPago := StrToCurrDef(sValorPago, 0);
+      if valorPago < totalvalor then
+      begin
+        Application.MessageBox('Valor insuficiente para cobrir a venda!', 'Atencao',
+          MB_OK + MB_ICONWARNING);
+        Exit;
       end;
+      troco := valorPago - totalvalor;
+      Application.MessageBox(
+        PChar('Troco: R$ ' + FormatFloat('#,##0.00', troco)),
+        'Troco', MB_OK + MB_ICONINFORMATION);
     end
     else
-      Application.MessageBox('Venda Feita com Sucesso', 'Venda', MB_OK + MB_ICONINFORMATION);
+      Exit;
+  end;
 
   with dmConexoes do
   begin
@@ -539,7 +519,7 @@ begin
     qrComando.Open;
     proximoCodItem := qrComando.FieldByName('PROXIMOITEM').AsInteger;
 
-    // 4. Abre itens e grava cada um com proximoCodVenda correto
+    // 4. Grava itens
     qrItensVenda.Close;
     qrItensVenda.SQL.Clear;
     qrItensVenda.SQL.Add('SELECT * FROM [LojaNova].[dbo].[ItensVenda]');
@@ -550,7 +530,7 @@ begin
     begin
       qrItensVenda.Insert;
       qrItensVenda.FieldByName('CodItem').AsInteger       := proximoCodItem;
-      qrItensVenda.FieldByName('CodVenda').AsInteger      := proximoCodVenda; // <- CORRIGIDO
+      qrItensVenda.FieldByName('CodVenda').AsInteger      := proximoCodVenda;
       qrItensVenda.FieldByName('Descricao').AsString      := fdProduto.FieldByName('Descricao').AsString;
       qrItensVenda.FieldByName('ValorTotal').AsCurrency   := fdProduto.FieldByName('ValorTotal').AsCurrency;
       qrItensVenda.FieldByName('Quantidade').AsInteger    := fdProduto.FieldByName('Quantidade').AsInteger;
@@ -561,27 +541,6 @@ begin
       fdProduto.Next;
     end;
 
-      if Application.MessageBox('Deseja imprimir o comprovante?', 'Atencao', MB_YESNO) = IDYES then
-    begin
-      try
-        ACBrPosPrinter1.Ativar;
-        ACBrPosPrinter1.Buffer.Text := Memo1.Text;
-        ACBrPosPrinter1.Imprimir;
-        ACBrPosPrinter1.CortarPapel;
-        Application.MessageBox('Venda Feita com Sucesso', 'Venda', MB_OK + MB_ICONINFORMATION);
-      except
-        on E: Exception do
-        begin
-          Application.MessageBox(
-            PChar('Impressora nao encontrada ou sem conexao.' + #13#10 +
-                  'A venda foi registrada normalmente.' + #13#10#10 +
-                  'Verifique a conexao da impressora para proximas vendas.'),
-            'Aviso - Impressora', MB_OK + MB_ICONWARNING);
-        end;
-      end;
-    end
-    else
-      Application.MessageBox('Venda Feita com Sucesso', 'Venda', MB_OK + MB_ICONINFORMATION);
     // 5. Atualiza estoque
     fdProduto.First;
     while not fdProduto.Eof do
@@ -596,6 +555,56 @@ begin
       end;
       fdProduto.Next;
     end;
+
+    // 6. Impressao APOS gravar tudo
+    if Application.MessageBox('Deseja imprimir o comprovante?', 'Atencao', MB_YESNO) = IDYES then
+    begin
+      try
+        // Garante que a porta esta fechada antes de abrir
+        if ACBrPosPrinter1.Ativo then
+          ACBrPosPrinter1.Desativar;
+
+        // Porta e Modelo vem do config.ini via dmConexoes
+        ACBrPosPrinter1.Porta  := dmConexoes.PortaImpressora;
+        ACBrPosPrinter1.Modelo := TACBrPosPrinterModelo(dmConexoes.ModeloImpressora);
+        ACBrPosPrinter1.Ativar;
+        ACBrPosPrinter1.Buffer.Text := Memo1.Text;
+        ACBrPosPrinter1.Imprimir;
+        ACBrPosPrinter1.CortarPapel;
+        ACBrPosPrinter1.Desativar; // libera a porta apos imprimir
+        Application.MessageBox('Venda Feita com Sucesso', 'Venda', MB_OK + MB_ICONINFORMATION);
+      except
+        on E: Exception do
+        begin
+          try ACBrPosPrinter1.Desativar; except end;
+
+          if Application.MessageBox(
+            PChar('Impressora nao encontrada ou sem conexao.' + #13#10 +
+                  'Erro: ' + E.Message + #13#10 +
+                  'Deseja finalizar a venda sem imprimir?'),
+            'Aviso - Impressora', MB_YESNO + MB_ICONWARNING) = IDYES then
+          begin
+            Application.MessageBox('Venda Feita com Sucesso sem impressao.', 'Venda', MB_OK + MB_ICONINFORMATION);
+          end
+          else
+          begin
+            // Cancela - apaga venda e itens gravados
+            qrVendas.Close;
+            qrVendas.SQL.Clear;
+            qrVendas.SQL.Add('DELETE FROM ItensVenda WHERE CodVenda = ' + IntToStr(proximoCodVenda));
+            qrVendas.ExecSQL;
+            qrVendas.SQL.Clear;
+            qrVendas.SQL.Add('DELETE FROM VENDAS WHERE CodVenda = ' + IntToStr(proximoCodVenda));
+            qrVendas.ExecSQL;
+            Application.MessageBox('Venda cancelada. Conecte a impressora e tente novamente.',
+              'Cancelado', MB_OK + MB_ICONINFORMATION);
+            Exit;
+          end;
+        end;
+      end;
+    end
+    else
+      Application.MessageBox('Venda Feita com Sucesso', 'Venda', MB_OK + MB_ICONINFORMATION);
 
     LimparTela;
   end;
@@ -626,7 +635,7 @@ begin
     end;
 
     Application.MessageBox('Venda Fiado Registrada!', 'Fiado', MB_OK + MB_ICONINFORMATION);
-    // Atualiza estoque de cada produto
+
     fdProduto.First;
     while not fdProduto.Eof do
     begin

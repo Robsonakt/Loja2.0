@@ -1,4 +1,4 @@
-unit untLogUser;
+﻿unit untLogUser;
 
 interface
 
@@ -202,6 +202,8 @@ begin
     edtSenha.SetFocus;
     Exit;
   end;
+   // Carrega configuracoes do INI apos login validado
+  dmConexoes.CarregarConfiguracoes;
 
   // ============================================================
   // VERIFICACAO DE LICENCA

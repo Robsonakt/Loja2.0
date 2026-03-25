@@ -1,0 +1,384 @@
+unit dmconexao;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, Data.DB, Data.Win.ADODB,
+  Vcl.Dialogs, Vcl.Forms, IniFiles;
+
+type
+  TdmConexoes = class(TDataModule)
+    conRobson: TADOConnection;
+
+    // -------------------------------------------------------
+    // qrEstoque - Query principal de produtos
+    // -------------------------------------------------------
+    qrEstoque: TADOQuery;
+    qrEstoquecodigo: TAutoIncField;
+    qrEstoquequantidade: TIntegerField;
+    qrEstoquedescricao: TWideStringField;
+    qrEstoquedata: TDateTimeField;
+    qrEstoquevalorvenda: TBCDField;
+    qrEstoquetipo: TStringField;
+    qrEstoquevalorcusto: TBCDField;
+    qrEstoqueCodBarras: TStringField;
+    qrEstoquelinha: TStringField;
+    qrEstoquegrupo: TStringField;
+    qrEstoquencm: TStringField;
+    qrEstoquemodelo: TStringField;
+    qrEstoqueunidade: TStringField;
+    qrEstoquepesogramas: TBCDField;
+    qrEstoquefornecedor: TStringField;
+    qrEstoquedata_compra: TWideStringField;
+    qrEstoqueestoque_inicial: TIntegerField;
+    qrEstoquecusto_unitario: TBCDField;
+    qrEstoquecusto_total: TBCDField;
+    qrEstoquetamanho: TStringField;
+    qrEstoquecor: TStringField;
+    qrEstoquecod_tamanho: TIntegerField;
+    qrEstoqueqtde_minima: TIntegerField;
+    qrEstoquemargem_lucro: TBCDField;
+    qrEstoquepreco_de: TBCDField;
+    qrEstoquemarkup: TBCDField;
+    // Tributacoes
+    qrEstoquecfop: TStringField;
+    qrEstoqueorigem: TStringField;
+    qrEstoqueun_trib: TStringField;
+    qrEstoquecsosn: TStringField;
+    qrEstoquealiq_icms: TBCDField;
+    qrEstoquebc_icms: TBCDField;
+    qrEstoquecst_pis: TStringField;
+    qrEstoquealiq_pis: TBCDField;
+    qrEstoquecst_cofins: TStringField;
+    qrEstoquealiq_cofins: TBCDField;
+
+    // -------------------------------------------------------
+    // Queries auxiliares
+    // -------------------------------------------------------
+    vwGerarNumCliente: TADOQuery;
+
+    qrComanda: TADOQuery;
+    qrComandaCod_Comanda: TIntegerField;
+    qrComandaNom_Comanda: TStringField;
+    qrComandaStatus_Comanda: TStringField;
+    qrComandaEstad_Comanda: TStringField;
+
+    qrVendas: TADOQuery;
+    qrItensVenda: TADOQuery;
+    qrComando: TADOQuery;
+
+    dsEstoque: TDataSource;
+    dsCliente: TDataSource;
+    dsProduto: TDataSource;
+
+    qrCaixa: TADOQuery;
+
+    qrCliente: TADOQuery;
+
+    qrUsuario: TADOQuery;
+    dsUsuario: TDataSource;
+
+    // Grid auxiliar de calculo (usado no DBGrid de valores)
+    ADOQueryGrid: TADOQuery;
+    ADOQueryGridquantidade: TIntegerField;
+    ADOQueryGridvalorcusto: TBCDField;
+    ADOQueryGridcusto_total: TBCDField;
+    ADOQueryGridmarkup: TBCDField;
+    ADOQueryGridvalorvenda: TBCDField;
+
+    // Query de calculo por produto especifico
+    CalculoProdutos: TADOQuery;
+    CalculoProdutosquantidade: TIntegerField;
+    CalculoProdutosvalorcusto: TBCDField;
+    CalculoProdutoscusto_total: TBCDField;
+    CalculoProdutosmarkup: TBCDField;
+    CalculoProdutosvalorvenda: TBCDField;
+
+    // Query de estoque para markup (sem fields persistentes)
+    Estoquemarkup: TADOQuery;
+    qrClienteCodCli: TAutoIncField;
+    qrClientenome: TWideStringField;
+    qrClienteendereco: TWideStringField;
+    qrClientenumeroresidencia: TWideStringField;
+    qrClientetelefone: TStringField;
+    qrClientecpf: TStringField;
+    qrClienterg: TStringField;
+    qrClienteproduto: TWideStringField;
+    qrClientevalor: TIntegerField;
+    qrClientevalorfiado: TBCDField;
+    qrClientedatacadastrocliente: TDateTimeField;
+    qrEstoquevalorvendaTotal: TBCDField;
+    dsVenda: TDataSource;
+    qrItensOrcamento: TADOQuery;
+    dsOrcitens: TDataSource;
+
+    procedure qrEstoqueCalcFields(DataSet: TDataSet);
+    procedure CalculoProdutosAfterScroll(DataSet: TDataSet);
+    procedure qrEstoquemarkupChange(Sender: TField);
+
+  private
+    { Private declarations }
+public
+  function CaixaAberto: Boolean;
+  function AbrirCaixa(AValorInicial: Currency): Boolean;
+  function TotalVendasCaixaAtual: Currency;
+  function FecharCaixa: Boolean;
+  function VerificarLicenca: Integer;
+  function PortaImpressora: string;
+  function NomeEmpresa: string;
+  function EnderecoEmpresa: string;
+  function TelefoneEmpresa: string;
+  procedure CarregarConfiguracoes;
+  end;
+var
+  dmConexoes: TdmConexoes;
+  cfg_Empresa  : string;
+  cfg_Endereco : string;
+  cfg_Telefone : string;
+  cfg_Porta    : string;
+
+implementation
+
+{%CLASSGROUP 'Vcl.Controls.TControl'}
+
+{$R *.dfm}
+
+procedure TdmConexoes.CarregarConfiguracoes;
+var
+  INI: TIniFile;
+begin
+  INI := TIniFile.Create(ExtractFilePath(Application.ExeName) + 'config.ini');
+  try
+    cfg_Empresa  := INI.ReadString('Empresa',    'Nome',      'Minha Empresa');
+    cfg_Endereco := INI.ReadString('Empresa',    'Endereco',  'Rua Exemplo, 123');
+    cfg_Telefone := INI.ReadString('Empresa',    'Telefone',  '(00) 00000-0000');
+    cfg_Porta    := INI.ReadString('Impressora', 'Porta',     'COM1');
+  finally
+    INI.Free;
+  end;
+end;
+
+function TdmConexoes.PortaImpressora: string;
+begin
+  Result := cfg_Porta;
+end;
+
+function TdmConexoes.NomeEmpresa: string;
+begin
+  Result := cfg_Empresa;
+end;
+
+function TdmConexoes.EnderecoEmpresa: string;
+begin
+  Result := cfg_Endereco;
+end;
+
+function TdmConexoes.TelefoneEmpresa: string;
+begin
+  Result := cfg_Telefone;
+end;
+
+// ============================================================
+// CAIXA
+// ============================================================
+
+function TdmConexoes.CaixaAberto: Boolean;
+begin
+  qrCaixa.Close;
+  qrCaixa.SQL.Clear;
+  qrCaixa.SQL.Add('SELECT TOP 1 1 FROM Caixa WHERE Status = :Status');
+  qrCaixa.Parameters.ParamByName('Status').Value := 'A';
+  qrCaixa.Open;
+  Result := not qrCaixa.IsEmpty;
+end;
+function TdmConexoes.AbrirCaixa(AValorInicial: Currency): Boolean;
+var
+  qrTemp: TADOQuery;
+  ProxCod: Integer;
+begin
+  Result := False;
+  if AValorInicial < 0 then Exit;
+  if CaixaAberto then Exit;
+
+  // Busca o proximo CodVenda
+  qrTemp := TADOQuery.Create(nil);
+  try
+    qrTemp.Connection := conRobson;
+    qrTemp.SQL.Add('SELECT ISNULL(MAX(CodVenda), 0) + 1 AS PROXIMO FROM VENDAS');
+    qrTemp.Open;
+    ProxCod := qrTemp.FieldByName('PROXIMO').AsInteger;
+  finally
+    qrTemp.Free;
+  end;
+
+  qrCaixa.Close;
+  qrCaixa.SQL.Clear;
+  qrCaixa.SQL.Add(
+    'INSERT INTO Caixa (DataAbertura, ValorAbertura, Status, UsuarioAbertura, CodVendaInicial) ' +
+    'VALUES (GETDATE(), :Valor, ''A'', :Usuario, :CodInicial)'
+  );
+  qrCaixa.Parameters.ParamByName('Valor').Value      := AValorInicial;
+  qrCaixa.Parameters.ParamByName('Usuario').Value    := qrUsuario.FieldByName('Usuario').AsString;
+  qrCaixa.Parameters.ParamByName('CodInicial').Value := ProxCod;
+  qrCaixa.ExecSQL;
+  Result := True;
+end;
+function TdmConexoes.TotalVendasCaixaAtual: Currency;
+var
+  qrTemp: TADOQuery;
+begin
+  Result := 0;
+  qrTemp := TADOQuery.Create(nil);
+  try
+    qrTemp.Connection := conRobson;
+    qrTemp.SQL.Add(
+      'SELECT ISNULL(SUM(v.ValorTotal), 0) AS TotalVendas ' +
+      'FROM VENDAS v ' +
+      'INNER JOIN Caixa c ON c.Status = ''A'' ' +
+      '  AND v.CodVenda >= c.CodVendaInicial ' +
+      '  AND c.DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
+    );
+    qrTemp.Open;
+    Result := qrTemp.FieldByName('TotalVendas').AsCurrency;
+  finally
+    qrTemp.Free;
+  end;
+end;
+
+function TdmConexoes.FecharCaixa: Boolean;
+var
+  ValorAbertura, TotalVendas, TotalFiado, ValorFinal: Currency;
+  qrFiado: TADOQuery;
+begin
+  Result := False;
+  if not CaixaAberto then Exit;
+
+  qrCaixa.Close;
+  qrCaixa.SQL.Clear;
+  qrCaixa.SQL.Add(
+    'SELECT ValorAbertura FROM Caixa ' +
+    'WHERE Status = ''A'' ' +
+    'AND DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
+  );
+  qrCaixa.Open;
+  ValorAbertura := qrCaixa.FieldByName('ValorAbertura').AsCurrency;
+
+  TotalVendas := TotalVendasCaixaAtual;
+
+  // Busca fiado pago neste caixa
+  TotalFiado := 0;
+  qrFiado := TADOQuery.Create(nil);
+  try
+    qrFiado.Connection := conRobson;
+    qrFiado.SQL.Add(
+      'SELECT ISNULL(SUM(pf.ValorPago), 0) AS TotalFiado ' +
+      'FROM PagamentoFiado pf ' +
+      'INNER JOIN Caixa c ON c.Id = pf.IdCaixa ' +
+      'AND c.Status = ''A'' ' +
+      'AND c.DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
+    );
+    qrFiado.Open;
+    TotalFiado := qrFiado.FieldByName('TotalFiado').AsCurrency;
+  finally
+    qrFiado.Free;
+  end;
+
+  ValorFinal := ValorAbertura + TotalVendas + TotalFiado;
+
+  qrCaixa.Close;
+  qrCaixa.SQL.Clear;
+  qrCaixa.SQL.Add(
+    'UPDATE Caixa SET ' +
+    'DataFechamento = GETDATE(), ' +
+    'ValorFechamento = :ValorFinal, ' +
+    'Status = ''F'', ' +
+    'UsuarioFechamento = :Usuario ' +
+    'WHERE Status = ''A'' ' +
+    'AND DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
+  );
+  qrCaixa.Parameters.ParamByName('ValorFinal').Value := ValorFinal;
+  qrCaixa.Parameters.ParamByName('Usuario').Value    := qrUsuario.FieldByName('Usuario').AsString;
+  qrCaixa.ExecSQL;
+  Result := True;
+end;
+
+// ============================================================
+// LICENCA
+// Retorna: -1 = Expirada/Sem licenca, N >= 0 = dias restantes
+// ============================================================
+
+function TdmConexoes.VerificarLicenca: Integer;
+var
+  qrTemp: TADOQuery;
+begin
+  Result := -1;
+  qrTemp := TADOQuery.Create(nil);
+  try
+    qrTemp.Connection := conRobson;
+    qrTemp.SQL.Add(
+      'SELECT DATEDIFF(DAY, GETDATE(), DataExpiracao) AS DiasRestantes ' +
+      'FROM Licenca WHERE Ativo = 1'
+    );
+    qrTemp.Open;
+
+    if qrTemp.IsEmpty then Exit;
+
+    Result := qrTemp.FieldByName('DiasRestantes').AsInteger;
+    if Result < 0 then
+      Result := -1;
+  finally
+    qrTemp.Free;
+  end;
+end;
+
+// ============================================================
+// ESTOQUE - CALCFIELDS
+// ============================================================
+
+procedure TdmConexoes.qrEstoqueCalcFields(DataSet: TDataSet);
+begin
+  try
+    DataSet.FieldByName('custo_total').AsFloat :=
+      DataSet.FieldByName('quantidade').AsFloat *
+      DataSet.FieldByName('valorcusto').AsFloat;
+
+    DataSet.FieldByName('valorvenda').AsFloat :=
+      DataSet.FieldByName('valorcusto').AsFloat *
+      (1 + DataSet.FieldByName('markup').AsFloat / 100);
+  except
+  end;
+end;
+
+// ============================================================
+// ESTOQUE - ONCHANGE DO MARKUP
+// ============================================================
+
+procedure TdmConexoes.qrEstoquemarkupChange(Sender: TField);
+var
+  Custo, Markup: Double;
+begin
+  try
+    Custo  := qrEstoquevalorcusto.AsFloat;
+    Markup := qrEstoquemarkup.AsFloat;
+
+    qrEstoquevalorvenda.AsFloat  := Custo * (1 + Markup / 100);
+    qrEstoquecusto_total.AsFloat := qrEstoquequantidade.AsFloat * Custo;
+  except
+    on E: Exception do
+      ShowMessage('Erro no calculo do Markup: ' + E.Message);
+  end;
+end;
+
+// ============================================================
+// CALCULO PRODUTOS - AFTERSCROLL
+// ============================================================
+
+procedure TdmConexoes.CalculoProdutosAfterScroll(DataSet: TDataSet);
+begin
+  dmConexoes.ADOQueryGrid.Close;
+  dmConexoes.ADOQueryGrid.Parameters.ParamByName('pcodigo').Value :=
+    dmConexoes.CalculoProdutos.FieldByName('codigo').AsInteger;
+  dmConexoes.ADOQueryGrid.Open;
+end;
+
+end.

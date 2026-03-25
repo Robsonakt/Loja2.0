@@ -3,7 +3,8 @@ unit dmconexao;
 interface
 
 uses
-  System.SysUtils, System.Classes, Data.DB, Data.Win.ADODB, Vcl.Dialogs;
+  System.SysUtils, System.Classes, Data.DB, Data.Win.ADODB,
+  Vcl.Dialogs, Vcl.Forms, IniFiles,Winapi.Messages,Winapi.Windows;
 
 type
   TdmConexoes = class(TDataModule)
@@ -114,25 +115,87 @@ type
     procedure qrEstoqueCalcFields(DataSet: TDataSet);
     procedure CalculoProdutosAfterScroll(DataSet: TDataSet);
     procedure qrEstoquemarkupChange(Sender: TField);
+    procedure CarregarConfiguracoes;
 
   private
     { Private declarations }
-  public
-    function CaixaAberto: Boolean;
-    function AbrirCaixa(AValorInicial: Currency): Boolean;
-    function TotalVendasCaixaAtual: Currency;
-    function FecharCaixa: Boolean;
-    function VerificarLicenca: Integer;
-  end;
+public
+  function CaixaAberto: Boolean;
+  function AbrirCaixa(AValorInicial: Currency): Boolean;
+  function TotalVendasCaixaAtual: Currency;
+  function FecharCaixa: Boolean;
+  function VerificarLicenca: Integer;
+  function PortaImpressora: string;
+  function NomeEmpresa: string;
+  function EnderecoEmpresa: string;
+  function TelefoneEmpresa: string;
+  function ModeloImpressora: Integer;
 
+  end;
 var
   dmConexoes: TdmConexoes;
+  cfg_Empresa  : string;
+  cfg_Endereco : string;
+  cfg_Telefone : string;
+  cfg_Porta    : string;
+  cfg_Modelo  : Integer;
 
 implementation
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
 {$R *.dfm}
+
+procedure TdmConexoes.CarregarConfiguracoes;
+var
+  INI: TIniFile;
+begin
+if not FileExists(ExtractFilePath(Application.ExeName) + 'config.ini') then
+ begin
+  Application.MessageBox(
+  pchar('Arquivo config.ini não foi encontrado.'+ExtractFilePath(Application.ExeName) + 'config.ini'),
+  'Erro de configuração',
+  MB_OK + MB_ICONERROR
+);
+ end;
+
+
+  INI := TIniFile.Create(ExtractFilePath(Application.ExeName) + 'config.ini');
+  try
+    cfg_Empresa  := INI.ReadString('Empresa',    'Nome',      cfg_Empresa);
+    cfg_Endereco := INI.ReadString('Empresa',    'Endereco',  cfg_Endereco);
+    cfg_Telefone := INI.ReadString('Empresa',    'Telefone',  cfg_Telefone);
+    cfg_Porta    := INI.ReadString('Impressora', 'Porta',     cfg_Porta );
+    cfg_Modelo   := INI.ReadInteger('Impressora', 'Modelo', cfg_Modelo);
+  finally
+    INI.Free;
+  end;
+end;
+
+function TdmConexoes.ModeloImpressora: Integer;
+begin
+  Result := cfg_Modelo;
+end;
+
+function TdmConexoes.PortaImpressora: string;
+begin
+  Result := cfg_Porta;
+end;
+
+function TdmConexoes.NomeEmpresa: string;
+begin
+  Result := cfg_Empresa;
+end;
+
+function TdmConexoes.EnderecoEmpresa: string;
+begin
+  Result := cfg_Endereco;
+end;
+
+function TdmConexoes.TelefoneEmpresa: string;
+begin
+  Result := cfg_Telefone;
+end;
 
 // ============================================================
 // CAIXA

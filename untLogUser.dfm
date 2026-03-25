@@ -131,7 +131,6 @@ object frmLogin: TfrmLogin
         OnClick = pnConfirmarClick
         OnMouseEnter = pnConfirmarMouseEnter
         OnMouseLeave = pnConfirmarMouseLeave
-        ExplicitWidth = 240
       end
     end
     object pnCancelar: TPanel
