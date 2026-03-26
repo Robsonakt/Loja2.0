@@ -423,13 +423,22 @@ end;
 
 procedure TfrmCaixaVendas.PnConfirmaItemClick(Sender: TObject);
 begin
+  // Validação: quantidade não informada ou igual a zero
+  if (Trim(edtQuant.Text) = '') or (StrToIntDef(edtQuant.Text, 0) <= 0) then
+  begin
+    Application.MessageBox(
+      'Por favor, informe a quantidade antes de confirmar o item.',
+      'Quantidade Inválida', MB_OK + MB_ICONWARNING);
+    edtQuant.SetFocus;
+    Exit; // Interrompe a execução
+  end;
+
   with dmConexoes do
   begin
     qrComando.Close;
     qrComando.SQL.Clear;
     qrComando.SQL.Add('SELECT MAX(CodVenda) AS ULTIMOCODIGO FROM [LojaNova].[dbo].[vendas]');
     qrComando.Open;
-
     if qrEstoque.FieldByName('quantidade').AsInteger - StrToIntDef(edtQuant.Text, 0) <= 0 then
     begin
       if Application.MessageBox(
@@ -441,10 +450,8 @@ begin
     end
     else
       InsereProd;
-
     edtCodVenda.Text := IntToStr(qrComando.FieldByName('ULTIMOCODIGO').AsInteger + 1);
   end;
-
   PnVenda.Enabled := True;
   Pnfiado.Enabled := True;
   edtCodProd.SetFocus;

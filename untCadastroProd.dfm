@@ -279,7 +279,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       Top = 6
       Width = 914
       Height = 595
-      ActivePage = TabSheet2
+      ActivePage = TabSheet1
       TabOrder = 0
       object TabSheet1: TTabSheet
         Caption = 'Produto'
