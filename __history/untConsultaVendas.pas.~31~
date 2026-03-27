@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids,
-  Vcl.StdCtrls, Vcl.Buttons, Vcl.ComCtrls, Vcl.ExtCtrls,ShellAPI,ComObj;
+  Vcl.StdCtrls, Vcl.Buttons, Vcl.ComCtrls, Vcl.ExtCtrls, ShellAPI, ComObj, Math;
 
 type
   TfrmConsulta_Venda = class(TForm)
@@ -55,7 +55,7 @@ uses
   untVenda, dmconexao, untCadastroUsuario, untLogUser;
 
 // -------------------------------------------------------
-// SQL de Vendas com formatação R$ direto na query
+// SQL de Vendas
 // -------------------------------------------------------
 function SQLVendasFormatado(filtroData: string): string;
 begin
@@ -72,7 +72,7 @@ begin
 end;
 
 // -------------------------------------------------------
-// SQL de Itens com formatação R$ direto na query
+// SQL de Itens - corrigido para usar TADOQuery temporaria
 // -------------------------------------------------------
 function SQLItensFormatado(codVenda: Integer): string;
 begin
@@ -96,176 +96,170 @@ end;
 
 procedure TfrmConsulta_Venda.btnExcelClick(Sender: TObject);
 var
-  XL, WB, WS : OleVariant;
-  OutputPath  : String;
-  Row, TotRow : Integer;
-  filtro      : String;
-  dInicial    : String;
-  dFinal      : String;
+  XL, WB, WS  : OleVariant;
+  OutputPath   : String;
+  Row, TotRow  : Integer;
+  Col          : Integer;
+  TotalGeral   : Currency;
+  ValorStr     : String;
 begin
-  if not VerificaCamposConsulta then
-    Exit;
-
-  // Monta filtro de data
-  filtro := '';
-  if cbIntervalo.ItemIndex = 1 then
+  if not dmconexoes.qrVendas.Active or dmconexoes.qrVendas.IsEmpty then
   begin
-    dInicial := FormatDateTime('yyyy-mm-dd', dtInicial.Date) + ' 00:00:00';
-    dFinal   := FormatDateTime('yyyy-mm-dd', dtFinal.Date)   + ' 23:59:59';
-    filtro   := ' AND (DATAVENDA BETWEEN ''' + dInicial + ''' AND ''' + dFinal + ''')';
+    Application.MessageBox('Nenhum dado para exportar.',
+      'Aviso - [Excel Vendas]', MB_OK + MB_ICONWARNING);
+    Exit;
   end;
 
-  with dmconexoes do
-  begin
-    // Abre query SEM formatação R$ para o Excel ler valores numéricos
-    qrVendas.Close;
-    qrVendas.SQL.Clear;
-    qrVendas.SQL.Add(
-      'SELECT CodVenda, DescriProd, ' +
-      'CONVERT(VARCHAR(10), DataVenda, 103) AS DataVenda, ' +
-      'CAST(ValorTotal AS NUMERIC(15,2)) AS ValorTotal ' +
-      'FROM [lojanova].[dbo].[VENDAS] ' +
-      'WHERE 1=1 ' + filtro +
-      ' ORDER BY DataVenda DESC');
-    qrVendas.Open;
+   with TSaveDialog.Create(nil) do
+  try
+    Title       := 'Salvar Relatorio de Vendas';
+    Filter      := 'Arquivo Excel (*.xlsx)|*.xlsx';
+    DefaultExt  := 'xlsx';
+    FileName    := 'RelatorioVendas.xlsx';
+    InitialDir  := ExtractFilePath(Application.ExeName);
+    Options     := [ofOverwritePrompt, ofPathMustExist];
 
-    if qrVendas.IsEmpty then
+    if not Execute then Exit;
+    OutputPath := FileName;
+  finally
+    Free;
+  end;
+
+  try
+    XL := CreateOleObject('Excel.Application');
+  except
+    Application.MessageBox('Microsoft Excel nao encontrado.',
+      'Aviso - [Excel Vendas]', MB_OK + MB_ICONERROR);
+    Exit;
+  end;
+
+  try
+    XL.Visible := False;
+    WB := XL.Workbooks.Add;
+    WS := WB.Worksheets[1];
+    WS.Name := 'Vendas';
+
+    WS.Range['A1:D1'].Merge;
+    WS.Cells[1, 1].Value               := 'Relatorio de Vendas';
+    WS.Cells[1, 1].Font.Bold           := True;
+    WS.Cells[1, 1].Font.Size           := 14;
+    WS.Cells[1, 1].Font.Color          := $007E3F1F;
+    WS.Cells[1, 1].HorizontalAlignment := 3;
+    WS.Rows[1].RowHeight               := 30;
+
+    Row := 2;
+    WS.Cells[Row, 1].Value := 'Cod. Venda';
+    WS.Cells[Row, 2].Value := 'Produto';
+    WS.Cells[Row, 3].Value := 'Data Venda';
+    WS.Cells[Row, 4].Value := 'Valor Total';
+
+    for Col := 1 to 4 do
     begin
-      Application.MessageBox('Nenhum dado encontrado para exportar.',
-        'Aviso - [Excel Vendas]', MB_OK + MB_ICONWARNING);
-      consultaHorario; // Restaura grid original
-      Exit;
+      WS.Cells[Row, Col].Font.Bold           := True;
+      WS.Cells[Row, Col].Font.Color          := $00FFFFFF;
+      WS.Cells[Row, Col].Interior.Color      := $007E3F1F;
+      WS.Cells[Row, Col].HorizontalAlignment := 3;
+    end;
+    WS.Rows[Row].RowHeight := 20;
+
+    Row := 3;
+    dmconexoes.qrVendas.First;
+    while not dmconexoes.qrVendas.Eof do
+    begin
+      WS.Cells[Row, 1].Value               := dmconexoes.qrVendas.FieldByName('CodVenda').AsString;
+      WS.Cells[Row, 1].HorizontalAlignment := 3;
+      WS.Cells[Row, 2].Value               := dmconexoes.qrVendas.FieldByName('DescriProd').AsString;
+      WS.Cells[Row, 3].Value               := dmconexoes.qrVendas.FieldByName('DataVenda').AsString;
+      WS.Cells[Row, 3].HorizontalAlignment := 3;
+      WS.Cells[Row, 4].Value               := dmconexoes.qrVendas.FieldByName('ValorTotal').AsString;
+      WS.Cells[Row, 4].HorizontalAlignment := 4;
+      Inc(Row);
+      dmconexoes.qrVendas.Next;
     end;
 
-    OutputPath := ExtractFilePath(Application.ExeName) + 'RelatorioVendas.xlsx';
-
-    try
-      XL := CreateOleObject('Excel.Application');
-    except
-      Application.MessageBox('Microsoft Excel não encontrado.',
-        'Aviso - [Excel Vendas]', MB_OK + MB_ICONERROR);
-      consultaHorario;
-      Exit;
+    TotalGeral := 0;
+    dmconexoes.qrVendas.First;
+    while not dmconexoes.qrVendas.Eof do
+    begin
+      ValorStr := Trim(dmconexoes.qrVendas.FieldByName('ValorTotal').AsString);
+      ValorStr := StringReplace(ValorStr, 'R$', '', [rfReplaceAll]);
+      ValorStr := StringReplace(ValorStr, '.', '', [rfReplaceAll]);
+      ValorStr := Trim(ValorStr);
+      TotalGeral := TotalGeral + StrToCurrDef(ValorStr, 0);
+      dmconexoes.qrVendas.Next;
     end;
 
-    try
-      XL.Visible := False;
-      WB := XL.Workbooks.Add;
-      WS := WB.Worksheets[1];
-      WS.Name := 'Vendas';
+    TotRow := Row;
+    WS.Cells[TotRow, 1].Value               := 'TOTAIS';
+    WS.Cells[TotRow, 1].Font.Bold           := True;
+    WS.Cells[TotRow, 1].Interior.Color      := $00D2E1F2;
+    WS.Cells[TotRow, 1].HorizontalAlignment := 3;
+    WS.Cells[TotRow, 2].Value               := 'Qtd. de Vendas: ' + IntToStr(TotRow - 3);
+    WS.Cells[TotRow, 2].Font.Bold           := True;
+    WS.Cells[TotRow, 2].Interior.Color      := $00D2E1F2;
+    WS.Cells[TotRow, 3].Interior.Color      := $00D2E1F2;
+    WS.Cells[TotRow, 4].Value               := 'R$ ' + FormatFloat('#,##0.00', TotalGeral);
+    WS.Cells[TotRow, 4].Font.Bold           := True;
+    WS.Cells[TotRow, 4].Interior.Color      := $00D2E1F2;
+    WS.Cells[TotRow, 4].HorizontalAlignment := 4;
+    WS.Columns[1].ColumnWidth := 12;
+    WS.Columns[2].ColumnWidth := 40;
+    WS.Columns[3].ColumnWidth := 14;
+    WS.Columns[4].ColumnWidth := 18;
 
-      // --- Título ---
-      WS.Range['A1:D1'].Merge;
-      WS.Cells[1, 1].Value               := 'Relatório de Vendas';
-      WS.Cells[1, 1].Font.Bold           := True;
-      WS.Cells[1, 1].Font.Size           := 14;
-      WS.Cells[1, 1].Font.Color          := $007E3F1F;
-      WS.Cells[1, 1].HorizontalAlignment := 3;
-      WS.Rows[1].RowHeight               := 30;
+    WB.SaveAs(OutputPath);
+    WB.Close(False);
+    XL.Quit;
+    XL := Unassigned;
 
-      // --- Cabeçalho ---
-      Row := 2;
-      WS.Cells[Row, 1].Value := 'Cód. Venda';
-      WS.Cells[Row, 2].Value := 'Produto';
-      WS.Cells[Row, 3].Value := 'Data Venda';
-      WS.Cells[Row, 4].Value := 'Valor Total';
+    if Application.MessageBox('Excel gerado com sucesso! Deseja abrir o arquivo?',
+         'Aviso - [Excel Vendas]', MB_YESNO + MB_ICONINFORMATION) = IDYES then
+      ShellExecute(0, 'open', PChar(OutputPath), nil, nil, SW_SHOWNORMAL);
 
-      for var Col := 1 to 4 do
-      begin
-        WS.Cells[Row, Col].Font.Bold           := True;
-        WS.Cells[Row, Col].Font.Color          := $00FFFFFF;
-        WS.Cells[Row, Col].Interior.Color      := $007E3F1F;
-        WS.Cells[Row, Col].HorizontalAlignment := 3;
-      end;
-      WS.Rows[Row].RowHeight := 20;
-
-      // --- Dados ---
-      Row := 3;
-      qrVendas.First;
-      while not qrVendas.Eof do
-      begin
-        WS.Cells[Row, 1].Value             := qrVendas.FieldByName('CodVenda').AsInteger;
-        WS.Cells[Row, 1].HorizontalAlignment := 3;
-
-        WS.Cells[Row, 2].Value             := qrVendas.FieldByName('DescriProd').AsString;
-
-        WS.Cells[Row, 3].Value             := qrVendas.FieldByName('DataVenda').AsString;
-        WS.Cells[Row, 3].HorizontalAlignment := 3;
-
-        WS.Cells[Row, 4].Value             := qrVendas.FieldByName('ValorTotal').AsFloat;
-        WS.Cells[Row, 4].NumberFormat         := 'R$\ #,##0.00';
-        WS.Cells[Row, 4].HorizontalAlignment  := 4;
-
-        Inc(Row);
-        qrVendas.Next;
-      end;
-
-      // --- Linha de Totais ---
-      TotRow := Row;
-
-      WS.Cells[TotRow, 1].Value             := 'TOTAIS';
-      WS.Cells[TotRow, 1].Font.Bold         := True;
-      WS.Cells[TotRow, 1].Interior.Color    := $00D2E1F2;
-      WS.Cells[TotRow, 1].HorizontalAlignment := 3;
-
-      WS.Cells[TotRow, 2].Value             := 'Qtd. de Vendas: ' + IntToStr(TotRow - 3);
-      WS.Cells[TotRow, 2].Font.Bold         := True;
-      WS.Cells[TotRow, 2].Interior.Color    := $00D2E1F2;
-
-      WS.Cells[TotRow, 3].Interior.Color    := $00D2E1F2;
-
-      WS.Cells[TotRow, 4].Formula           := '=SUM(D3:D' + IntToStr(TotRow - 1) + ')';
-      WS.Cells[TotRow, 4].NumberFormat      := 'R$\ #,##0.00';
-      WS.Cells[TotRow, 4].Font.Bold         := True;
-      WS.Cells[TotRow, 4].Interior.Color    := $00D2E1F2;
-      WS.Cells[TotRow, 4].HorizontalAlignment := 4;
-
-      // --- Largura das colunas ---
-      WS.Columns[1].ColumnWidth := 12;
-      WS.Columns[2].ColumnWidth := 40;
-      WS.Columns[3].ColumnWidth := 14;
-      WS.Columns[4].ColumnWidth := 18;
-
-      // --- Salva ---
-      WB.SaveAs(OutputPath);
-      WB.Close(False);
-      XL.Quit;
+  except
+    on E: Exception do
+    begin
+      try WB.Close(False); except end;
+      try XL.Quit;         except end;
       XL := Unassigned;
-
-      // Restaura grid original com formatação R$
-      consultaHorario;
-
-      if Application.MessageBox('Excel gerado com sucesso! Deseja abrir o arquivo?',
-           'Aviso - [Excel Vendas]', MB_YESNO + MB_ICONINFORMATION) = IDYES then
-        ShellExecute(0, 'open', PChar(OutputPath), nil, nil, SW_SHOWNORMAL);
-
-    except
-      on E: Exception do
-      begin
-        try WB.Close(False); except end;
-        try XL.Quit;         except end;
-        XL := Unassigned;
-        consultaHorario; // Sempre restaura o grid
-        Application.MessageBox(PChar('Erro ao gerar Excel:' + #13 + E.Message),
-          'Erro - [Excel Vendas]', MB_OK + MB_ICONERROR);
-      end;
+      Application.MessageBox(PChar('Erro ao gerar Excel:' + #13 + E.Message),
+        'Erro - [Excel Vendas]', MB_OK + MB_ICONERROR);
     end;
   end;
 end;
-
 
 procedure TfrmConsulta_Venda.btnRelatorioClick(Sender: TObject);
+var
+  TotalValor: Currency;
+  QtdVendas: Integer;
+  ValorStr: String;
 begin
-  with dmconexoes do
+  if not dmconexoes.qrVendas.Active then
   begin
-    qrVendas.Close;
-    qrVendas.SQL.Clear;
-    qrVendas.SQL.Add(SQLVendasFormatado(''));
-    qrVendas.Open;
-    frmRelatorioVendas := TfrmRelatorioVendas.Create(Self);
-    frmRelatorioVendas.rlr_RelatorioVendas.Preview;
+    ShowMessage('Realize a consulta antes de gerar o relatorio.');
+    Exit;
   end;
+
+  TotalValor := 0;
+  QtdVendas  := 0;
+  dmconexoes.qrVendas.First;
+  while not dmconexoes.qrVendas.Eof do
+  begin
+    ValorStr := Trim(dmconexoes.qrVendas.FieldByName('ValorTotal').AsString);
+    ValorStr := StringReplace(ValorStr, 'R$', '', [rfReplaceAll]);
+    ValorStr := StringReplace(ValorStr, '.', '', [rfReplaceAll]);
+    ValorStr := Trim(ValorStr);
+    TotalValor := TotalValor + StrToCurrDef(ValorStr, 0);
+    Inc(QtdVendas);
+    dmconexoes.qrVendas.Next;
+  end;
+  dmconexoes.qrVendas.First;
+
+  frmRelatorioVendas := TfrmRelatorioVendas.Create(Self);
+  frmRelatorioVendas.SetTotais(QtdVendas, TotalValor);
+  frmRelatorioVendas.rlr_RelatorioVendas.Preview;
 end;
+
 
 procedure TfrmConsulta_Venda.cbIntervaloChange(Sender: TObject);
 begin
@@ -320,8 +314,6 @@ begin
         dFinal   := FormatDateTime('yyyy-mm-dd', dtFinal.Date)   + ' 23:59:59';
         filtro   := ' AND (DATAVENDA BETWEEN ''' + dInicial + ''' AND ''' + dFinal + ''')';
       except
-
-
       end;
     end;
     qrVendas.Close;
@@ -331,13 +323,23 @@ begin
   end;
 end;
 
+// -------------------------------------------------------
+// CORRECAO: usa TADOQuery temporaria para carregar itens
+// evita conflito com fields persistentes do qrItensVenda
+// -------------------------------------------------------
 procedure TfrmConsulta_Venda.dsVendaDataChange(Sender: TObject; Field: TField);
+var
+  CodVenda: Integer;
 begin
+  if dmconexoes.qrVendas.IsEmpty then Exit;
+
+  CodVenda := dmconexoes.qrVendas.FieldByName('CodVenda').AsInteger;
+
   with dmconexoes do
   begin
     qrItensVenda.Close;
     qrItensVenda.SQL.Clear;
-    qrItensVenda.SQL.Add(SQLItensFormatado(qrVendas.FieldByName('CodVenda').AsInteger));
+    qrItensVenda.SQL.Add(SQLItensFormatado(CodVenda));
     qrItensVenda.Open;
     gridConsultaItens.Refresh;
   end;
@@ -359,10 +361,10 @@ procedure TfrmConsulta_Venda.FormShow(Sender: TObject);
 begin
   with dmconexoes do
   begin
-  dmconexoes.qrVendas.Close;
-  dmconexoes.qrItensVenda.Close;
-  dtInicial.Date := Date;
-  dtFinal.Date   := Date;
+    qrVendas.Close;
+    qrItensVenda.Close;
+    dtInicial.Date := Date;
+    dtFinal.Date   := Date;
   end;
 end;
 
@@ -394,5 +396,7 @@ begin
   end;
   Result := True;
 end;
+
+
 
 end.

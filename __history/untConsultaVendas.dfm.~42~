@@ -3,7 +3,7 @@ object frmConsulta_Venda: TfrmConsulta_Venda
   Top = 0
   Caption = 'Consulta de Vendas'
   ClientHeight = 720
-  ClientWidth = 1089
+  ClientWidth = 1087
   Color = 3289650
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWhite
@@ -16,7 +16,7 @@ object frmConsulta_Venda: TfrmConsulta_Venda
   object pnFrontal: TPanel
     Left = 0
     Top = 0
-    Width = 1089
+    Width = 1087
     Height = 720
     Align = alClient
     BevelOuter = bvNone
@@ -25,7 +25,7 @@ object frmConsulta_Venda: TfrmConsulta_Venda
     object pnSuperior: TPanel
       Left = 0
       Top = 0
-      Width = 1089
+      Width = 1087
       Height = 46
       Align = alTop
       BevelOuter = bvNone
@@ -48,7 +48,7 @@ object frmConsulta_Venda: TfrmConsulta_Venda
     object pnInferior: TPanel
       Left = 0
       Top = 679
-      Width = 1089
+      Width = 1087
       Height = 41
       Align = alBottom
       BevelOuter = bvNone
@@ -74,7 +74,7 @@ object frmConsulta_Venda: TfrmConsulta_Venda
         Height = 30
         Caption = 'Relat'#243'rio'
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
+        Font.Color = clBlack
         Font.Height = -12
         Font.Name = 'Segoe UI'
         Font.Style = [fsBold]
@@ -89,7 +89,7 @@ object frmConsulta_Venda: TfrmConsulta_Venda
         Height = 30
         Caption = 'Excel'
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
+        Font.Color = clBlack
         Font.Height = -12
         Font.Name = 'Segoe UI'
         Font.Style = [fsBold]
@@ -114,8 +114,8 @@ object frmConsulta_Venda: TfrmConsulta_Venda
         Caption = 'Consultar [F8]'
         Flat = True
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
-        Font.Height = -13
+        Font.Color = clBlack
+        Font.Height = -16
         Font.Name = 'Segoe UI'
         Font.Style = [fsBold]
         ParentFont = False
@@ -242,7 +242,7 @@ object frmConsulta_Venda: TfrmConsulta_Venda
         Color = 2171170
         DataSource = dsVenda
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
+        Font.Color = clBlack
         Font.Height = -12
         Font.Name = 'Segoe UI'
         Font.Style = []
@@ -318,7 +318,7 @@ object frmConsulta_Venda: TfrmConsulta_Venda
         Color = 2171170
         DataSource = dsItensVenda
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
+        Font.Color = clBlack
         Font.Height = -12
         Font.Name = 'Segoe UI'
         Font.Style = []

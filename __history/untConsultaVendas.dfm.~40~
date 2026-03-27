@@ -114,8 +114,8 @@ object frmConsulta_Venda: TfrmConsulta_Venda
         Caption = 'Consultar [F8]'
         Flat = True
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clBlack
-        Font.Height = -16
+        Font.Color = clWhite
+        Font.Height = -13
         Font.Name = 'Segoe UI'
         Font.Style = [fsBold]
         ParentFont = False

@@ -1,4 +1,4 @@
-unit untOrcamento;
+﻿unit untOrcamento;
 
 interface
 
@@ -8,8 +8,8 @@ uses
   Data.DB, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Comp.DataSet, FireDAC.Comp.Client,
-  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.ComCtrls,
-  Vcl.Buttons, Data.Win.ADODB;
+  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.ComCtrls, Winapi.ShellAPI,   RLReport,
+  RLFilters, RLPDFFilter, Vcl.Buttons, Data.Win.ADODB,Portabledevicetypes;
 
 type
   TfrmOrcamento = class(TForm)
@@ -277,7 +277,7 @@ end;
 procedure TfrmOrcamento.RemoverItemSelecionado;
 begin
   if fdItens.IsEmpty then Exit;
-  if Application.MessageBox('Remover este item do orcamento?', 'Confirmar',
+  if Application.MessageBox('Remover este item do orçamento?', 'Confirmar',
     MB_YESNO + MB_ICONQUESTION) = IDYES then
   begin
     fdItens.Delete;
@@ -327,7 +327,7 @@ begin
 
   if fdItens.IsEmpty then
   begin
-    ShowMessage('Adicione ao menos um item ao orcamento.');
+    ShowMessage('Adicione ao menos um item ao orçamento.');
     Exit;
   end;
 
@@ -375,8 +375,10 @@ begin
   end;
 
   FIdOrcamento := IdOrc;
-  Application.MessageBox('Orcamento salvo com sucesso!', 'Sucesso', MB_OK + MB_ICONINFORMATION);
+  Application.MessageBox('Orçamento salvo com sucesso!', 'Sucesso', MB_OK + MB_ICONINFORMATION);
 end;
+
+
 
 procedure TfrmOrcamento.pnImprimirClick(Sender: TObject);
 var
@@ -384,13 +386,18 @@ var
   ValStr: string;
   ValMdo, TotProd: Currency;
   Qtd: Integer;
+  CaminhoPDF: string;
+  Numero: string;
+  Mensagem: string;
+  URL: string;
 begin
   if FIdOrcamento = 0 then
   begin
-    ShowMessage('Salve o orcamento antes de imprimir.');
+    ShowMessage('Salve o orçamento antes de imprimir.');
     Exit;
   end;
 
+  // 🔹 Calcula totais
   TotProd := 0;
   Qtd     := 0;
   fdItens.First;
@@ -402,6 +409,7 @@ begin
   end;
   fdItens.First;
 
+  // 🔹 Trata mão de obra
   ValStr := Trim(edtMaoDeObra.Text);
   ValStr := StringReplace(ValStr, '.', '', [rfReplaceAll]);
   ValStr := StringReplace(ValStr, ',', '.', [rfReplaceAll]);
@@ -419,9 +427,53 @@ begin
       TotProd,
       ValMdo,
       TotProd + ValMdo,
-      DSItensOrc   // <-- passa o datasource local diretamente
+      DSItensOrc
     );
-    frmRel.rlr_Orcamento.Preview;
+
+    // 🔹 Caminho do PDF
+    CaminhoPDF := ExtractFilePath(Application.ExeName) +
+                  'Orçamento_' + lblNumOrc.Caption + '.pdf';
+
+    // 🔹 Gera o PDF
+      var
+        PDF: TRLPDFFilter;
+      begin
+        PDF := TRLPDFFilter.Create(nil);
+        try
+          PDF.FileName := CaminhoPDF;
+
+          frmRel.rlr_Orcamento.Prepare;
+          frmRel.rlr_Orcamento.Print; // padrão
+
+        finally
+          PDF.Free;
+        end;
+      end;
+//// 🔹 Pergunta se deseja enviar
+//    if MessageDlg('Deseja enviar o orçamento via WhatsApp?',
+//                  mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+//    begin
+//      // 🔹 Número do cliente (AJUSTAR para vir do cadastro)
+//      Numero := '55' + '17999999999';
+//
+//      // 🔹 Mensagem personalizada
+//      Mensagem := 'Olá, ' + edtCli.Text +
+//                  '! Segue em anexo seu orçamento nº ' +
+//                  lblNumOrc.Caption + '.';
+//
+//      // 🔹 Codifica espaços
+//      Mensagem := StringReplace(Mensagem, ' ', '%20', [rfReplaceAll]);
+//
+//      // 🔹 Monta URL WhatsApp
+//      URL := 'https://wa.me/' + Numero + '?text=' + Mensagem;
+//
+//      // 🔹 Abre WhatsApp
+//      ShellExecute(0, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
+//
+//      // 🔹 Abre PDF para anexar
+//      ShellExecute(0, 'open', PChar(CaminhoPDF), nil, nil, SW_SHOWNORMAL);
+//    end;
+
   finally
     frmRel.Free;
   end;
