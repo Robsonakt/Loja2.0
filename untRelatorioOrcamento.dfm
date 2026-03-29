@@ -51,12 +51,12 @@ object frmRelatorioOrcamento: TfrmRelatorioOrcamento
         ParentFont = False
       end
       object RLLabel_Titulo: TRLLabel
-        Left = 279
+        Left = 297
         Top = 14
-        Width = 160
-        Height = 20
+        Width = 123
+        Height = 21
         Align = faCenter
-        Caption = 'ORCAMENTO'
+        Caption = 'OR'#199'AMENTO'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlack
         Font.Height = -18
@@ -229,16 +229,16 @@ object frmRelatorioOrcamento: TfrmRelatorioOrcamento
       Width = 718
       Height = 22
       BandType = btTitle
-      Color = clBlack
+      Color = clWhite
       ParentColor = False
       object RLLabel_hCodigo: TRLLabel
         Left = 4
         Top = 4
-        Width = 54
+        Width = 42
         Height = 14
         Caption = 'Codigo'
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
+        Font.Color = clBlack
         Font.Height = -11
         Font.Name = 'Arial'
         Font.Style = [fsBold]
@@ -247,11 +247,11 @@ object frmRelatorioOrcamento: TfrmRelatorioOrcamento
       object RLLabel_hDescricao: TRLLabel
         Left = 70
         Top = 4
-        Width = 280
+        Width = 57
         Height = 14
         Caption = 'Descricao'
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
+        Font.Color = clBlack
         Font.Height = -11
         Font.Name = 'Arial'
         Font.Style = [fsBold]
@@ -260,39 +260,39 @@ object frmRelatorioOrcamento: TfrmRelatorioOrcamento
       object RLLabel_hQtd: TRLLabel
         Left = 360
         Top = 4
-        Width = 40
+        Width = 22
         Height = 14
         Caption = 'Qtd'
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
+        Font.Color = clBlack
         Font.Height = -11
         Font.Name = 'Arial'
         Font.Style = [fsBold]
         ParentFont = False
       end
       object RLLabel_hValUnit: TRLLabel
-        Left = 410
+        Left = 478
         Top = 4
-        Width = 130
+        Width = 62
         Height = 14
         Alignment = taRightJustify
         Caption = 'Vl. Unitario'
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
+        Font.Color = clBlack
         Font.Height = -11
         Font.Name = 'Arial'
         Font.Style = [fsBold]
         ParentFont = False
       end
       object RLLabel_hValTotal: TRLLabel
-        Left = 556
+        Left = 667
         Top = 4
-        Width = 158
+        Width = 47
         Height = 14
         Alignment = taRightJustify
         Caption = 'Vl. Total'
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
+        Font.Color = clBlack
         Font.Height = -11
         Font.Name = 'Arial'
         Font.Style = [fsBold]

@@ -49,9 +49,9 @@ object frmConsultaFechamento: TfrmConsultaFechamento
     object lblStatus: TLabel
       Left = 16
       Top = 13
-      Width = 205
+      Width = 94
       Height = 13
-      Caption = 'Conectado   |   Consulta de Fechamento'
+      Caption = 'Sistema de vendas'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
       Font.Height = -11
@@ -60,11 +60,11 @@ object frmConsultaFechamento: TfrmConsultaFechamento
       ParentFont = False
     end
     object lblRodapeDir: TLabel
-      Left = 1350
+      Left = 1315
       Top = 13
-      Width = 21
+      Width = 75
       Height = 13
-      Caption = 'R.RJ'
+      Caption = 'BlackSolutions'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
       Font.Height = -11

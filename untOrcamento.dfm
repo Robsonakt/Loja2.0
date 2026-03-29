@@ -63,9 +63,9 @@ object frmOrcamento: TfrmOrcamento
     object lblStatus: TLabel
       Left = 16
       Top = 13
-      Width = 134
+      Width = 94
       Height = 13
-      Caption = 'Conectado   |   Orcamento'
+      Caption = 'Sistema de vendas'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
       Font.Height = -11
@@ -74,11 +74,11 @@ object frmOrcamento: TfrmOrcamento
       ParentFont = False
     end
     object lblRodapeDir: TLabel
-      Left = 1040
+      Left = 995
       Top = 13
-      Width = 21
+      Width = 75
       Height = 13
-      Caption = 'R.RJ'
+      Caption = 'BlackSolutions'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
       Font.Height = -11

@@ -1,0 +1,617 @@
+object frmConsultaFechamento: TfrmConsultaFechamento
+  Left = 0
+  Top = 0
+  Caption = 'Consulta de Fechamento'
+  ClientHeight = 660
+  ClientWidth = 1400
+  Color = 3289650
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWhite
+  Font.Height = -13
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  Position = poScreenCenter
+  OnCreate = FormCreate
+  OnShow = FormShow
+  TextHeight = 17
+  object pnlTopo: TPanel
+    Left = 0
+    Top = 0
+    Width = 1400
+    Height = 46
+    Align = alTop
+    BevelOuter = bvNone
+    Color = 2171170
+    TabOrder = 0
+    object lblTitulo: TLabel
+      Left = 16
+      Top = 13
+      Width = 204
+      Height = 20
+      Caption = 'CONSULTA DE FECHAMENTO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWhite
+      Font.Height = -15
+      Font.Name = 'Segoe UI'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+  end
+  object pnlRodape: TPanel
+    Left = 0
+    Top = 619
+    Width = 1400
+    Height = 41
+    Align = alBottom
+    BevelOuter = bvNone
+    Color = 2171170
+    TabOrder = 1
+    object lblStatus: TLabel
+      Left = 16
+      Top = 13
+      Width = 94
+      Height = 13
+      Caption = 'Sistema de vendas'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clSilver
+      Font.Height = -11
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
+    end
+    object lblRodapeDir: TLabel
+      Left = 1350
+      Top = 13
+      Width = 75
+      Height = 13
+      Caption = 'BlackSolutions'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clSilver
+      Font.Height = -11
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
+    end
+  end
+  object pnlCorpo: TPanel
+    Left = 0
+    Top = 46
+    Width = 1400
+    Height = 573
+    Align = alClient
+    BevelOuter = bvNone
+    Color = 3289650
+    TabOrder = 2
+    object pnlToolbar: TPanel
+      Left = 0
+      Top = 0
+      Width = 1400
+      Height = 44
+      BevelOuter = bvNone
+      Color = 2171170
+      TabOrder = 0
+      object pnConsultar: TPanel
+        Left = 10
+        Top = 6
+        Width = 130
+        Height = 32
+        Caption = 'CONSULTAR [F8]'
+        Color = 3355443
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentBackground = False
+        ParentFont = False
+        TabOrder = 0
+        OnClick = pnConsultarClick
+        OnMouseEnter = pnConsultarMouseEnter
+        OnMouseLeave = pnConsultarMouseLeave
+      end
+      object pnFechar: TPanel
+        Left = 150
+        Top = 6
+        Width = 100
+        Height = 32
+        Caption = 'FECHAR'
+        Color = 3355443
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentBackground = False
+        ParentFont = False
+        TabOrder = 1
+        OnClick = pnFecharClick
+        OnMouseEnter = pnFecharMouseEnter
+        OnMouseLeave = pnFecharMouseLeave
+      end
+    end
+    object grpFiltro: TGroupBox
+      Left = 10
+      Top = 54
+      Width = 1380
+      Height = 64
+      Caption = ' Filtro '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clSilver
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 1
+      object lblIntervalo: TLabel
+        Left = 12
+        Top = 18
+        Width = 45
+        Height = 13
+        Caption = 'Intervalo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblDataIni: TLabel
+        Left = 230
+        Top = 18
+        Width = 57
+        Height = 13
+        Caption = 'Data Inicial'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblDataFim: TLabel
+        Left = 400
+        Top = 18
+        Width = 52
+        Height = 13
+        Caption = 'Data Final'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblStatusFiltro: TLabel
+        Left = 580
+        Top = 18
+        Width = 32
+        Height = 13
+        Caption = 'Status'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object cbIntervalo: TComboBox
+        Left = 12
+        Top = 34
+        Width = 200
+        Height = 23
+        Color = 2171170
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        OnChange = cbIntervaloChange
+        Items.Strings = (
+          'Sem Intervalo de Datas'
+          'Com Intervalo de Datas')
+      end
+      object dtDataIni: TDateTimePicker
+        Left = 230
+        Top = 34
+        Width = 150
+        Height = 23
+        Date = 46103.000000000000000000
+        Time = 0.654590601850941300
+        Enabled = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+      end
+      object dtDataFim: TDateTimePicker
+        Left = 400
+        Top = 34
+        Width = 150
+        Height = 23
+        Date = 46103.000000000000000000
+        Time = 0.654590601850941300
+        Enabled = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+      end
+      object cbStatus: TComboBox
+        Left = 580
+        Top = 34
+        Width = 160
+        Height = 23
+        Color = 2171170
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 3
+        Items.Strings = (
+          'Todos'
+          'Aberto'
+          'Fechado')
+      end
+    end
+    object grpGrid: TGroupBox
+      Left = 10
+      Top = 128
+      Width = 1380
+      Height = 320
+      Caption = ' Historico de Caixa '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clSilver
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 2
+      object gridFechamento: TDBGrid
+        Left = 10
+        Top = 22
+        Width = 1358
+        Height = 286
+        Color = 2171170
+        DataSource = dsFechamento
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection]
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clSilver
+        TitleFont.Height = -12
+        TitleFont.Name = 'Segoe UI'
+        TitleFont.Style = [fsBold]
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'DataAbertura'
+            Title.Caption = 'Abertura'
+            Width = 130
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'UsuarioAbertura'
+            Title.Caption = 'Aberto por'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'DataFechamento'
+            Title.Caption = 'Fechamento'
+            Width = 130
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'UsuarioFechamento'
+            Title.Caption = 'Fechado por'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ValorAbertura'
+            Title.Caption = 'Vl. Abertura'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'QtdVendas'
+            Title.Caption = 'Qtd. Vendas'
+            Width = 90
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ValorVendas'
+            Title.Caption = 'Vlr. Vendas'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ValorFiado'
+            Title.Caption = 'Fiado Recebido'
+            Width = 110
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'Lucro'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'SaldoFinal'
+            Title.Caption = 'Saldo Final'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'Status'
+            Width = 80
+            Visible = True
+          end>
+      end
+    end
+    object grpTotais: TGroupBox
+      Left = 10
+      Top = 458
+      Width = 1380
+      Height = 104
+      Caption = ' Totais da Consulta '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clSilver
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 3
+      object lblTotAberturaLabel: TLabel
+        Left = 20
+        Top = 20
+        Width = 76
+        Height = 13
+        Caption = 'Total Abertura:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblTotAbertura: TLabel
+        Left = 108
+        Top = 20
+        Width = 44
+        Height = 17
+        Caption = 'R$ 0,00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -13
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblTotQtdLabel: TLabel
+        Left = 20
+        Top = 55
+        Width = 65
+        Height = 13
+        Caption = 'Qtd. Vendas:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblTotQtd: TLabel
+        Left = 108
+        Top = 55
+        Width = 64
+        Height = 17
+        Caption = '0 venda(s)'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -13
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblTotVendasLabel: TLabel
+        Left = 280
+        Top = 20
+        Width = 60
+        Height = 13
+        Caption = 'Vlr. Vendas:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblTotVendas: TLabel
+        Left = 363
+        Top = 20
+        Width = 44
+        Height = 17
+        Caption = 'R$ 0,00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -13
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblTotFiadoLabel: TLabel
+        Left = 560
+        Top = 20
+        Width = 83
+        Height = 13
+        Caption = 'Fiado Recebido:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblTotFiado: TLabel
+        Left = 658
+        Top = 20
+        Width = 44
+        Height = 17
+        Caption = 'R$ 0,00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clYellow
+        Font.Height = -13
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblTotLucroLabel: TLabel
+        Left = 840
+        Top = 20
+        Width = 31
+        Height = 13
+        Caption = 'Lucro:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblTotLucro: TLabel
+        Left = 888
+        Top = 20
+        Width = 44
+        Height = 17
+        Caption = 'R$ 0,00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clLime
+        Font.Height = -13
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblTotSaldoLabel: TLabel
+        Left = 1048
+        Top = 20
+        Width = 105
+        Height = 13
+        Caption = 'Saldo Final do caixa:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSilver
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblTotSaldo: TLabel
+        Left = 1168
+        Top = 20
+        Width = 44
+        Height = 17
+        Caption = 'R$ 0,00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clAqua
+        Font.Height = -13
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+    end
+  end
+  object dsFechamento: TDataSource
+    DataSet = fdFechamento
+    Left = 1200
+    Top = 560
+  end
+  object fdFechamento: TFDMemTable
+    FieldDefs = <>
+    IndexDefs = <>
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    StoreDefs = True
+    Left = 1120
+    Top = 560
+    object fdId: TIntegerField
+      FieldName = 'Id'
+      Visible = False
+    end
+    object fdDataAbertura: TStringField
+      FieldName = 'DataAbertura'
+      Size = 30
+    end
+    object fdUsuarioAbertura: TStringField
+      FieldName = 'UsuarioAbertura'
+      Size = 100
+    end
+    object fdDataFechamento: TStringField
+      FieldName = 'DataFechamento'
+      Size = 30
+    end
+    object fdUsuarioFechamento: TStringField
+      FieldName = 'UsuarioFechamento'
+      Size = 100
+    end
+    object fdValorAbertura: TCurrencyField
+      FieldName = 'ValorAbertura'
+      DisplayFormat = '"R$" #,##0.00'
+    end
+    object fdQtdVendas: TIntegerField
+      FieldName = 'QtdVendas'
+    end
+    object fdValorVendas: TCurrencyField
+      FieldName = 'ValorVendas'
+      DisplayFormat = '"R$" #,##0.00'
+    end
+    object fdValorFiado: TCurrencyField
+      FieldName = 'ValorFiado'
+      DisplayFormat = '"R$" #,##0.00'
+    end
+    object fdLucro: TCurrencyField
+      FieldName = 'Lucro'
+      DisplayFormat = '"R$" #,##0.00'
+    end
+    object fdSaldoFinal: TCurrencyField
+      FieldName = 'SaldoFinal'
+      DisplayFormat = '"R$" #,##0.00'
+    end
+    object fdStatus: TStringField
+      FieldName = 'Status'
+    end
+  end
+end

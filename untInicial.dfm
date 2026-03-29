@@ -46,9 +46,9 @@ object FormularioPrincipal: TFormularioPrincipal
     object lblRRJ: TLabel
       Left = 790
       Top = 13
-      Width = 24
+      Width = 75
       Height = 13
-      Caption = 'R.R.J'
+      Caption = 'BlackSolutions'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
       Font.Height = -11

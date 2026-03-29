@@ -48,9 +48,9 @@ object frmCaixaVendas: TfrmCaixaVendas
     object lblStatus: TLabel
       Left = 16
       Top = 13
-      Width = 142
+      Width = 94
       Height = 13
-      Caption = 'Conectado   |   Caixa Aberto'
+      Caption = 'Sistema de vendas'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
       Font.Height = -11
@@ -61,9 +61,9 @@ object frmCaixaVendas: TfrmCaixaVendas
     object lblRodape: TLabel
       Left = 960
       Top = 13
-      Width = 21
+      Width = 75
       Height = 13
-      Caption = 'R.RJ'
+      Caption = 'BlackSolutions'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clSilver
       Font.Height = -11
