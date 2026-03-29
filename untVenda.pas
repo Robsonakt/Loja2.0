@@ -271,7 +271,7 @@ begin
     fdProduto.Next;
   end;
 
-  AddMemo('Cliente: ' + EdtNameCliente.Text);
+  AddMemo('Cliente: ' + lbNomeCli.Caption);
   AddMemo('Total: ' + lbvalorDinheiro.Caption);
   for i := 1 to 7 do
     AddMemo('');
