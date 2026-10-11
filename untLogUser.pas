@@ -81,6 +81,7 @@ begin
     Exit;
   end;
 
+  dmConexoes.UsuarioLogado := dmConexoes.qrUsuario.FieldByName('Usuario').AsString;
   ShowMessage('Login realizado com sucesso!');
   ModalResult := mrOk;
 end;
@@ -202,7 +203,10 @@ begin
     edtSenha.SetFocus;
     Exit;
   end;
-   // Carrega configuracoes do INI apos login validado
+  // Guarda o usuario logado (o qrUsuario e reaberto em outras telas)
+  dmConexoes.UsuarioLogado := dmConexoes.qrUsuario.FieldByName('Usuario').AsString;
+
+  // Carrega configuracoes do INI apos login validado
   dmConexoes.CarregarConfiguracoes;
 
   // ============================================================

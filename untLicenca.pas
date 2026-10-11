@@ -139,9 +139,9 @@ begin
   qrTemp := TADOQuery.Create(nil);
   try
     qrTemp.Connection := dmConexoes.conRobson;
-    qrTemp.SQL.Add(
-      'UPDATE Licenca SET DataInstalacao = GETDATE() WHERE Ativo = 1'
-    );
+    // DataExpiracao e coluna calculada no banco a partir de DataInstalacao:
+    // basta atualizar a data de instalacao.
+    qrTemp.SQL.Text := 'UPDATE Licenca SET DataInstalacao = GETDATE() WHERE Ativo = 1';
     qrTemp.ExecSQL;
   finally
     qrTemp.Free;
@@ -183,7 +183,7 @@ begin
     Key := #0;
     pnAtivarClick(nil);
   end
-  else if not (Key in ['0'..'9', #8]) then
+  else if not CharInSet(Key, ['0'..'9', #8]) then
     Key := #0;
 end;
 

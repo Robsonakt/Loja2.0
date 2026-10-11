@@ -1,4 +1,4 @@
-unit dmconexao;
+Ôªøunit dmconexao;
 
 interface
 
@@ -107,19 +107,32 @@ type
     qrClientevalor: TIntegerField;
     qrClientevalorfiado: TBCDField;
     qrClientedatacadastrocliente: TDateTimeField;
+    qrClientecliente_padrao: TBooleanField;
     qrEstoquevalorvendaTotal: TBCDField;
     dsVenda: TDataSource;
     qrItensOrcamento: TADOQuery;
     dsOrcitens: TDataSource;
+    qrEmpresa: TADOQuery;
 
     procedure qrEstoqueCalcFields(DataSet: TDataSet);
     procedure CalculoProdutosAfterScroll(DataSet: TDataSet);
     procedure qrEstoquemarkupChange(Sender: TField);
+    procedure qrEstoquevalorvendaChange(Sender: TField);
+    procedure qrEstoquevalorcustoChange(Sender: TField);
     procedure CarregarConfiguracoes;
+    procedure DataModuleCreate(Sender: TObject);
 
   private
-    { Private declarations }
+    FAtualizandoPrecos: Boolean;
+    FEstruturaVendasOk: Boolean;
 public
+  // Usuario que fez login (nao depende do qrUsuario, que e reaberto em outras telas)
+  UsuarioLogado: string;
+  procedure GarantirEstruturaVendas;
+  function IdCaixaAtual: Integer;
+  function TotalFiadoCaixa(AIdCaixa: Integer): Currency;
+  function LucroCaixa(AIdCaixa: Integer): Currency;
+  function EstornarVenda(ACodVenda: Integer): Integer;
   function CaixaAberto: Boolean;
   function AbrirCaixa(AValorInicial: Currency): Boolean;
   function TotalVendasCaixaAtual: Currency;
@@ -140,11 +153,213 @@ var
   cfg_Porta    : string;
   cfg_Modelo  : Integer;
 
+// Converte texto digitado (ex.: "1.234,56", "1234.56", "R$ 20,98") em valor.
+// Retorna False quando o texto nao e um numero valido.
+function TryStrParaMoeda(const ATexto: string; out AValor: Currency): Boolean;
+function StrParaMoeda(const ATexto: string): Currency;
+
 implementation
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
 {$R *.dfm}
+
+// ============================================================
+// CONEXAO - le os dados do banco do config.ini (fora do Git)
+// ============================================================
+
+procedure TdmConexoes.DataModuleCreate(Sender: TObject);
+var
+  INI: TIniFile;
+  Servidor, Banco, Usuario, Senha: string;
+begin
+  INI := TIniFile.Create(ExtractFilePath(Application.ExeName) + 'config.ini');
+  try
+    Servidor := INI.ReadString('Banco', 'Servidor', '.');
+    Banco    := INI.ReadString('Banco', 'Banco', 'LojaNova');
+    Usuario  := INI.ReadString('Banco', 'Usuario', 'sa');
+    Senha    := INI.ReadString('Banco', 'Senha', '');
+  finally
+    INI.Free;
+  end;
+
+  conRobson.Connected := False;
+  conRobson.ConnectionString :=
+    'Provider=SQLOLEDB.1;Persist Security Info=False;' +
+    'User ID=' + Usuario + ';Password="' + Senha + '";' +
+    'Initial Catalog=' + Banco + ';Data Source=' + Servidor + ';' +
+    'Use Procedure for Prepare=1;Auto Translate=True;Packet Size=4096;' +
+    'Use Encryption for Data=False;Tag with column collation when possible=False';
+end;
+
+function TryStrParaMoeda(const ATexto: string; out AValor: Currency): Boolean;
+var
+  S: string;
+begin
+  S := Trim(StringReplace(ATexto, 'R$', '', [rfReplaceAll, rfIgnoreCase]));
+  S := StringReplace(S, ' ', '', [rfReplaceAll]);
+  if Pos(',', S) > 0 then
+  begin
+    // formato brasileiro: ponto = milhar, virgula = decimal
+    S := StringReplace(S, '.', '', [rfReplaceAll]);
+    S := StringReplace(S, ',', FormatSettings.DecimalSeparator, [rfReplaceAll]);
+  end
+  else
+    S := StringReplace(S, '.', FormatSettings.DecimalSeparator, [rfReplaceAll]);
+  Result := (S <> '') and TryStrToCurr(S, AValor);
+  if not Result then
+    AValor := 0;
+end;
+
+function StrParaMoeda(const ATexto: string): Currency;
+begin
+  TryStrParaMoeda(ATexto, Result);
+end;
+
+// ============================================================
+// ESTRUTURA - colunas usadas para ligar venda/caixa/produto
+// ============================================================
+
+procedure TdmConexoes.GarantirEstruturaVendas;
+var
+  Q: TADOQuery;
+begin
+  if FEstruturaVendasOk then
+    Exit;
+  Q := TADOQuery.Create(nil);
+  try
+    Q.Connection := conRobson;
+    Q.SQL.Text :=
+      'IF COL_LENGTH(''dbo.ItensVenda'', ''CodProd'') IS NULL ' +
+      '  ALTER TABLE dbo.ItensVenda ADD CodProd INT NULL; ' +
+      'IF COL_LENGTH(''dbo.VENDAS'', ''IdCaixa'') IS NULL ' +
+      '  ALTER TABLE dbo.VENDAS ADD IdCaixa INT NULL; ' +
+      'IF COL_LENGTH(''dbo.Cliente'', ''cliente_padrao'') IS NULL ' +
+      '  ALTER TABLE dbo.Cliente ADD cliente_padrao BIT NOT NULL ' +
+      '  CONSTRAINT DF_CLIENTE_CLIENTE_PADRAO DEFAULT 0;';
+    Q.ExecSQL;
+    FEstruturaVendasOk := True;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TdmConexoes.IdCaixaAtual: Integer;
+var
+  Q: TADOQuery;
+begin
+  Result := 0;
+  Q := TADOQuery.Create(nil);
+  try
+    Q.Connection := conRobson;
+    Q.SQL.Text := 'SELECT TOP 1 Id FROM Caixa WHERE Status = ''A'' ORDER BY DataAbertura DESC';
+    Q.Open;
+    if not Q.IsEmpty then
+      Result := Q.Fields[0].AsInteger;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TdmConexoes.TotalFiadoCaixa(AIdCaixa: Integer): Currency;
+var
+  Q: TADOQuery;
+begin
+  Result := 0;
+  if AIdCaixa <= 0 then
+    Exit;
+  Q := TADOQuery.Create(nil);
+  try
+    Q.Connection := conRobson;
+    Q.SQL.Text :=
+      'SELECT ISNULL(SUM(ValorPago), 0) AS TotalFiado FROM PagamentoFiado WHERE IdCaixa = :IdCaixa';
+    Q.Parameters.ParamByName('IdCaixa').Value := AIdCaixa;
+    Q.Open;
+    Result := Q.FieldByName('TotalFiado').AsCurrency;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TdmConexoes.LucroCaixa(AIdCaixa: Integer): Currency;
+var
+  Q: TADOQuery;
+begin
+  Result := 0;
+  if AIdCaixa <= 0 then
+    Exit;
+  GarantirEstruturaVendas;
+  Q := TADOQuery.Create(nil);
+  try
+    Q.Connection := conRobson;
+    // Usa o codigo do produto; a descricao so e usada em itens antigos sem codigo
+    Q.SQL.Text :=
+      'SELECT ISNULL(SUM((iv.ValorProdUni - ISNULL(p.valorcusto, 0)) * iv.Quantidade), 0) AS TotalLucro ' +
+      'FROM ItensVenda iv ' +
+      'INNER JOIN VENDAS v ON v.CodVenda = iv.CodVenda ' +
+      'INNER JOIN Caixa c ON c.Id = :IdCaixa ' +
+      'OUTER APPLY (SELECT TOP 1 pr.valorcusto FROM PRODUTOS pr ' +
+      '  WHERE (iv.CodProd IS NOT NULL AND pr.codigo = iv.CodProd) ' +
+      '     OR (iv.CodProd IS NULL AND pr.descricao = iv.Descricao)) p ' +
+      'WHERE v.IdCaixa = c.Id ' +
+      '   OR (v.IdCaixa IS NULL AND v.CodVenda >= c.CodVendaInicial ' +
+      '       AND c.Status = ''A'')';
+    Q.Parameters.ParamByName('IdCaixa').Value := AIdCaixa;
+    Q.Open;
+    Result := Q.FieldByName('TotalLucro').AsCurrency;
+  finally
+    Q.Free;
+  end;
+end;
+
+// Cancela uma venda: devolve o estoque, apaga itens e venda (tudo ou nada).
+// Retorna quantos itens nao tinham codigo do produto (vendas antigas),
+// cujo estoque precisa ser conferido manualmente.
+function TdmConexoes.EstornarVenda(ACodVenda: Integer): Integer;
+var
+  Q: TADOQuery;
+begin
+  Result := 0;
+  GarantirEstruturaVendas;
+  Q := TADOQuery.Create(nil);
+  try
+    Q.Connection := conRobson;
+    conRobson.BeginTrans;
+    try
+      Q.SQL.Text :=
+        'SELECT COUNT(*) FROM ItensVenda WHERE CodVenda = :CodVenda AND CodProd IS NULL';
+      Q.Parameters.ParamByName('CodVenda').Value := ACodVenda;
+      Q.Open;
+      Result := Q.Fields[0].AsInteger;
+      Q.Close;
+
+      Q.SQL.Text :=
+        'UPDATE p SET p.quantidade = ISNULL(p.quantidade, 0) + i.Qtd ' +
+        'FROM PRODUTOS p INNER JOIN ( ' +
+        '  SELECT CodProd, SUM(Quantidade) AS Qtd FROM ItensVenda ' +
+        '  WHERE CodVenda = :CodVenda AND CodProd IS NOT NULL GROUP BY CodProd) i ' +
+        '  ON i.CodProd = p.codigo';
+      Q.Parameters.ParamByName('CodVenda').Value := ACodVenda;
+      Q.ExecSQL;
+
+      Q.SQL.Text := 'DELETE FROM ItensVenda WHERE CodVenda = :CodVenda';
+      Q.Parameters.ParamByName('CodVenda').Value := ACodVenda;
+      Q.ExecSQL;
+
+      Q.SQL.Text := 'DELETE FROM VENDAS WHERE CodVenda = :CodVenda';
+      Q.Parameters.ParamByName('CodVenda').Value := ACodVenda;
+      Q.ExecSQL;
+
+      conRobson.CommitTrans;
+    except
+      if conRobson.InTransaction then
+        conRobson.RollbackTrans;
+      raise;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
 
 procedure TdmConexoes.CarregarConfiguracoes;
 var
@@ -153,8 +368,8 @@ begin
 if not FileExists(ExtractFilePath(Application.ExeName) + 'config.ini') then
  begin
   Application.MessageBox(
-  pchar('Arquivo config.ini n„o foi encontrado.'+ExtractFilePath(Application.ExeName) + 'config.ini'),
-  'Erro de configuraÁ„o',
+  pchar('Arquivo config.ini n√£o foi encontrado.'+ExtractFilePath(Application.ExeName) + 'config.ini'),
+  'Erro de configura√ß√£o',
   MB_OK + MB_ICONERROR
 );
  end;
@@ -237,7 +452,7 @@ begin
     'VALUES (GETDATE(), :Valor, ''A'', :Usuario, :CodInicial)'
   );
   qrCaixa.Parameters.ParamByName('Valor').Value      := AValorInicial;
-  qrCaixa.Parameters.ParamByName('Usuario').Value    := qrUsuario.FieldByName('Usuario').AsString;
+  qrCaixa.Parameters.ParamByName('Usuario').Value    := UsuarioLogado;
   qrCaixa.Parameters.ParamByName('CodInicial').Value := ProxCod;
   qrCaixa.ExecSQL;
   Result := True;
@@ -245,18 +460,24 @@ end;
 function TdmConexoes.TotalVendasCaixaAtual: Currency;
 var
   qrTemp: TADOQuery;
+  IdCaixa: Integer;
 begin
   Result := 0;
+  IdCaixa := IdCaixaAtual;
+  if IdCaixa <= 0 then
+    Exit;
+  GarantirEstruturaVendas;
   qrTemp := TADOQuery.Create(nil);
   try
     qrTemp.Connection := conRobson;
-    qrTemp.SQL.Add(
+    // Vendas novas sao ligadas ao caixa pelo IdCaixa; as antigas pelo CodVendaInicial
+    qrTemp.SQL.Text :=
       'SELECT ISNULL(SUM(v.ValorTotal), 0) AS TotalVendas ' +
       'FROM VENDAS v ' +
-      'INNER JOIN Caixa c ON c.Status = ''A'' ' +
-      '  AND v.CodVenda >= c.CodVendaInicial ' +
-      '  AND c.DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
-    );
+      'INNER JOIN Caixa c ON c.Id = :IdCaixa ' +
+      'WHERE v.IdCaixa = c.Id ' +
+      '   OR (v.IdCaixa IS NULL AND v.CodVenda >= c.CodVendaInicial)';
+    qrTemp.Parameters.ParamByName('IdCaixa').Value := IdCaixa;
     qrTemp.Open;
     Result := qrTemp.FieldByName('TotalVendas').AsCurrency;
   finally
@@ -267,56 +488,33 @@ end;
 function TdmConexoes.FecharCaixa: Boolean;
 var
   ValorAbertura, TotalVendas, TotalFiado, ValorFinal: Currency;
-  qrFiado: TADOQuery;
+  IdCaixa: Integer;
 begin
   Result := False;
-  if not CaixaAberto then Exit;
+  IdCaixa := IdCaixaAtual;
+  if IdCaixa <= 0 then Exit;
 
   qrCaixa.Close;
-  qrCaixa.SQL.Clear;
-  qrCaixa.SQL.Add(
-    'SELECT ValorAbertura FROM Caixa ' +
-    'WHERE Status = ''A'' ' +
-    'AND DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
-  );
+  qrCaixa.SQL.Text := 'SELECT ValorAbertura FROM Caixa WHERE Id = :IdCaixa';
+  qrCaixa.Parameters.ParamByName('IdCaixa').Value := IdCaixa;
   qrCaixa.Open;
   ValorAbertura := qrCaixa.FieldByName('ValorAbertura').AsCurrency;
+  qrCaixa.Close;
 
   TotalVendas := TotalVendasCaixaAtual;
+  TotalFiado  := TotalFiadoCaixa(IdCaixa);
+  ValorFinal  := ValorAbertura + TotalVendas + TotalFiado;
 
-  // Busca fiado pago neste caixa
-  TotalFiado := 0;
-  qrFiado := TADOQuery.Create(nil);
-  try
-    qrFiado.Connection := conRobson;
-    qrFiado.SQL.Add(
-      'SELECT ISNULL(SUM(pf.ValorPago), 0) AS TotalFiado ' +
-      'FROM PagamentoFiado pf ' +
-      'INNER JOIN Caixa c ON c.Id = pf.IdCaixa ' +
-      'AND c.Status = ''A'' ' +
-      'AND c.DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
-    );
-    qrFiado.Open;
-    TotalFiado := qrFiado.FieldByName('TotalFiado').AsCurrency;
-  finally
-    qrFiado.Free;
-  end;
-
-  ValorFinal := ValorAbertura + TotalVendas + TotalFiado;
-
-  qrCaixa.Close;
-  qrCaixa.SQL.Clear;
-  qrCaixa.SQL.Add(
+  qrCaixa.SQL.Text :=
     'UPDATE Caixa SET ' +
     'DataFechamento = GETDATE(), ' +
     'ValorFechamento = :ValorFinal, ' +
     'Status = ''F'', ' +
     'UsuarioFechamento = :Usuario ' +
-    'WHERE Status = ''A'' ' +
-    'AND DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
-  );
+    'WHERE Id = :IdCaixa AND Status = ''A''';
   qrCaixa.Parameters.ParamByName('ValorFinal').Value := ValorFinal;
-  qrCaixa.Parameters.ParamByName('Usuario').Value    := qrUsuario.FieldByName('Usuario').AsString;
+  qrCaixa.Parameters.ParamByName('Usuario').Value    := UsuarioLogado;
+  qrCaixa.Parameters.ParamByName('IdCaixa').Value    := IdCaixa;
   qrCaixa.ExecSQL;
   Result := True;
 end;
@@ -361,9 +559,6 @@ begin
       DataSet.FieldByName('quantidade').AsFloat *
       DataSet.FieldByName('valorcusto').AsFloat;
 
-    DataSet.FieldByName('valorvenda').AsFloat :=
-      DataSet.FieldByName('valorcusto').AsFloat *
-      (1 + DataSet.FieldByName('markup').AsFloat / 100);
   except
   end;
 end;
@@ -376,16 +571,54 @@ procedure TdmConexoes.qrEstoquemarkupChange(Sender: TField);
 var
   Custo, Markup: Double;
 begin
-  try
-    Custo  := qrEstoquevalorcusto.AsFloat;
-    Markup := qrEstoquemarkup.AsFloat;
+  if FAtualizandoPrecos or
+     not (qrEstoque.State in [dsEdit, dsInsert]) then
+    Exit;
 
-    qrEstoquevalorvenda.AsFloat  := Custo * (1 + Markup / 100);
-    qrEstoquecusto_total.AsFloat := qrEstoquequantidade.AsFloat * Custo;
-  except
-    on E: Exception do
-      ShowMessage('Erro no calculo do Markup: ' + E.Message);
+  FAtualizandoPrecos := True;
+  try
+    try
+      Custo  := qrEstoquevalorcusto.AsFloat;
+      Markup := qrEstoquemarkup.AsFloat;
+
+      qrEstoquevalorvenda.AsFloat  := Custo * (1 + Markup / 100);
+      qrEstoquecusto_total.AsFloat := qrEstoquequantidade.AsFloat * Custo;
+    except
+      on E: Exception do
+        ShowMessage('Erro no calculo do Markup: ' + E.Message);
+    end;
+  finally
+    FAtualizandoPrecos := False;
   end;
+end;
+
+// Recalcula o markup quando o valor de venda for digitado na DBGrid.
+procedure TdmConexoes.qrEstoquevalorvendaChange(Sender: TField);
+var
+  Custo, ValorVenda: Double;
+begin
+  if FAtualizandoPrecos or
+     not (qrEstoque.State in [dsEdit, dsInsert]) then
+    Exit;
+
+  FAtualizandoPrecos := True;
+  try
+    Custo      := qrEstoquevalorcusto.AsFloat;
+    ValorVenda := qrEstoquevalorvenda.AsFloat;
+
+    if Custo > 0 then
+      qrEstoquemarkup.AsFloat := ((ValorVenda / Custo) - 1) * 100
+    else
+      qrEstoquemarkup.AsFloat := 0;
+  finally
+    FAtualizandoPrecos := False;
+  end;
+end;
+
+// Mantem o valor de venda coerente quando o custo for alterado.
+procedure TdmConexoes.qrEstoquevalorcustoChange(Sender: TField);
+begin
+  qrEstoquemarkupChange(qrEstoquemarkup);
 end;
 
 // ============================================================

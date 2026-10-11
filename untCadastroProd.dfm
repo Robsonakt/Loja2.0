@@ -124,6 +124,46 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       OnMouseEnter = PnGravarMouseEnter
       OnMouseLeave = PnGravarMouseLeave
     end
+    object PnEntradaNFe: TPanel
+      Left = 396
+      Top = -1
+      Width = 125
+      Height = 52
+      Caption = 'Entrada NF-e'
+      Color = 6710886
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 12
+      Visible = False
+      OnClick = PnEntradaNFeClick
+      OnMouseEnter = PnEntradaNFeMouseEnter
+      OnMouseLeave = PnEntradaNFeMouseLeave
+    end
+    object PnCancelarNFe: TPanel
+      Left = 521
+      Top = -1
+      Width = 112
+      Height = 52
+      Caption = 'Cancelar NF-e'
+      Color = 6710886
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 13
+      Visible = False
+      OnClick = PnCancelarNFeClick
+      OnMouseEnter = PnCancelarNFeMouseEnter
+      OnMouseLeave = PnCancelarNFeMouseLeave
+    end
     object PnPrimeiro: TPanel
       Left = 601
       Top = 53

@@ -9,7 +9,7 @@ uses
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
   Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.ComCtrls,
-  Vcl.Buttons,StrUtils;
+  Vcl.Buttons, StrUtils;
 
 type
   TfrmConsultaOrcamento = class(TForm)
@@ -25,6 +25,7 @@ type
     pnConsultar: TPanel;
     pnReimprimir: TPanel;
     pnConverterVenda: TPanel;
+    pnEnviarEmail: TPanel;
 
     // Filtros
     grpFiltro: TGroupBox;
@@ -73,6 +74,9 @@ type
     procedure pnConverterVendaClick(Sender: TObject);
     procedure pnConverterVendaMouseEnter(Sender: TObject);
     procedure pnConverterVendaMouseLeave(Sender: TObject);
+    procedure pnEnviarEmailClick(Sender: TObject);
+    procedure pnEnviarEmailMouseEnter(Sender: TObject);
+    procedure pnEnviarEmailMouseLeave(Sender: TObject);
 
 
     procedure cbIntervaloChange(Sender: TObject);
@@ -92,7 +96,7 @@ implementation
 
 {$R *.dfm}
 
-uses dmConexao, untLogUser, UntRelatorioOrcamento, untVenda;
+uses dmConexao, untLogUser, UntRelatorioOrcamento, untVenda, uEmailSMTP, uOrcamentoPDF, uEmpresaConfig;
 
 const
   COR_DARK_BG    = 3289650;
@@ -158,6 +162,8 @@ begin
       fdOrcamentos.FieldByName('Total').AsCurrency   := qrTemp.FieldByName('ValorTotal').AsCurrency;
       if qrTemp.FieldByName('Status').AsString = 'A' then
         fdOrcamentos.FieldByName('Status').AsString := 'Ativo'
+      else if qrTemp.FieldByName('Status').AsString = 'F' then
+        fdOrcamentos.FieldByName('Status').AsString := 'Convertido'
       else
         fdOrcamentos.FieldByName('Status').AsString := 'Cancelado';
       fdOrcamentos.Post;
@@ -234,7 +240,6 @@ begin
   IdOrc   := fdOrcamentos.FieldByName('Id').AsInteger;
   MaoObra := fdOrcamentos.FieldByName('MaoObra').AsCurrency;
 
-  // Conta itens e total de produtos
   TotProd := 0;
   Qtd     := 0;
   fdItens.First;
@@ -248,11 +253,11 @@ begin
 
   frmRel := TfrmRelatorioOrcamento.Create(Self);
   try
-       frmRel.SetDados(
+    frmRel.SetDados(
       'N' + #186 + ' ' + IntToStr(IdOrc) + '   |   ' + fdOrcamentos.FieldByName('Data').AsString,
       fdOrcamentos.FieldByName('Cliente').AsString,
       fdOrcamentos.FieldByName('Vendedor').AsString,
-      fdOrcamentos.FieldByName('Data').AsString,  // <-- validade
+      fdOrcamentos.FieldByName('Data').AsString,
       '',
       Qtd,
       TotProd,
@@ -271,6 +276,9 @@ end;
 // ============================================================
 
 procedure TfrmConsultaOrcamento.pnConverterVendaClick(Sender: TObject);
+var
+  IdOrc: Integer;
+  Convertida: Boolean;
 begin
   if fdOrcamentos.IsEmpty then
   begin
@@ -278,9 +286,21 @@ begin
     Exit;
   end;
 
-  if fdOrcamentos.FieldByName('Status').AsString = 'Cancelado' then
+  if fdOrcamentos.FieldByName('Status').AsString <> 'Ativo' then
   begin
-    ShowMessage('Nao e possivel converter um orcamento cancelado.');
+    ShowMessage('Somente orcamentos ativos podem ser convertidos em venda.');
+    Exit;
+  end;
+
+  if fdItens.IsEmpty then
+  begin
+    ShowMessage('Este orcamento nao possui itens.');
+    Exit;
+  end;
+
+  if not dmConexoes.CaixaAberto then
+  begin
+    ShowMessage('O caixa esta fechado. Abra o caixa antes de converter o orcamento em venda.');
     Exit;
   end;
 
@@ -288,53 +308,127 @@ begin
     PChar('Deseja converter o orcamento de ' +
           fdOrcamentos.FieldByName('Cliente').AsString +
           ' em venda?'),
-    'Converter em Venda', MB_YESNO + MB_ICONQUESTION) = IDYES then
-  begin
-    // Abre tela de venda
-    Application.CreateForm(TfrmCaixaVendas, frmCaixaVendas);
-    try
-      // Carrega os itens do orcamento no fdProduto da venda
-      frmCaixaVendas.fdProduto.Close;
-      frmCaixaVendas.fdProduto.Open;
+    'Converter em Venda', MB_YESNO + MB_ICONQUESTION) <> IDYES then
+    Exit;
 
-      fdItens.First;
-      while not fdItens.Eof do
-      begin
-        frmCaixaVendas.fdProduto.Insert;
-        frmCaixaVendas.fdProduto.FieldByName('CodProd').AsInteger     := fdItens.FieldByName('CodProd').AsInteger;
-        frmCaixaVendas.fdProduto.FieldByName('Descricao').AsString    := fdItens.FieldByName('Descricao').AsString;
-        frmCaixaVendas.fdProduto.FieldByName('Quantidade').AsInteger  := fdItens.FieldByName('Qtd').AsInteger;
-        frmCaixaVendas.fdProduto.FieldByName('ValorUni').AsCurrency   := fdItens.FieldByName('ValUnit').AsCurrency;
-        frmCaixaVendas.fdProduto.FieldByName('ValorTotal').AsCurrency := fdItens.FieldByName('ValTotal').AsCurrency;
-        frmCaixaVendas.fdProduto.Post;
+  IdOrc := fdOrcamentos.FieldByName('Id').AsInteger;
+  Convertida := False;
 
-        // Atualiza o total da venda
-        totalvalor := totalvalor + fdItens.FieldByName('ValTotal').AsCurrency;
-        fdItens.Next;
-      end;
-      fdItens.First;
-
-      // Atualiza o label de total na tela de venda
-      frmCaixaVendas.lbvalorDinheiro.Caption := 'R$ ' + FormatFloat('#,##0.00', totalvalor);
-
-      frmCaixaVendas.ShowModal;
-    finally
-      frmCaixaVendas.Free;
-    end;
-
-    // Marca orcamento como convertido
-    with dmConexoes.qrComando do
+  Application.CreateForm(TfrmCaixaVendas, frmCaixaVendas);
+  try
+    frmCaixaVendas.VendaFinalizada := False;
+    frmCaixaVendas.fdProduto.Close;
+    frmCaixaVendas.fdProduto.Open;
+    fdItens.First;
+    while not fdItens.Eof do
     begin
-      Close;
-      SQL.Clear;
-      SQL.Add('UPDATE Orcamento SET Status = ''F'' WHERE Id = :IdOrc');
-      Parameters.ParamByName('IdOrc').Value := fdOrcamentos.FieldByName('Id').AsInteger;
-      ExecSQL;
+      frmCaixaVendas.fdProduto.Insert;
+      frmCaixaVendas.fdProduto.FieldByName('CodProd').AsInteger     := fdItens.FieldByName('CodProd').AsInteger;
+      frmCaixaVendas.fdProduto.FieldByName('Descricao').AsString    := fdItens.FieldByName('Descricao').AsString;
+      frmCaixaVendas.fdProduto.FieldByName('Quantidade').AsInteger  := fdItens.FieldByName('Qtd').AsInteger;
+      frmCaixaVendas.fdProduto.FieldByName('ValorUni').AsCurrency   := fdItens.FieldByName('ValUnit').AsCurrency;
+      frmCaixaVendas.fdProduto.FieldByName('ValorTotal').AsCurrency := fdItens.FieldByName('ValTotal').AsCurrency;
+      frmCaixaVendas.fdProduto.Post;
+      fdItens.Next;
     end;
+    fdItens.First;
+    // O total e recalculado pela tela de venda ao abrir (FormShow)
+    frmCaixaVendas.ShowModal;
+    Convertida := frmCaixaVendas.VendaFinalizada;
+  finally
+    frmCaixaVendas.Free;
+    frmCaixaVendas := nil;
+  end;
 
-    Consultar;
+  if not Convertida then
+  begin
+    ShowMessage('A venda nao foi finalizada. O orcamento continua ativo.');
+    Exit;
+  end;
+
+  with dmConexoes.qrComando do
+  begin
+    Close;
+    SQL.Clear;
+    SQL.Add('UPDATE Orcamento SET Status = ''F'' WHERE Id = :IdOrc');
+    Parameters.ParamByName('IdOrc').Value := IdOrc;
+    ExecSQL;
+  end;
+  Consultar;
+end;
+
+// ============================================================
+// ENVIAR POR E-MAIL
+// ============================================================
+procedure TfrmConsultaOrcamento.pnEnviarEmailClick(Sender: TObject);
+var
+  IdOrc: Integer;
+  TotProd, MaoObra: Currency;
+  Qtd: Integer;
+  EmailDestinatario: string;
+  Assunto: string;
+  Mensagem: string;
+  CaminhoPDF: string;
+  EmpresaTitulo: string;
+begin
+  if fdOrcamentos.IsEmpty then
+  begin
+    ShowMessage('Selecione um orcamento para enviar por e-mail.');
+    Exit;
+  end;
+
+  IdOrc := fdOrcamentos.FieldByName('Id').AsInteger;
+  MaoObra := fdOrcamentos.FieldByName('MaoObra').AsCurrency;
+
+  TotProd := 0;
+  Qtd := 0;
+  fdItens.First;
+  while not fdItens.Eof do
+  begin
+    TotProd := TotProd + fdItens.FieldByName('ValTotal').AsCurrency;
+    Inc(Qtd);
+    fdItens.Next;
+  end;
+  fdItens.First;
+
+  EmailDestinatario := '';
+  if not InputQuery('Enviar orcamento por e-mail', 'Informe o e-mail do cliente:', EmailDestinatario) then
+    Exit;
+
+  EmailDestinatario := Trim(EmailDestinatario);
+  if not TEmailSMTP.EmailValido(EmailDestinatario) then
+  begin
+    MessageDlg('Informe um e-mail valido.', mtWarning, [mbOK], 0);
+    Exit;
+  end;
+
+  EmpresaTitulo := TEmpresaConfig.NomeExibicao(dmConexoes.conRobson, dmConexoes.NomeEmpresa);
+  Assunto := EmpresaTitulo + ' - Orcamento N ' + IntToStr(IdOrc);
+  Mensagem := 'Ola, ' + fdOrcamentos.FieldByName('Cliente').AsString + sLineBreak + sLineBreak +
+    'Segue em anexo o orcamento N ' + IntToStr(IdOrc) + ' em PDF.' + sLineBreak +
+    'Quantidade de itens: ' + IntToStr(Qtd) + sLineBreak +
+    'Produtos: R$ ' + FormatFloat('#,##0.00', TotProd) + sLineBreak +
+    'Mao de obra: R$ ' + FormatFloat('#,##0.00', MaoObra) + sLineBreak +
+    'Total: R$ ' + FormatFloat('#,##0.00', TotProd + MaoObra) + sLineBreak + sLineBreak +
+    'Atenciosamente, ' + EmpresaTitulo;
+
+  try
+    CaminhoPDF := ExtractFilePath(Application.ExeName) + 'Orcamento_' + IntToStr(IdOrc) + '.pdf';
+    TOrcamentoPDF.Gerar(CaminhoPDF, EmpresaTitulo,
+      'N' + #186 + ' ' + IntToStr(IdOrc) + '   |   ' + fdOrcamentos.FieldByName('Data').AsString,
+      fdOrcamentos.FieldByName('Cliente').AsString,
+      fdOrcamentos.FieldByName('Vendedor').AsString,
+      fdOrcamentos.FieldByName('Data').AsString, '', Qtd, TotProd, MaoObra,
+      TotProd + MaoObra, dsItens.DataSet);
+    TEmailSMTP.EnviarEmailComAnexo(EmailDestinatario, Assunto, Mensagem, CaminhoPDF);
+    MessageDlg('Orcamento enviado por e-mail com sucesso.', mtInformation, [mbOK], 0);
+  except
+    on E: Exception do
+      MessageDlg('Nao foi possivel enviar o orcamento por e-mail.' + sLineBreak + E.Message,
+        mtError, [mbOK], 0);
   end;
 end;
+
 // ============================================================
 // CONSULTAR CLICK
 // ============================================================
@@ -381,6 +475,11 @@ procedure TfrmConsultaOrcamento.pnConverterVendaMouseEnter(Sender: TObject);
 begin pnConverterVenda.Color := clGreen; pnConverterVenda.Font.Color := clWhite; end;
 procedure TfrmConsultaOrcamento.pnConverterVendaMouseLeave(Sender: TObject);
 begin pnConverterVenda.Color := COR_DARK_BTN; pnConverterVenda.Font.Color := clWhite; end;
+
+procedure TfrmConsultaOrcamento.pnEnviarEmailMouseEnter(Sender: TObject);
+begin pnEnviarEmail.Color := $006666CC; pnEnviarEmail.Font.Color := clWhite; end;
+procedure TfrmConsultaOrcamento.pnEnviarEmailMouseLeave(Sender: TObject);
+begin pnEnviarEmail.Color := COR_DARK_BTN; pnEnviarEmail.Font.Color := clWhite; end;
 
 
 end.

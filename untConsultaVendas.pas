@@ -21,6 +21,7 @@ type
     pnInferior: TPanel;
     btnRelatorio: TBitBtn;
     btnExcel: TBitBtn;
+    btnCancelarVenda: TBitBtn;
     GroupBox1: TGroupBox;
     dbProdutos: TDBGrid;
     GroupBox2: TGroupBox;
@@ -37,6 +38,7 @@ type
     procedure dsVendaDataChange(Sender: TObject; Field: TField);
     procedure btnEfetuarConsultaClick(Sender: TObject);
     procedure btnExcelClick(Sender: TObject);
+    procedure btnCancelarVendaClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -52,7 +54,7 @@ implementation
 
 uses
   untCadastroProd, untCadastroCli, UntRelatorioVenda, untRelatorioProd,
-  untVenda, dmconexao, untCadastroUsuario, untLogUser;
+  untVenda, dmconexao, untCadastroUsuario, untLogUser, uFiscalStorage;
 
 // -------------------------------------------------------
 // SQL de Vendas
@@ -86,6 +88,53 @@ begin
     '  ''R$ '' + TRIM(REPLACE(CONVERT(VARCHAR(20), CAST(ValorTotal   AS NUMERIC(15,2))), ''.'', '','')) AS ValorTotal ' +
     'FROM itensVenda ' +
     'WHERE codVenda = ' + IntToStr(codVenda);
+end;
+
+procedure TfrmConsulta_Venda.btnCancelarVendaClick(Sender: TObject);
+var
+  CodVenda: Integer;
+  Justificativa: string;
+  ItensSemCodigo: Integer;
+begin
+  if (not dmconexoes.qrVendas.Active) or dmconexoes.qrVendas.IsEmpty then
+  begin
+    MessageDlg('Selecione uma venda para cancelar.', mtWarning, [mbOK], 0);
+    Exit;
+  end;
+
+  CodVenda := dmconexoes.qrVendas.FieldByName('CodVenda').AsInteger;
+
+  Justificativa := '';
+  if not InputQuery('Cancelar venda', 'Informe a justificativa do cancelamento:', Justificativa) then
+    Exit;
+
+  if Length(Trim(Justificativa)) < 15 then
+  begin
+    MessageDlg('A justificativa deve ter pelo menos 15 caracteres.', mtWarning, [mbOK], 0);
+    Exit;
+  end;
+
+  if MessageDlg('Confirma o cancelamento da venda ' + IntToStr(CodVenda) + '?',
+    mtConfirmation, [mbYes, mbNo], 0) <> mrYes then
+    Exit;
+
+  try
+    // Devolve o estoque e apaga a venda (tudo ou nada)
+    ItensSemCodigo := dmconexoes.EstornarVenda(CodVenda);
+    TFiscalStorage.CancelarDocumentoFiscalPorVenda(dmconexoes.conRobson, CodVenda, Justificativa);
+
+    if ItensSemCodigo > 0 then
+      MessageDlg('Venda cancelada. ' + IntToStr(ItensSemCodigo) +
+        ' item(ns) desta venda sao antigos e nao tinham o codigo do produto: ' +
+        'confira o estoque deles manualmente.', mtWarning, [mbOK], 0)
+    else
+      MessageDlg('Venda cancelada e estoque devolvido. Documentos fiscais vinculados foram marcados como cancelados.',
+        mtInformation, [mbOK], 0);
+    consultaHorario;
+  except
+    on E: Exception do
+      MessageDlg('Nao foi possivel cancelar a venda.' + sLineBreak + E.Message, mtError, [mbOK], 0);
+  end;
 end;
 
 procedure TfrmConsulta_Venda.btnEfetuarConsultaClick(Sender: TObject);
@@ -310,9 +359,10 @@ begin
     if cbIntervalo.ItemIndex = 1 then
     begin
       try
-        dInicial := FormatDateTime('yyyy-mm-dd', dtInicial.Date) + ' 00:00:00';
-        dFinal   := FormatDateTime('yyyy-mm-dd', dtFinal.Date)   + ' 23:59:59';
-        filtro   := ' AND (DATAVENDA BETWEEN ''' + dInicial + ''' AND ''' + dFinal + ''')';
+        // Formato yyyymmdd nao depende do idioma do SQL Server
+        dInicial := FormatDateTime('yyyymmdd', Trunc(dtInicial.Date));
+        dFinal   := FormatDateTime('yyyymmdd', Trunc(dtFinal.Date) + 1);
+        filtro   := ' AND (DATAVENDA >= ''' + dInicial + ''' AND DATAVENDA < ''' + dFinal + ''')';
       except
       end;
     end;

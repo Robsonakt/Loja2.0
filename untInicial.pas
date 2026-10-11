@@ -23,6 +23,7 @@ type
     Cadastro1: TMenuItem;
     Estoque1: TMenuItem;
     Cliente1: TMenuItem;
+    Empresa1: TMenuItem;
     dsCliente: TDataSource;
     dsProduto: TDataSource;
     fdCliente: TFDMemTable;
@@ -42,6 +43,10 @@ type
     lblCaixa: TLabel;
     Usurio1: TMenuItem;
     Cadastro2: TMenuItem;
+    XML1: TMenuItem;
+    EntradaXML1: TMenuItem;
+    ConsultaXML1: TMenuItem;
+    EmissaoXML1: TMenuItem;
     pnlTopoInicial: TPanel;
     lblTituloInicial: TLabel;
     pnlMenuEsq: TPanel;
@@ -58,12 +63,16 @@ type
     procedure PnAberturaClick(Sender: TObject);
     procedure PnFechamentoClick(Sender: TObject);
     procedure Cliente1Click(Sender: TObject);
+    procedure Empresa1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Cadastro2Click(Sender: TObject);
     procedure PnConsultaClick(Sender: TObject);
     procedure PnOrcamentoClick(Sender: TObject);
     procedure PnConsultFechaClick(Sender: TObject);
     procedure Panel1Click(Sender: TObject);
+    procedure EntradaXML1Click(Sender: TObject);
+    procedure ConsultaXML1Click(Sender: TObject);
+    procedure EmissaoXML1Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -80,9 +89,47 @@ implementation
 
 uses
   untCadastroProd, untCadastroCli, untConsultavendas, untRelatorioProd,
-  untVenda, untRelatorioVenda, dmconexao, untCadastroUsuario, untLogUser, untOrcamento, untConsultaOrcamento, untConsultaFechamento ;
+  untVenda, untRelatorioVenda, dmconexao, untCadastroUsuario, untLogUser,
+  untOrcamento, untConsultaOrcamento, untConsultaFechamento,
+  untCadastroEmpresa, untEntradaNotasXML, untConsultaXML, untEmissaoXML;
 
 {$R *.dfm}
+
+procedure TFormularioPrincipal.EntradaXML1Click(Sender: TObject);
+var
+  F: TfrmEntradaNotasXML;
+begin
+  F := TfrmEntradaNotasXML.Create(Self);
+  try
+    F.ShowModal;
+  finally
+    F.Free;
+  end;
+end;
+
+procedure TFormularioPrincipal.ConsultaXML1Click(Sender: TObject);
+var
+  F: TfrmConsultaXML;
+begin
+  F := TfrmConsultaXML.Create(Self);
+  try
+    F.ShowModal;
+  finally
+    F.Free;
+  end;
+end;
+
+procedure TFormularioPrincipal.EmissaoXML1Click(Sender: TObject);
+var
+  F: TfrmEmissaoXML;
+begin
+  F := TfrmEmissaoXML.Create(Self);
+  try
+    F.ShowModal;
+  finally
+    F.Free;
+  end;
+end;
 
 procedure TFormularioPrincipal.AtualizarStatusCaixa;
 begin
@@ -114,68 +161,38 @@ begin
   frmCadastroCliente.Free;
 end;
 
+procedure TFormularioPrincipal.Empresa1Click(Sender: TObject);
+begin
+  Application.CreateForm(TfrmCadastroEmpresa, frmCadastroEmpresa);
+  frmCadastroEmpresa.ShowModal;
+  frmCadastroEmpresa.Free;
+end;
+
 procedure TFormularioPrincipal.PnFechamentoClick(Sender: TObject);
 var
   ValorAbertura, TotalVendas, TotalFiado, TotalLucro, ValorFinal: Currency;
+  IdCaixa: Integer;
   Msg: string;
-  qrFiado, qrLucro: TADOQuery;
 begin
-  if not dmConexoes.CaixaAberto then
+  IdCaixa := dmConexoes.IdCaixaAtual;
+  if IdCaixa <= 0 then
   begin
-    ShowMessage('Não existe caixa aberto para fechamento.');
+    ShowMessage('Nao existe caixa aberto para fechamento.');
     Exit;
   end;
 
-  // Busca valor de abertura
+  // Valor de abertura do caixa aberto
   dmConexoes.qrCaixa.Close;
-  dmConexoes.qrCaixa.SQL.Clear;
-  dmConexoes.qrCaixa.SQL.Add(
-    'SELECT ValorAbertura FROM Caixa WHERE Status = ''A'' ' +
-    'AND DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
-  );
+  dmConexoes.qrCaixa.SQL.Text := 'SELECT ValorAbertura FROM Caixa WHERE Id = :IdCaixa';
+  dmConexoes.qrCaixa.Parameters.ParamByName('IdCaixa').Value := IdCaixa;
   dmConexoes.qrCaixa.Open;
   ValorAbertura := dmConexoes.qrCaixa.FieldByName('ValorAbertura').AsCurrency;
+  dmConexoes.qrCaixa.Close;
 
-  // Busca total de vendas (somente vendas, sem fiado)
+  // Mesmos calculos usados no fechamento (dmConexoes.FecharCaixa)
   TotalVendas := dmConexoes.TotalVendasCaixaAtual;
-
-  // Busca total de fiado pago neste caixa
-  TotalFiado := 0;
-  qrFiado := TADOQuery.Create(nil);
-  try
-    qrFiado.Connection := dmConexoes.conRobson;
-    qrFiado.SQL.Add(
-      'SELECT ISNULL(SUM(pf.ValorPago), 0) AS TotalFiado ' +
-      'FROM PagamentoFiado pf ' +
-      'INNER JOIN Caixa c ON c.Id = pf.IdCaixa ' +
-      'AND c.Status = ''A'' ' +
-      'AND c.DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
-    );
-    qrFiado.Open;
-    TotalFiado := qrFiado.FieldByName('TotalFiado').AsCurrency;
-  finally
-    qrFiado.Free;
-  end;
-
-  // Busca lucro das vendas deste caixa
-  TotalLucro := 0;
-  qrLucro := TADOQuery.Create(nil);
-  try
-    qrLucro.Connection := dmConexoes.conRobson;
-    qrLucro.SQL.Add(
-      'SELECT ISNULL(SUM((iv.ValorProdUni - p.valorcusto) * iv.Quantidade), 0) AS TotalLucro ' +
-      'FROM ItensVenda iv ' +
-      'LEFT JOIN PRODUTOS p ON p.descricao = iv.Descricao ' +
-      'INNER JOIN VENDAS v ON v.CodVenda = iv.CodVenda ' +
-      'INNER JOIN Caixa c ON c.Status = ''A'' ' +
-      '  AND v.CodVenda >= c.CodVendaInicial ' +
-      '  AND c.DataAbertura = (SELECT MAX(DataAbertura) FROM Caixa WHERE Status = ''A'')'
-    );
-    qrLucro.Open;
-    TotalLucro := qrLucro.FieldByName('TotalLucro').AsCurrency;
-  finally
-    qrLucro.Free;
-  end;
+  TotalFiado  := dmConexoes.TotalFiadoCaixa(IdCaixa);
+  TotalLucro  := dmConexoes.LucroCaixa(IdCaixa);
 
   // Saldo final = abertura + vendas + fiado recebido
   ValorFinal := ValorAbertura + TotalVendas + TotalFiado;
@@ -307,9 +324,8 @@ begin
   if ValorStr.Trim = '' then
     Exit;
 
-  try
-    ValorInicial := StrToCurr(ValorStr);
-  except
+  if (not TryStrParaMoeda(ValorStr, ValorInicial)) or (ValorInicial < 0) then
+  begin
     ShowMessage('Valor inv'#225'lido.');
     Exit;
   end;

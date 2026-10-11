@@ -4,12 +4,22 @@ uses
   Vcl.Forms,
   untInicial in 'untInicial.pas' {FormularioPrincipal},
   dmconexao in 'dmconexao.pas' {dmConexoes: TDataModule},
+  uFiscalNFeEntradaHelper in 'uFiscalNFeEntradaHelper.pas',
+  uFiscalStorage in 'uFiscalStorage.pas',
+  untEntradaNotasXML in 'untEntradaNotasXML.pas',
+  untConsultaXML in 'untConsultaXML.pas',
+  untEmissaoXML in 'untEmissaoXML.pas',
+  uEmailSMTP in 'uEmailSMTP.pas',
+  uOrcamentoPDF in 'uOrcamentoPDF.pas',
+  uEmpresaConfig in 'uEmpresaConfig.pas',
+  uAjusteTela in 'uAjusteTela.pas',
   untCadastroProd in 'untCadastroProd.pas' {frmCadastroProdutos},
   untVenda in 'untVenda.pas' {frmCaixaVendas},
   untConsultaVendas in 'untConsultaVendas.pas' {frmConsulta_Venda},
   UntRelatorioVenda in 'UntRelatorioVenda.pas' {frmRelatorioVendas},
   untRelatorioProd in 'untRelatorioProd.pas' {FrmRelatorioProd},
   untCadastroCli in 'untCadastroCli.pas' {frmCadastroCliente},
+  untCadastroEmpresa in 'untCadastroEmpresa.pas' {frmCadastroEmpresa},
   untLocalizaCli in 'untLocalizaCli.pas' {frmLocalizaCli},
   untLocalizaProd in 'untLocalizaProd.pas' {frmLocalizaProd},
   untLogUser in 'untLogUser.pas' {frmLogin},
@@ -26,16 +36,10 @@ uses
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
+  // Reduz automaticamente as janelas que nao cabem em monitores menores
+  TAjusteTela.Ativar;
+  // As demais telas sao criadas quando abertas (evita instancias duplicadas)
   Application.CreateForm(TFormularioPrincipal, FormularioPrincipal);
   Application.CreateForm(TdmConexoes, dmConexoes);
-  Application.CreateForm(TfrmCaixaVendas, frmCaixaVendas);
-  Application.CreateForm(TFrmRelatorioProd, FrmRelatorioProd);
-  Application.CreateForm(TfrmLogin, frmLogin);
-  Application.CreateForm(Tconsulta_vendas, consulta_vendas);
-  Application.CreateForm(TfrmOrcamento, frmOrcamento);
-  Application.CreateForm(TfrmRelatorioOrcamento, frmRelatorioOrcamento);
-  Application.CreateForm(TfrmConsultaOrcamento, frmConsultaOrcamento);
-  Application.CreateForm(TfrmConsultaFechamento, frmConsultaFechamento);
-  Application.CreateForm(TfrmLicenca, frmLicenca);
   Application.Run;
 end.

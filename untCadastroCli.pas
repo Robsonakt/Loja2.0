@@ -38,6 +38,7 @@ type
     DBEdit4: TDBEdit;
     DatePicker1: TDatePicker;
     DBEdit2: TDBEdit;
+    chkClientePadrao: TDBCheckBox;
     procedure PnNovoClick(Sender: TObject);
     procedure PnEditarClick(Sender: TObject);
     procedure PnCancelarClick(Sender: TObject);
@@ -73,6 +74,8 @@ type
     procedure edtNResidenteKeyPress(Sender: TObject; var Key: Char);
     procedure PnPagoClick(Sender: TObject);
   private
+    procedure GarantirCampoClientePadrao;
+    procedure AtualizarClientePadrao;
     { Private declarations }
   public
     { Public declarations }
@@ -87,6 +90,41 @@ implementation
 
 uses dmconexao, untLocalizaCli, Data.Win.ADODB;
 
+procedure TfrmCadastroCliente.GarantirCampoClientePadrao;
+begin
+  with dmConexoes do
+  begin
+    qrComando.Close;
+    qrComando.SQL.Text := 'IF COL_LENGTH(''dbo.Cliente'', ''cliente_padrao'') IS NULL ALTER TABLE dbo.Cliente ADD cliente_padrao BIT NOT NULL CONSTRAINT DF_CLIENTE_CLIENTE_PADRAO DEFAULT 0';
+    qrComando.ExecSQL;
+  end;
+end;
+
+procedure TfrmCadastroCliente.AtualizarClientePadrao;
+var
+  CodCliAtual: Integer;
+begin
+  if dmConexoes.qrCliente.IsEmpty then
+    Exit;
+
+  if dmConexoes.qrCliente.FindField('cliente_padrao') = nil then
+    Exit;
+
+  if not dmConexoes.qrCliente.FieldByName('cliente_padrao').AsBoolean then
+    Exit;
+
+  CodCliAtual := dmConexoes.qrCliente.FieldByName('CodCli').AsInteger;
+  if CodCliAtual <= 0 then
+    Exit;
+
+  with dmConexoes do
+  begin
+    qrComando.Close;
+    qrComando.SQL.Text := 'UPDATE [LojaNova].[dbo].[Cliente] SET cliente_padrao = 0 WHERE CodCli <> :pCodCli';
+    qrComando.Parameters.ParamByName('pCodCli').Value := CodCliAtual;
+    qrComando.ExecSQL;
+  end;
+end;
 procedure TfrmCadastroCliente.edtEnderecoKeyPress(Sender: TObject; var Key: Char);
 begin
   if Key = #13 then
@@ -107,11 +145,12 @@ end;
 
 procedure TfrmCadastroCliente.FormShow(Sender: TObject);
 begin
+  GarantirCampoClientePadrao;
   with dmConexoes do
   begin
     qrCliente.Close;
     qrCliente.SQL.Clear;
-    qrCliente.SQL.Add('SELECT * FROM [LojaNova].[dbo].[cliente]');
+    qrCliente.SQL.Add('SELECT * FROM [LojaNova].[dbo].[cliente] ORDER BY ISNULL(cliente_padrao, 0) DESC, codcli');
     qrCliente.Open;
     qrCliente.First;
   end;
@@ -125,6 +164,8 @@ procedure TfrmCadastroCliente.PnPagoClick(Sender: TObject);
 var
   sValorPago: string;
   ValorPago, ValorFiadoAtual, NovoFiado: Currency;
+  CodCli, IdCaixa: Integer;
+  NomeCli: string;
   qrTemp: TADOQuery;
 begin
   if dmConexoes.qrCliente.IsEmpty then
@@ -133,6 +174,16 @@ begin
     Exit;
   end;
 
+  // O recebimento entra no caixa: sem caixa aberto o dinheiro nao seria registrado
+  IdCaixa := dmConexoes.IdCaixaAtual;
+  if IdCaixa <= 0 then
+  begin
+    ShowMessage('O caixa esta fechado. Abra o caixa antes de receber pagamento de fiado.');
+    Exit;
+  end;
+
+  CodCli          := dmConexoes.qrCliente.FieldByName('CodCli').AsInteger;
+  NomeCli         := dmConexoes.qrCliente.FieldByName('nome').AsString;
   ValorFiadoAtual := dmConexoes.qrCliente.FieldByName('valorfiado').AsCurrency;
 
   if ValorFiadoAtual <= 0 then
@@ -144,72 +195,78 @@ begin
   // Pergunta o valor pago
   sValorPago := FormatFloat('#,##0.00', ValorFiadoAtual);
   if not InputQuery('Pagamento de Fiado',
-    'Cliente: ' + dmConexoes.qrCliente.FieldByName('nome').AsString + #13#10 +
+    'Cliente: ' + NomeCli + #13#10 +
     'Valor em aberto: R$ ' + FormatFloat('#,##0.00', ValorFiadoAtual) + #13#10 +
     'Informe o valor recebido:',
     sValorPago) then Exit;
 
-    sValorPago := StringReplace(sValorPago, '.', '', [rfReplaceAll]);
-    sValorPago := StringReplace(sValorPago, ',', FormatSettings.DecimalSeparator, [rfReplaceAll]);
-    sValorPago := Trim(sValorPago);
+  if (not TryStrParaMoeda(sValorPago, ValorPago)) or (ValorPago <= 0) then
+  begin
+    ShowMessage('Valor invalido. Use virgula como separador. Ex: 20,98');
+    Exit;
+  end;
 
-    try
-      ValorPago := StrToCurr(sValorPago);
-    except
-      ValorPago := 0;
-    end;
-
-    if ValorPago <= 0 then
-    begin
-      ShowMessage('Valor invalido. Use virgula como separador. Ex: 20,98');
-      Exit;
-    end;
-
+  // Nao aceita receber mais do que o cliente deve (o excesso ficaria no caixa sem origem)
   if ValorPago > ValorFiadoAtual then
   begin
-    if Application.MessageBox(
+    Application.MessageBox(
       PChar('O valor informado (R$ ' + FormatFloat('#,##0.00', ValorPago) +
             ') e maior que o valor em aberto (R$ ' + FormatFloat('#,##0.00', ValorFiadoAtual) + ').' +
-            #13#10 + 'Deseja continuar?'),
-      'Atencao', MB_YESNO + MB_ICONWARNING) <> IDYES then Exit;
+            #13#10 + 'Sera registrado apenas o valor em aberto. Devolva o troco ao cliente.'),
+      'Atencao', MB_OK + MB_ICONWARNING);
+    ValorPago := ValorFiadoAtual;
   end;
 
   // Confirma pagamento
   if Application.MessageBox(
     PChar('Confirmar recebimento de R$ ' + FormatFloat('#,##0.00', ValorPago) +
-          ' do cliente ' + dmConexoes.qrCliente.FieldByName('nome').AsString + '?'),
+          ' do cliente ' + NomeCli + '?'),
     'Confirmar Pagamento', MB_YESNO + MB_ICONQUESTION) <> IDYES then Exit;
 
-  // Calcula novo valor fiado
   NovoFiado := ValorFiadoAtual - ValorPago;
-  if NovoFiado < 0 then NovoFiado := 0;
 
-  // Atualiza valor fiado do cliente
-  dmConexoes.qrCliente.Edit;
-  dmConexoes.qrCliente.FieldByName('valorfiado').AsCurrency := NovoFiado;
-  dmConexoes.qrCliente.Post;
-
-  // Registra pagamento vinculado ao caixa atual
-  if dmConexoes.CaixaAberto then
-  begin
-    qrTemp := TADOQuery.Create(nil);
+  // Baixa o fiado e registra o pagamento no caixa juntos (tudo ou nada)
+  qrTemp := TADOQuery.Create(nil);
+  try
+    qrTemp.Connection := dmConexoes.conRobson;
+    dmConexoes.conRobson.BeginTrans;
     try
-      qrTemp.Connection := dmConexoes.conRobson;
-
-      // Busca o Id do caixa aberto
-      qrTemp.SQL.Add(
-        'INSERT INTO PagamentoFiado (IdCaixa, CodCli, ValorPago) ' +
-        'SELECT TOP 1 Id, :CodCli, :Valor FROM Caixa ' +
-        'WHERE Status = ''A'' ' +
-        'ORDER BY DataAbertura DESC'
-      );
-      qrTemp.Parameters.ParamByName('CodCli').Value := dmConexoes.qrCliente.FieldByName('CodCli').AsInteger;
-      qrTemp.Parameters.ParamByName('Valor').Value  := ValorPago;
+      qrTemp.SQL.Text :=
+        'UPDATE Cliente SET valorfiado = CASE WHEN ISNULL(valorfiado, 0) - :Valor1 < 0 ' +
+        'THEN 0 ELSE ISNULL(valorfiado, 0) - :Valor2 END WHERE CodCli = :CodCli';
+      qrTemp.Parameters.ParamByName('Valor1').DataType := ftBCD;
+      qrTemp.Parameters.ParamByName('Valor1').Value    := ValorPago;
+      qrTemp.Parameters.ParamByName('Valor2').DataType := ftBCD;
+      qrTemp.Parameters.ParamByName('Valor2').Value    := ValorPago;
+      qrTemp.Parameters.ParamByName('CodCli').Value    := CodCli;
       qrTemp.ExecSQL;
-    finally
-      qrTemp.Free;
+
+      qrTemp.SQL.Text :=
+        'INSERT INTO PagamentoFiado (IdCaixa, CodCli, ValorPago) VALUES (:IdCaixa, :CodCli, :Valor)';
+      qrTemp.Parameters.ParamByName('IdCaixa').Value  := IdCaixa;
+      qrTemp.Parameters.ParamByName('CodCli').Value   := CodCli;
+      qrTemp.Parameters.ParamByName('Valor').DataType := ftBCD;
+      qrTemp.Parameters.ParamByName('Valor').Value    := ValorPago;
+      qrTemp.ExecSQL;
+
+      dmConexoes.conRobson.CommitTrans;
+    except
+      on E: Exception do
+      begin
+        if dmConexoes.conRobson.InTransaction then
+          dmConexoes.conRobson.RollbackTrans;
+        ShowMessage('Nao foi possivel registrar o pagamento. Nada foi alterado.' + sLineBreak + E.Message);
+        Exit;
+      end;
     end;
+  finally
+    qrTemp.Free;
   end;
+
+  // Atualiza a tela com o valor gravado no banco
+  dmConexoes.qrCliente.Close;
+  dmConexoes.qrCliente.Open;
+  dmConexoes.qrCliente.Locate('CodCli', CodCli, []);
 
   Application.MessageBox(
     PChar('Pagamento registrado com sucesso!' + #13#10 +
@@ -252,9 +309,11 @@ procedure TfrmCadastroCliente.PnCancelarClick(Sender: TObject);
 begin
   with dmConexoes do
   begin
+    if qrCliente.State in [dsEdit, dsInsert] then
+      qrCliente.Cancel;
     qrCliente.Close;
     qrCliente.SQL.Clear;
-    qrCliente.SQL.Add('SELECT * FROM [LojaNova].[dbo].[Cliente]');
+    qrCliente.SQL.Add('SELECT * FROM [LojaNova].[dbo].[Cliente] ORDER BY ISNULL(cliente_padrao, 0) DESC, codcli');
     qrCliente.Open;
     qrCliente.First;
   end;
@@ -280,11 +339,12 @@ begin
   PnSair.Font.Color     := 0;
   PnGravar.Font.Color   := $00333333;
 
-  edtNomeCliente.Enabled := not edtNomeCliente.Enabled;
-  edtEndereco.Enabled    := not edtEndereco.Enabled;
-  edtTel.Enabled         := not edtTel.Enabled;
-  edtNResidente.Enabled  := not edtNResidente.Enabled;
-  DatePicker1.Enabled    := not DatePicker1.Enabled;
+  edtNomeCliente.Enabled   := False;
+  edtEndereco.Enabled      := False;
+  edtTel.Enabled           := False;
+  edtNResidente.Enabled    := False;
+  DatePicker1.Enabled      := False;
+  chkClientePadrao.Enabled := False;
 end;
 
 procedure TfrmCadastroCliente.PnCancelarMouseEnter(Sender: TObject);
@@ -300,6 +360,7 @@ begin
   edtTel.Enabled         := True;
   edtNResidente.Enabled  := True;
   DatePicker1.Enabled    := True;
+  chkClientePadrao.Enabled := True;
 
   PnGravar.Enabled      := True;
   PnCancelar.Enabled    := True;
@@ -335,6 +396,15 @@ end;
 
 procedure TfrmCadastroCliente.PnExcluirClick(Sender: TObject);
 begin
+  if dmConexoes.qrCliente.IsEmpty then
+    Exit;
+  if dmConexoes.qrCliente.FieldByName('valorfiado').AsCurrency > 0 then
+  begin
+    ShowMessage('Este cliente possui fiado em aberto (R$ ' +
+      FormatFloat('#,##0.00', dmConexoes.qrCliente.FieldByName('valorfiado').AsCurrency) +
+      '). Receba o valor antes de excluir.');
+    Exit;
+  end;
   if MessageDlg('Deseja excluir este registro?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
   begin
     try
@@ -354,10 +424,14 @@ begin
 end;
 
 procedure TfrmCadastroCliente.PnGravarClick(Sender: TObject);
+var
+  CodCliAtual: Integer;
 begin
   if Application.MessageBox('Deseja gravar o cliente?', 'Cadastro',
     MB_YESNO + MB_ICONQUESTION) <> IDYES then
   begin
+    if dmConexoes.qrCliente.State in [dsEdit, dsInsert] then
+      dmConexoes.qrCliente.Cancel;
     PnGravar.Enabled      := False;
     PnGravar.Font.Color   := $00333333;
     edtNomeCliente.Enabled := False;
@@ -365,6 +439,7 @@ begin
     edtTel.Enabled         := False;
     edtNResidente.Enabled  := False;
     DatePicker1.Enabled    := False;
+    chkClientePadrao.Enabled := False;
     Exit;
   end;
 
@@ -373,12 +448,20 @@ begin
   edtTel.Enabled         := False;
   edtNResidente.Enabled  := False;
   DatePicker1.Enabled    := False;
+  chkClientePadrao.Enabled := False;
 
   with dmConexoes do
   begin
     qrCliente.Edit;
     qrCliente.FieldByName('DataCadastrocliente').AsDateTime := DatePicker1.Date;
     qrCliente.Post;
+    CodCliAtual := qrCliente.FieldByName('CodCli').AsInteger;
+    AtualizarClientePadrao;
+    qrCliente.Close;
+    qrCliente.SQL.Clear;
+    qrCliente.SQL.Add('SELECT * FROM [LojaNova].[dbo].[Cliente] ORDER BY ISNULL(cliente_padrao, 0) DESC, codcli');
+    qrCliente.Open;
+    qrCliente.Locate('CodCli', CodCliAtual, []);
     Application.MessageBox('Cliente Cadastrado com Sucesso', 'Cadastro', MB_OK + MB_ICONINFORMATION);
   end;
 
@@ -438,6 +521,7 @@ end;
 
 procedure TfrmCadastroCliente.PnNovoClick(Sender: TObject);
 begin
+  GarantirCampoClientePadrao;
   with dmConexoes do
   begin
     qrCliente.Close;
@@ -446,6 +530,8 @@ begin
     qrCliente.Open;
     qrCliente.First;
     qrCliente.Insert;
+    if qrCliente.FindField('cliente_padrao') <> nil then
+      qrCliente.FieldByName('cliente_padrao').AsBoolean := False;
 
     PnEditar.Enabled   := not PnEditar.Enabled;
     PnExcluir.Enabled  := not PnExcluir.Enabled;
@@ -472,6 +558,7 @@ begin
     edtTel.Enabled         := not edtTel.Enabled;
     edtNResidente.Enabled  := not edtNResidente.Enabled;
     DatePicker1.Enabled    := not DatePicker1.Enabled;
+    chkClientePadrao.Enabled := not chkClientePadrao.Enabled;
 
     edtNomeCliente.SetFocus;
   end;

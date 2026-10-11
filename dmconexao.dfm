@@ -1,13 +1,13 @@
-object dmConexoes: TdmConexoes
+﻿object dmConexoes: TdmConexoes
   Height = 716
   Width = 777
+  OnCreate = DataModuleCreate
   object conRobson: TADOConnection
     ConnectionString = 
-      'Provider=SQLOLEDB.1;Password=@66E$Y$;Persist Security Info=True;' +
-      'User ID=sa;Initial Catalog=LojaNova;Data Source=.;Use Procedure ' +
-      'for Prepare=1;Auto Translate=True;Packet Size=4096;Workstation I' +
-      'D=DEV3;Use Encryption for Data=False;Tag with column collation w' +
-      'hen possible=False'
+      'Provider=SQLOLEDB.1;Persist Security Info=False;Initial Catalog=Lo' +
+      'jaNova;Data Source=.;Use Procedure for Prepare=1;Auto Translate=' +
+      'True;Packet Size=4096;Use Encryption for Data=False;Tag with col' +
+      'umn collation when possible=False'
     LoginPrompt = False
     Provider = 'SQLOLEDB.1'
     Left = 40
@@ -38,14 +38,13 @@ object dmConexoes: TdmConexoes
       FieldName = 'data'
     end
     object qrEstoquevalorvenda: TBCDField
-      FieldKind = fkCalculated
       FieldName = 'valorvenda'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
+      OnChange = qrEstoquevalorvendaChange
       currency = True
       Precision = 10
       Size = 2
-      Calculated = True
     end
     object qrEstoquetipo: TStringField
       FieldName = 'tipo'
@@ -55,6 +54,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'valorcusto'
       DisplayFormat = '"R$" #,##0.00'
       EditFormat = '#,##0.00'
+      OnChange = qrEstoquevalorcustoChange
       currency = True
       Precision = 10
       Size = 2
@@ -148,6 +148,7 @@ object dmConexoes: TdmConexoes
       FieldName = 'markup'
       DisplayFormat = '#,##0.00"%"'
       EditFormat = '#,##0.00'
+      OnChange = qrEstoquemarkupChange
       Precision = 18
       Size = 2
     end
@@ -349,6 +350,9 @@ object dmConexoes: TdmConexoes
     object qrClientedatacadastrocliente: TDateTimeField
       FieldName = 'datacadastrocliente'
     end
+    object qrClientecliente_padrao: TBooleanField
+      FieldName = 'cliente_padrao'
+    end
   end
   object qrUsuario: TADOQuery
     Connection = conRobson
@@ -512,6 +516,15 @@ object dmConexoes: TdmConexoes
   object dsOrcitens: TDataSource
     DataSet = qrItensOrcamento
     Left = 568
+    Top = 144
+  end
+  object qrEmpresa: TADOQuery
+    Connection = conRobson
+    CursorType = ctStatic
+    Parameters = <>
+    SQL.Strings = (
+      'SELECT * FROM EMPRESA')
+    Left = 661
     Top = 144
   end
 end

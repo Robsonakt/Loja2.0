@@ -44,8 +44,8 @@ object FormularioPrincipal: TFormularioPrincipal
       ParentFont = False
     end
     object lblRRJ: TLabel
-      Left = 790
-      Top = 13
+      Left = 782
+      Top = 6
       Width = 75
       Height = 13
       Caption = 'BlackSolutions'
@@ -311,12 +311,31 @@ object FormularioPrincipal: TFormularioPrincipal
         Caption = 'Cliente'
         OnClick = Cliente1Click
       end
+      object Empresa1: TMenuItem
+        Caption = 'Empresa'
+        OnClick = Empresa1Click
+      end
     end
     object Usurio1: TMenuItem
       Caption = 'Usu'#225'rio'
       object Cadastro2: TMenuItem
         Caption = 'Cadastro'
         OnClick = Cadastro2Click
+      end
+    end
+    object XML1: TMenuItem
+      Caption = 'XML'
+      object EntradaXML1: TMenuItem
+        Caption = 'Entrada de XML...'
+        OnClick = EntradaXML1Click
+      end
+      object ConsultaXML1: TMenuItem
+        Caption = 'Consulta de XML...'
+        OnClick = ConsultaXML1Click
+      end
+      object EmissaoXML1: TMenuItem
+        Caption = 'Emiss'#227'o de XML...'
+        OnClick = EmissaoXML1Click
       end
     end
   end

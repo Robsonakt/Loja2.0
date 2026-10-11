@@ -147,6 +147,7 @@ begin
   fdFechamento.Close;
   fdFechamento.Open;
 
+  dmConexoes.GarantirEstruturaVendas;
   qrTemp := TADOQuery.Create(nil);
   try
     qrTemp.Connection := dmConexoes.conRobson;
@@ -162,7 +163,8 @@ begin
       // Quantidade de vendas
       '  ISNULL(( ' +
       '    SELECT COUNT(v.CodVenda) FROM VENDAS v ' +
-      '    WHERE c.CodVendaInicial IS NOT NULL ' +
+      '    WHERE (v.IdCaixa = c.Id OR (v.IdCaixa IS NULL ' +
+      '    AND c.CodVendaInicial IS NOT NULL ' +
       '    AND v.CodVenda >= c.CodVendaInicial ' +
       '    AND v.CodVenda < ISNULL(( ' +
       '      SELECT MIN(c2.CodVendaInicial) FROM Caixa c2 ' +
@@ -170,12 +172,13 @@ begin
       '      AND c2.CodVendaInicial IS NOT NULL ' +
       '    ), 999999999) ' +
       '    AND (c.DataFechamento IS NULL OR ' +
-      '         CAST(v.DataVenda AS DATE) <= CAST(c.DataFechamento AS DATE)) ' +
+      '         CAST(v.DataVenda AS DATE) <= CAST(c.DataFechamento AS DATE)))) ' +
       '  ), 0) AS QtdVendas, ' +
       // Valor total das vendas
       '  ISNULL(( ' +
       '    SELECT SUM(v.ValorTotal) FROM VENDAS v ' +
-      '    WHERE c.CodVendaInicial IS NOT NULL ' +
+      '    WHERE (v.IdCaixa = c.Id OR (v.IdCaixa IS NULL ' +
+      '    AND c.CodVendaInicial IS NOT NULL ' +
       '    AND v.CodVenda >= c.CodVendaInicial ' +
       '    AND v.CodVenda < ISNULL(( ' +
       '      SELECT MIN(c2.CodVendaInicial) FROM Caixa c2 ' +
@@ -183,7 +186,7 @@ begin
       '      AND c2.CodVendaInicial IS NOT NULL ' +
       '    ), 999999999) ' +
       '    AND (c.DataFechamento IS NULL OR ' +
-      '         CAST(v.DataVenda AS DATE) <= CAST(c.DataFechamento AS DATE)) ' +
+      '         CAST(v.DataVenda AS DATE) <= CAST(c.DataFechamento AS DATE)))) ' +
       '  ), 0) AS TotalVendas, ' +
       // Fiado pago neste caixa
       '  ISNULL(( ' +
@@ -192,11 +195,14 @@ begin
       '  ), 0) AS TotalFiado, ' +
       // Lucro
       '  ISNULL(( ' +
-      '    SELECT SUM((iv.ValorProdUni - p.valorcusto) * iv.Quantidade) ' +
+      '    SELECT SUM((iv.ValorProdUni - ISNULL(p.valorcusto, 0)) * iv.Quantidade) ' +
       '    FROM ItensVenda iv ' +
-      '    LEFT JOIN PRODUTOS p ON p.descricao = iv.Descricao ' +
+      '    OUTER APPLY (SELECT TOP 1 pr.valorcusto FROM PRODUTOS pr ' +
+      '      WHERE (iv.CodProd IS NOT NULL AND pr.codigo = iv.CodProd) ' +
+      '         OR (iv.CodProd IS NULL AND pr.descricao = iv.Descricao)) p ' +
       '    INNER JOIN VENDAS v ON v.CodVenda = iv.CodVenda ' +
-      '    WHERE c.CodVendaInicial IS NOT NULL ' +
+      '    WHERE (v.IdCaixa = c.Id OR (v.IdCaixa IS NULL ' +
+      '    AND c.CodVendaInicial IS NOT NULL ' +
       '    AND v.CodVenda >= c.CodVendaInicial ' +
       '    AND v.CodVenda < ISNULL(( ' +
       '      SELECT MIN(c2.CodVendaInicial) FROM Caixa c2 ' +
@@ -204,13 +210,14 @@ begin
       '      AND c2.CodVendaInicial IS NOT NULL ' +
       '    ), 999999999) ' +
       '    AND (c.DataFechamento IS NULL OR ' +
-      '         CAST(v.DataVenda AS DATE) <= CAST(c.DataFechamento AS DATE)) ' +
+      '         CAST(v.DataVenda AS DATE) <= CAST(c.DataFechamento AS DATE)))) ' +
       '  ), 0) AS TotalLucro, ' +
       // Saldo final = abertura + vendas + fiado
       '  ISNULL(c.ValorAbertura, 0) + ' +
       '  ISNULL(( ' +
       '    SELECT SUM(v.ValorTotal) FROM VENDAS v ' +
-      '    WHERE c.CodVendaInicial IS NOT NULL ' +
+      '    WHERE (v.IdCaixa = c.Id OR (v.IdCaixa IS NULL ' +
+      '    AND c.CodVendaInicial IS NOT NULL ' +
       '    AND v.CodVenda >= c.CodVendaInicial ' +
       '    AND v.CodVenda < ISNULL(( ' +
       '      SELECT MIN(c2.CodVendaInicial) FROM Caixa c2 ' +
@@ -218,7 +225,7 @@ begin
       '      AND c2.CodVendaInicial IS NOT NULL ' +
       '    ), 999999999) ' +
       '    AND (c.DataFechamento IS NULL OR ' +
-      '         CAST(v.DataVenda AS DATE) <= CAST(c.DataFechamento AS DATE)) ' +
+      '         CAST(v.DataVenda AS DATE) <= CAST(c.DataFechamento AS DATE)))) ' +
       '  ), 0) + ' +
       '  ISNULL(( ' +
       '    SELECT SUM(pf.ValorPago) FROM PagamentoFiado pf ' +

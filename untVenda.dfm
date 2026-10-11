@@ -294,7 +294,7 @@ object frmCaixaVendas: TfrmCaixaVendas
         Top = 18
         Width = 72
         Height = 13
-        Caption = 'Cod. Prod (F2)'
+        Caption = 'Cod/Barras (F2)'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clSilver
         Font.Height = -11

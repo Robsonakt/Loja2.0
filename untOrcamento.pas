@@ -1,4 +1,4 @@
-﻿unit untOrcamento;
+unit untOrcamento;
 
 interface
 
@@ -8,8 +8,8 @@ uses
   Data.DB, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Comp.DataSet, FireDAC.Comp.Client,
-  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.ComCtrls, Winapi.ShellAPI,   RLReport,
-  RLFilters, RLPDFFilter, Vcl.Buttons, Data.Win.ADODB,Portabledevicetypes;
+  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.ComCtrls, RLReport,
+  Vcl.Buttons, Data.Win.ADODB,Portabledevicetypes;
 
 type
   TfrmOrcamento = class(TForm)
@@ -104,7 +104,7 @@ implementation
 
 {$R *.dfm}
 
-uses dmConexao, untLogUser, untLocalizaProd, untInicial, UntRelatorioOrcamento;
+uses dmConexao, untLogUser, untLocalizaProd, untInicial, UntRelatorioOrcamento, uEmailSMTP, uOrcamentoPDF, uEmpresaConfig;
 
 const
   COR_DARK_BG    = 3289650;
@@ -119,7 +119,7 @@ end;
 
 procedure TfrmOrcamento.FormShow(Sender: TObject);
 begin
-  edtVendedor.Text := dmConexoes.qrUsuario.FieldByName('Usuario').AsString;
+  edtVendedor.Text := dmConexoes.UsuarioLogado;
   edtValidade.Date := Date + 7;
 
   with dmConexoes.qrComando do
@@ -187,9 +187,7 @@ begin
   end;
 
   ValStr := Trim(edtMaoDeObra.Text);
-  ValStr := StringReplace(ValStr, '.', '', [rfReplaceAll]);
-  ValStr := StringReplace(ValStr, ',', '.', [rfReplaceAll]);
-  TotMdo := StrToCurrDef(ValStr, 0);
+  TotMdo := StrParaMoeda(ValStr);
 
   FTotalOrcamento           := TotProd + TotMdo;
   lblQtdValor.Caption       := IntToStr(Qtd) + ' iten(s)';
@@ -203,8 +201,9 @@ begin
   begin
     qrEstoque.Close;
     qrEstoque.SQL.Clear;
-    qrEstoque.SQL.Add('SELECT * FROM PRODUTOS WHERE CODIGO = :pcod');
-    qrEstoque.Parameters.ParamByName('pcod').Value := StrToIntDef(edtCodProd.Text, 0);
+    qrEstoque.SQL.Add('SELECT * FROM PRODUTOS WHERE CODIGO = :pcod OR CodBarras = :pbarras');
+    qrEstoque.Parameters.ParamByName('pcod').Value := StrToIntDef(Trim(edtCodProd.Text), 0);
+    qrEstoque.Parameters.ParamByName('pbarras').Value := Trim(edtCodProd.Text);
     qrEstoque.Open;
 
     if qrEstoque.IsEmpty then
@@ -232,7 +231,7 @@ var
 begin
   if Trim(edtCodProd.Text) = '' then
   begin
-    ShowMessage('Informe o codigo do produto.');
+    ShowMessage('Informe o codigo ou codigo de barras do produto.');
     edtCodProd.SetFocus;
     Exit;
   end;
@@ -269,7 +268,7 @@ begin
   AtualizarTotal;
   edtCodProd.Clear;
   edtQuantAdd.Clear;
-  lbNomeProd.Caption    := 'Digite o codigo do produto';
+  lbNomeProd.Caption    := 'Digite o codigo ou barras do produto';
   lbNomeProd.Font.Color := clSilver;
   edtCodProd.SetFocus;
 end;
@@ -277,7 +276,7 @@ end;
 procedure TfrmOrcamento.RemoverItemSelecionado;
 begin
   if fdItens.IsEmpty then Exit;
-  if Application.MessageBox('Remover este item do orçamento?', 'Confirmar',
+  if Application.MessageBox('Remover este item do or�amento?', 'Confirmar',
     MB_YESNO + MB_ICONQUESTION) = IDYES then
   begin
     fdItens.Delete;
@@ -293,7 +292,7 @@ begin
   memoObs.Clear;
   edtCodProd.Clear;
   edtQuantAdd.Clear;
-  lbNomeProd.Caption    := 'Digite o codigo do produto';
+  lbNomeProd.Caption    := 'Digite o codigo ou barras do produto';
   lbNomeProd.Font.Color := clSilver;
   FTotalOrcamento       := 0;
   fdItens.Close;
@@ -327,14 +326,12 @@ begin
 
   if fdItens.IsEmpty then
   begin
-    ShowMessage('Adicione ao menos um item ao orçamento.');
+    ShowMessage('Adicione ao menos um item ao or�amento.');
     Exit;
   end;
 
   ValStr := Trim(edtMaoDeObra.Text);
-  ValStr := StringReplace(ValStr, '.', '', [rfReplaceAll]);
-  ValStr := StringReplace(ValStr, ',', '.', [rfReplaceAll]);
-  ValMdo := StrToCurrDef(ValStr, 0);
+  ValMdo := StrParaMoeda(ValStr);
 
   with dmConexoes do
   begin
@@ -375,7 +372,7 @@ begin
   end;
 
   FIdOrcamento := IdOrc;
-  Application.MessageBox('Orçamento salvo com sucesso!', 'Sucesso', MB_OK + MB_ICONINFORMATION);
+  Application.MessageBox('Or�amento salvo com sucesso!', 'Sucesso', MB_OK + MB_ICONINFORMATION);
 end;
 
 
@@ -386,18 +383,19 @@ var
   ValStr: string;
   ValMdo, TotProd: Currency;
   Qtd: Integer;
-  CaminhoPDF: string;
-  Numero: string;
+  EmailDestinatario: string;
+  Assunto: string;
   Mensagem: string;
-  URL: string;
+  CaminhoPDF: string;
+  EmpresaTitulo: string;
 begin
   if FIdOrcamento = 0 then
   begin
-    ShowMessage('Salve o orçamento antes de imprimir.');
+    ShowMessage('Salve o or�amento antes de imprimir.');
     Exit;
   end;
 
-  // 🔹 Calcula totais
+  // Calcula totais
   TotProd := 0;
   Qtd     := 0;
   fdItens.First;
@@ -409,11 +407,9 @@ begin
   end;
   fdItens.First;
 
-  // 🔹 Trata mão de obra
+  // Trata mao de obra
   ValStr := Trim(edtMaoDeObra.Text);
-  ValStr := StringReplace(ValStr, '.', '', [rfReplaceAll]);
-  ValStr := StringReplace(ValStr, ',', '.', [rfReplaceAll]);
-  ValMdo := StrToCurrDef(ValStr, 0);
+  ValMdo := StrParaMoeda(ValStr);
 
   frmRel := TfrmRelatorioOrcamento.Create(Self);
   try
@@ -430,50 +426,51 @@ begin
       DSItensOrc
     );
 
-    // 🔹 Caminho do PDF
-    CaminhoPDF := ExtractFilePath(Application.ExeName) +
-                  'Orçamento_' + lblNumOrc.Caption + '.pdf';
 
-    // 🔹 Gera o PDF
-      var
-        PDF: TRLPDFFilter;
+    // Imprime o orcamento antes de perguntar sobre envio por e-mail.
+    frmRel.rlr_Orcamento.Prepare;
+    frmRel.rlr_Orcamento.Print;
+    if MessageDlg('Deseja enviar o orcamento por e-mail?',
+      mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+    begin
+      EmailDestinatario := '';
+      if InputQuery('Enviar orcamento por e-mail', 'Informe o e-mail do cliente:', EmailDestinatario) then
       begin
-        PDF := TRLPDFFilter.Create(nil);
+        EmailDestinatario := Trim(EmailDestinatario);
+        if EmailDestinatario = '' then
+        begin
+          MessageDlg('Informe um e-mail valido.', mtWarning, [mbOK], 0);
+          Exit;
+        end;
+
+        if not TEmailSMTP.EmailValido(EmailDestinatario) then
+        begin
+          MessageDlg('Informe um e-mail valido.', mtWarning, [mbOK], 0);
+          Exit;
+        end;
+
+        EmpresaTitulo := TEmpresaConfig.NomeExibicao(dmConexoes.conRobson, dmConexoes.NomeEmpresa);
+        Assunto := EmpresaTitulo + ' - Orcamento ' + lblNumOrc.Caption;
+        Mensagem := 'Ola, ' + edtCli.Text + sLineBreak + sLineBreak +
+          'Segue em anexo o orcamento ' + lblNumOrc.Caption + ' em PDF.' + sLineBreak +
+          'Valor total: R$ ' + FormatFloat('#,##0.00', TotProd + ValMdo) + sLineBreak +
+          'Validade: ' + FormatDateTime('dd/mm/yyyy', edtValidade.Date) + sLineBreak + sLineBreak +
+          'Atenciosamente, ' + EmpresaTitulo;
+
         try
-          PDF.FileName := CaminhoPDF;
-
-          frmRel.rlr_Orcamento.Prepare;
-          frmRel.rlr_Orcamento.Print; // padrão
-
-        finally
-          PDF.Free;
+          CaminhoPDF := ExtractFilePath(Application.ExeName) + 'Orcamento_' + IntToStr(FIdOrcamento) + '.pdf';
+          TOrcamentoPDF.Gerar(CaminhoPDF, EmpresaTitulo, lblNumOrc.Caption, edtCli.Text, edtVendedor.Text,
+            FormatDateTime('dd/mm/yyyy', edtValidade.Date), memoObs.Text, Qtd, TotProd, ValMdo,
+            TotProd + ValMdo, DSItensOrc.DataSet);
+          TEmailSMTP.EnviarEmailComAnexo(EmailDestinatario, Assunto, Mensagem, CaminhoPDF);
+          MessageDlg('Orcamento enviado por e-mail com sucesso.', mtInformation, [mbOK], 0);
+        except
+          on E: Exception do
+            MessageDlg('Nao foi possivel enviar o orcamento por e-mail.' + sLineBreak + E.Message,
+              mtError, [mbOK], 0);
         end;
       end;
-//// 🔹 Pergunta se deseja enviar
-//    if MessageDlg('Deseja enviar o orçamento via WhatsApp?',
-//                  mtConfirmation, [mbYes, mbNo], 0) = mrYes then
-//    begin
-//      // 🔹 Número do cliente (AJUSTAR para vir do cadastro)
-//      Numero := '55' + '17999999999';
-//
-//      // 🔹 Mensagem personalizada
-//      Mensagem := 'Olá, ' + edtCli.Text +
-//                  '! Segue em anexo seu orçamento nº ' +
-//                  lblNumOrc.Caption + '.';
-//
-//      // 🔹 Codifica espaços
-//      Mensagem := StringReplace(Mensagem, ' ', '%20', [rfReplaceAll]);
-//
-//      // 🔹 Monta URL WhatsApp
-//      URL := 'https://wa.me/' + Numero + '?text=' + Mensagem;
-//
-//      // 🔹 Abre WhatsApp
-//      ShellExecute(0, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
-//
-//      // 🔹 Abre PDF para anexar
-//      ShellExecute(0, 'open', PChar(CaminhoPDF), nil, nil, SW_SHOWNORMAL);
-//    end;
-
+    end;
   finally
     frmRel.Free;
   end;
@@ -535,7 +532,7 @@ begin
     Key := #0;
     AdicionarItem;
   end
-  else if not (Key in ['0'..'9', #8]) then
+  else if not CharInSet(Key, ['0'..'9', #8]) then
     Key := #0;
 end;
 
@@ -562,7 +559,7 @@ begin
     AtualizarTotal;
     edtCodProd.SetFocus;
   end
-  else if not (Key in ['0'..'9', ',', #8]) then
+  else if not CharInSet(Key, ['0'..'9', ',', #8]) then
     Key := #0;
 end;
 

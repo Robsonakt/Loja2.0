@@ -3,8 +3,8 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Cadastro de Empresa'
-  ClientHeight = 620
-  ClientWidth = 780
+  ClientHeight = 659
+  ClientWidth = 834
   Color = 3158064
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clSilver
@@ -18,12 +18,13 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
   object pnlTopo: TPanel
     Left = 0
     Top = 0
-    Width = 780
+    Width = 834
     Height = 34
     Align = alTop
     BevelOuter = bvNone
     Color = 2697513
     TabOrder = 0
+    ExplicitWidth = 766
     object lblTitulo: TLabel
       Left = 12
       Top = 10
@@ -41,8 +42,8 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
   object pgcPrincipal: TPageControl
     Left = 0
     Top = 34
-    Width = 780
-    Height = 540
+    Width = 834
+    Height = 579
     ActivePage = tabDadosGerais
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
@@ -53,8 +54,10 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
     ParentFont = False
     TabOrder = 1
     OnChange = pgcPrincipalChange
+    ExplicitWidth = 766
+    ExplicitHeight = 454
     object tabDadosGerais: TTabSheet
-      Caption = 'Dados Gerais'
+      Caption = 'Empresa'
       object grpIdentificacao: TGroupBox
         Left = 8
         Top = 8
@@ -107,9 +110,9 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
         object lblCNPJ: TLabel
           Left = 490
           Top = 68
-          Width = 38
+          Width = 64
           Height = 15
-          Caption = 'CNPJ *:'
+          Caption = 'CPF/CNPJ *:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clSilver
           Font.Height = -12
@@ -120,9 +123,9 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
         object lblIE: TLabel
           Left = 12
           Top = 112
-          Width = 112
+          Width = 97
           Height = 15
-          Caption = 'Inscri'#195#167#195#163'o Estadual:'
+          Caption = 'Inscricao Estadual:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clSilver
           Font.Height = -12
@@ -133,9 +136,9 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
         object lblIM: TLabel
           Left = 210
           Top = 112
-          Width = 121
+          Width = 106
           Height = 15
-          Caption = 'Inscri'#195#167#195#163'o Municipal:'
+          Caption = 'Inscricao Municipal:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clSilver
           Font.Height = -12
@@ -264,9 +267,22 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
           Text = 'Simples Nacional'
           Items.Strings = (
             'Simples Nacional'
-            'Lucro Presumido'
-            'Lucro Real'
-            'MEI')
+            'MEI'
+            'Lucro Real')
+        end
+        object chkPrincipal: TCheckBox
+          Left = 640
+          Top = 132
+          Width = 96
+          Height = 17
+          Caption = 'Principal'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clSilver
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 7
         end
       end
       object grpEndereco: TGroupBox
@@ -528,11 +544,24 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
           ParentFont = False
         end
         object lblSite: TLabel
-          Left = 12
+          Left = 360
           Top = 68
           Width = 22
           Height = 15
           Caption = 'Site:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clSilver
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+        end
+        object lblResponsavel: TLabel
+          Left = 12
+          Top = 68
+          Width = 68
+          Height = 15
+          Caption = 'Responsavel:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clSilver
           Font.Height = -12
@@ -599,9 +628,24 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
           TabOrder = 2
         end
         object edtSite: TEdit
+          Left = 360
+          Top = 86
+          Width = 190
+          Height = 23
+          Color = 2697513
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clSilver
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          MaxLength = 100
+          ParentFont = False
+          TabOrder = 4
+        end
+        object edtResponsavel: TEdit
           Left = 12
           Top = 86
-          Width = 538
+          Width = 340
           Height = 23
           Color = 2697513
           Font.Charset = DEFAULT_CHARSET
@@ -627,7 +671,7 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
           Font.Style = []
           ItemIndex = 0
           ParentFont = False
-          TabOrder = 4
+          TabOrder = 5
           Text = 'Ativo'
           Items.Strings = (
             'Ativo'
@@ -732,18 +776,48 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
           ParentFont = False
           TabOrder = 2
         end
+        object chkEmiteNFCeVenda: TCheckBox
+          Left = 210
+          Top = 88
+          Width = 170
+          Height = 17
+          Caption = 'Emitir NFC-e na venda'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clSilver
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
+        end
+        object chkEmiteNFeVenda: TCheckBox
+          Left = 410
+          Top = 88
+          Width = 180
+          Height = 17
+          Caption = 'Emitir NF-e na venda'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clSilver
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 4
+        end
       end
     end
   end
   object pnlBotoes: TPanel
     Left = 0
-    Top = 574
-    Width = 780
+    Top = 613
+    Width = 834
     Height = 46
     Align = alBottom
     BevelOuter = bvNone
     Color = 2697513
     TabOrder = 2
+    ExplicitTop = 488
+    ExplicitWidth = 766
     object btnNovo: TButton
       Left = 12
       Top = 8
@@ -759,6 +833,21 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
       TabOrder = 0
       OnClick = btnNovoClick
     end
+    object btnEditar: TButton
+      Left = 110
+      Top = 8
+      Width = 90
+      Height = 30
+      Caption = 'Editar'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clSilver
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      OnClick = btnEditarClick
+    end
     object btnGravar: TButton
       Left = 594
       Top = 8
@@ -772,7 +861,7 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
       ParentFont = False
-      TabOrder = 1
+      TabOrder = 2
       OnClick = btnGravarClick
     end
     object btnCancelar: TButton
@@ -787,11 +876,11 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
-      TabOrder = 2
+      TabOrder = 3
       OnClick = btnCancelarClick
     end
     object btnExcluir: TButton
-      Left = 110
+      Left = 208
       Top = 8
       Width = 90
       Height = 30
@@ -802,8 +891,38 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
-      TabOrder = 3
+      TabOrder = 4
       OnClick = btnExcluirClick
+    end
+    object btnAnterior: TButton
+      Left = 306
+      Top = 8
+      Width = 90
+      Height = 30
+      Caption = 'Anterior'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clSilver
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 5
+      OnClick = btnAnteriorClick
+    end
+    object btnProximo: TButton
+      Left = 402
+      Top = 8
+      Width = 90
+      Height = 30
+      Caption = 'Proxima'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clSilver
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 6
+      OnClick = btnProximoClick
     end
     object btnLimpar: TButton
       Left = 498
@@ -817,25 +936,8 @@ object frmCadastroEmpresa: TfrmCadastroEmpresa
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
-      TabOrder = 4
+      TabOrder = 7
       OnClick = btnLimparClick
     end
-  end
-  object conRobson: TADOConnection
-    Params.Strings = (
-      'DriverID=MSSQL'
-      'Server=SEU_SERVIDOR'
-      'Database=SEU_BANCO'
-      'User_Name=sa'
-      'Password=SUA_SENHA'
-      'OSAuthent=No')
-    LoginPrompt = False
-    Left = 640
-    Top = 20
-  end
-  object qrEmpresa: TADOQuery;
-    Connection = TADOConnection
-    Left = 700
-    Top = 20
   end
 end

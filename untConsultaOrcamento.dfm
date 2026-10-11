@@ -60,8 +60,8 @@ object frmConsultaOrcamento: TfrmConsultaOrcamento
       ParentFont = False
     end
     object lblRodapeDir: TLabel
-      Left = 1040
-      Top = 13
+      Left = 1004
+      Top = 6
       Width = 75
       Height = 13
       Caption = 'BlackSolutions'
@@ -146,6 +146,25 @@ object frmConsultaOrcamento: TfrmConsultaOrcamento
         OnClick = pnConverterVendaClick
         OnMouseEnter = pnConverterVendaMouseEnter
         OnMouseLeave = pnConverterVendaMouseLeave
+      end
+      object pnEnviarEmail: TPanel
+        Left = 430
+        Top = 6
+        Width = 130
+        Height = 32
+        Caption = 'ENVIAR E-MAIL'
+        Color = 3355443
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentBackground = False
+        ParentFont = False
+        TabOrder = 3
+        OnClick = pnEnviarEmailClick
+        OnMouseEnter = pnEnviarEmailMouseEnter
+        OnMouseLeave = pnEnviarEmailMouseLeave
       end
     end
     object grpFiltro: TGroupBox

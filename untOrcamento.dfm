@@ -407,9 +407,9 @@ object frmOrcamento: TfrmOrcamento
       object lblCodProd: TLabel
         Left = 12
         Top = 18
-        Width = 72
+        Width = 77
         Height = 13
-        Caption = 'Cod. Prod (F2)'
+        Caption = 'Cod/Barras (F2)'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clSilver
         Font.Height = -11
@@ -449,7 +449,7 @@ object frmOrcamento: TfrmOrcamento
         Width = 380
         Height = 17
         AutoSize = False
-        Caption = 'Digite o codigo do produto'
+        Caption = 'Digite o codigo ou barras do produto'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clSilver
         Font.Height = -12

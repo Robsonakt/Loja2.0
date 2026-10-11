@@ -1,0 +1,25 @@
+# Delphi build output
+Win32/
+Win64/
+*.dcu
+*.exe
+*.map
+*.rsm
+*.identcache
+*.local
+*.stat
+*.err
+
+# Delphi IDE history/recovery
+__history/
+__recovery/
+*.~*
+
+# Local backups and generated artifacts
+Backup/
+*.bak
+*.pdf
+*.xlsx
+
+# Local runtime config
+config.ini

@@ -443,5 +443,24 @@ object frmCadastroCliente: TfrmCadastroCliente
       TabOrder = 7
       Visible = False
     end
+    object chkClientePadrao: TDBCheckBox
+      Left = 25
+      Top = 352
+      Width = 180
+      Height = 17
+      Caption = 'Cliente padrao da venda'
+      DataField = 'cliente_padrao'
+      DataSource = dmConexoes.dsCliente
+      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWhite
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 8
+      ValueChecked = 'True'
+      ValueUnchecked = 'False'
+    end
   end
 end

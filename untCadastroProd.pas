@@ -23,6 +23,8 @@ type
     PnRelatorio: TPanel;
     PnCentro: TPanel;
     PnLocaliza: TPanel;
+    PnEntradaNFe: TPanel;
+    PnCancelarNFe: TPanel;
     PageControl1: TPageControl;
     // Aba Produto
     TabSheet1: TTabSheet;
@@ -112,6 +114,12 @@ type
     procedure PnLocalizaMouseEnter(Sender: TObject);
     procedure edtDescricaoProdKeyPress(Sender: TObject; var Key: Char);
     procedure PnLocalizaMouseLeave(Sender: TObject);
+    procedure PnEntradaNFeClick(Sender: TObject);
+    procedure PnEntradaNFeMouseEnter(Sender: TObject);
+    procedure PnEntradaNFeMouseLeave(Sender: TObject);
+    procedure PnCancelarNFeClick(Sender: TObject);
+    procedure PnCancelarNFeMouseEnter(Sender: TObject);
+    procedure PnCancelarNFeMouseLeave(Sender: TObject);
  
   
 
@@ -129,7 +137,7 @@ implementation
 
 {$R *.dfm}
 
-uses dmconexao, untRelatorioProd, untLocalizaProd;
+uses dmconexao, untRelatorioProd, untLocalizaProd, uFiscalNFeEntradaHelper, uFiscalStorage;
 
 // -------------------------------------------------------
 // Habilita/desabilita todos os campos de edicao
@@ -409,7 +417,12 @@ begin
   // -------------------------------------------------------
   with dmConexoes do
   begin
-    if qrEstoque.State in [dsEdit, dsInsert] then
+    if not (qrEstoque.State in [dsEdit, dsInsert]) then
+    begin
+      ShowMessage('Nenhuma alteracao para gravar. Clique em Novo ou altere um campo do produto.');
+      Exit;
+    end;
+
     begin
       qrEstoque.FieldByName('tipo').AsString       := Trim(edtTipo.Text);
       qrEstoque.FieldByName('data').AsDateTime     := edtDatacri.Date;
@@ -499,6 +512,73 @@ end;
 // -------------------------------------------------------
 // Relatorio
 // -------------------------------------------------------
+procedure TfrmCadastroProdutos.PnEntradaNFeClick(Sender: TObject);
+begin
+  TFiscalNFeEntradaHelper.ExecutarEntradaNFe;
+end;
+
+procedure TfrmCadastroProdutos.PnEntradaNFeMouseEnter(Sender: TObject);
+begin
+  TPanel(Sender).Color := $00333333;
+  TPanel(Sender).Font.Color := clWhite;
+end;
+
+procedure TfrmCadastroProdutos.PnEntradaNFeMouseLeave(Sender: TObject);
+begin
+  TPanel(Sender).Color := $00666666;
+  TPanel(Sender).Font.Color := 0;
+end;
+procedure TfrmCadastroProdutos.PnCancelarNFeClick(Sender: TObject);
+var
+  IdFiscalTexto: string;
+  IdFiscal: Integer;
+  Justificativa: string;
+begin
+  IdFiscalTexto := '';
+  if not InputQuery('Cancelar NF-e', 'Informe o ID fiscal da NF-e:', IdFiscalTexto) then
+    Exit;
+
+  IdFiscal := StrToIntDef(Trim(IdFiscalTexto), 0);
+  if IdFiscal <= 0 then
+  begin
+    MessageDlg('Informe um ID fiscal valido.', mtWarning, [mbOK], 0);
+    Exit;
+  end;
+
+  Justificativa := '';
+  if not InputQuery('Cancelar NF-e', 'Informe a justificativa do cancelamento:', Justificativa) then
+    Exit;
+
+  if Length(Trim(Justificativa)) < 15 then
+  begin
+    MessageDlg('A justificativa deve ter pelo menos 15 caracteres.', mtWarning, [mbOK], 0);
+    Exit;
+  end;
+
+  if MessageDlg('Confirma o cancelamento da NF-e fiscal ID ' + IntToStr(IdFiscal) + '?',
+    mtConfirmation, [mbYes, mbNo], 0) <> mrYes then
+    Exit;
+
+  try
+    TFiscalStorage.CancelarDocumentoFiscal(dmConexoes.conRobson, IdFiscal, Justificativa);
+    MessageDlg('NF-e marcada como cancelada no controle fiscal.', mtInformation, [mbOK], 0);
+  except
+    on E: Exception do
+      MessageDlg('Nao foi possivel cancelar a NF-e.' + sLineBreak + E.Message, mtError, [mbOK], 0);
+  end;
+end;
+
+procedure TfrmCadastroProdutos.PnCancelarNFeMouseEnter(Sender: TObject);
+begin
+  TPanel(Sender).Color := $00333333;
+  TPanel(Sender).Font.Color := clWhite;
+end;
+
+procedure TfrmCadastroProdutos.PnCancelarNFeMouseLeave(Sender: TObject);
+begin
+  TPanel(Sender).Color := $00666666;
+  TPanel(Sender).Font.Color := 0;
+end;
 procedure TfrmCadastroProdutos.PnRelatorioClick(Sender: TObject);
 begin
   with dmConexoes do

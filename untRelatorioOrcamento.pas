@@ -69,7 +69,15 @@ implementation
 
 {$R *.dfm}
 
-uses dmConexao;
+uses dmConexao, uEmpresaConfig;
+
+function CampoDisponivel(ADataSet: TDataSet; const ACampoPadrao, ACampoAlternativo: string): string;
+begin
+  Result := ACampoPadrao;
+  if (ADataSet <> nil) and (ADataSet.FindField(ACampoPadrao) = nil) and
+     (ADataSet.FindField(ACampoAlternativo) <> nil) then
+    Result := ACampoAlternativo;
+end;
 
 procedure TfrmRelatorioOrcamento.SetDados(
   const ANumOrc, ACliente, AVendedor, AValidade, AObs: string;
@@ -77,7 +85,10 @@ procedure TfrmRelatorioOrcamento.SetDados(
   ATotalProd, AMaoObra, ATotalGeral: Currency;
   ADataSource: TDataSource
 );
+var
+  Dados: TDataSet;
 begin
+  RLLabel_Empresa.Caption  := TEmpresaConfig.NomeExibicao(dmConexoes.conRobson, dmConexoes.NomeEmpresa);
   RLLabel_NumOrc.Caption   := ANumOrc;
   RLLabel_Cliente.Caption  := ACliente;
   RLLabel_Vendedor.Caption := AVendedor;
@@ -91,6 +102,10 @@ begin
     '. Apos esta data os precos podem sofrer alteracoes.';
 
   // Aponta o datasource passado como parametro
+  Dados := nil;
+  if ADataSource <> nil then
+    Dados := ADataSource.DataSet;
+
   rlr_Orcamento.DataSource      := ADataSource;
   RLSubDetail_Itens.DataSource  := ADataSource;
   RLDBText_Codigo.DataSource    := ADataSource;
@@ -98,11 +113,11 @@ begin
   RLDBText_Descricao.DataSource := ADataSource;
   RLDBText_Descricao.DataField  := 'Descricao';
   RLDBText_Qtd.DataSource       := ADataSource;
-  RLDBText_Qtd.DataField        := 'Quantidade';
+  RLDBText_Qtd.DataField        := CampoDisponivel(Dados, 'Quantidade', 'Qtd');
   RLDBText_ValUnit.DataSource   := ADataSource;
-  RLDBText_ValUnit.DataField    := 'ValorUni';
+  RLDBText_ValUnit.DataField    := CampoDisponivel(Dados, 'ValorUni', 'ValUnit');
   RLDBText_ValTotal.DataSource  := ADataSource;
-  RLDBText_ValTotal.DataField   := 'ValorTotal';
+  RLDBText_ValTotal.DataField   := CampoDisponivel(Dados, 'ValorTotal', 'ValTotal');
 end;
 
 end.

@@ -97,6 +97,21 @@ object frmConsulta_Venda: TfrmConsulta_Venda
         TabOrder = 1
         OnClick = btnExcelClick
       end
+      object btnCancelarVenda: TBitBtn
+        Left = 250
+        Top = 6
+        Width = 130
+        Height = 30
+        Caption = 'Cancelar Venda'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 2
+        OnClick = btnCancelarVendaClick
+      end
     end
     object pnToolbar: TPanel
       Left = 0
@@ -114,7 +129,7 @@ object frmConsulta_Venda: TfrmConsulta_Venda
         Caption = 'Consultar [F8]'
         Flat = True
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clBlack
+        Font.Color = clWhite
         Font.Height = -16
         Font.Name = 'Segoe UI'
         Font.Style = [fsBold]

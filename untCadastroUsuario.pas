@@ -120,6 +120,8 @@ procedure TFrmCadastroUsuario.PnCancelarClick(Sender: TObject);
 begin
     with dmConexoes do
   begin
+    if qrUsuario.State in [dsEdit, dsInsert] then
+      qrUsuario.Cancel;
     qrUsuario.close;
     qrUsuario.sql.clear;
     qrUsuario.sql.Add('SELECT *  FROM [LojaNova].[dbo].[Usuarios]');
@@ -153,8 +155,8 @@ begin
 
   // Habilita/Desabilita campos
 
-  edtNomeUsuario.Enabled   := not edtNomeUsuario.Enabled ;
-  edtSenha.Enabled         := not edtSenha.Enabled ;
+  edtNomeUsuario.Enabled   := False;
+  edtSenha.Enabled         := False;
 
 end;
 
@@ -240,41 +242,62 @@ end;
 
 procedure TFrmCadastroUsuario.PnGravarClick(Sender: TObject);
 begin
-    application.MessageBox('Deseja gravar o Usuario?','Cadastro  ',mb_ok+MB_ICONINFORMATION);
-    edtSenha.Enabled := false;
-    edtNomeUsuario.Enabled := false;
-
- with dmConexoes do
+  if not (dmConexoes.qrUsuario.State in [dsEdit, dsInsert]) then
   begin
+    ShowMessage('Clique em Novo ou Editar antes de gravar.');
+    Exit;
+  end;
 
-     //         qrUsuario.FieldByName('tipo').asstring                              := trim(edtTipo.Text);
-     //         qrUsuario.FieldByName('data').AsDateTime                            := edtDatacri.Date;
-              qrUsuario.post;
+  if Trim(edtNomeUsuario.Text) = '' then
+  begin
+    ShowMessage('Informe o nome do usuario.');
+    edtNomeUsuario.SetFocus;
+    Exit;
+  end;
 
-              application.MessageBox('Usuario Cadastrado com Sucesso','Cadastro  ',mb_ok+MB_ICONINFORMATION);
+  if Trim(edtSenha.Text) = '' then
+  begin
+    ShowMessage('Informe a senha do usuario.');
+    edtSenha.SetFocus;
+    Exit;
+  end;
 
-end;
+  if Application.MessageBox('Deseja gravar o Usuario?', 'Cadastro',
+    MB_YESNO + MB_ICONQUESTION) <> IDYES then
+    Exit;
 
-  // Configura botões de ação
-  PnGravar.Enabled := false;
-  PnCancelar.Enabled := true;
-  PnGravar.Font.Color := 0; // Preto
-  PnCancelar.Font.Color := 0; // Preto
-  PnPrimeiro.Font.Color := 0; // Preto
-  PnAnterior.Font.Color := 0; // Preto
-  PnProximo.Font.Color := 0; // Preto
-  PnUltimo.Font.Color := 0; // Preto
+  try
+    dmConexoes.qrUsuario.Post;
+  except
+    on E: Exception do
+    begin
+      ShowMessage('Erro ao gravar o usuario: ' + E.Message);
+      Exit;
+    end;
+  end;
 
+  Application.MessageBox('Usuario Cadastrado com Sucesso', 'Cadastro', MB_OK + MB_ICONINFORMATION);
 
+  edtSenha.Enabled := False;
+  edtNomeUsuario.Enabled := False;
 
-  // Outros componentes (verifique se há lógica faltando aqui)
-  PnEditar.Enabled    := true;
-  PnExcluir.Enabled   := true;
-  PnPrimeiro.Enabled  := true;
-  PnAnterior.Enabled  := true;
-  PnProximo.Enabled   := true;
-  PnUltimo.Enabled    := true;
-  PnSair.Enabled      := true;
+  // Configura botoes de acao
+  PnGravar.Enabled := False;
+  PnCancelar.Enabled := True;
+  PnGravar.Font.Color := 0;
+  PnCancelar.Font.Color := 0;
+  PnPrimeiro.Font.Color := 0;
+  PnAnterior.Font.Color := 0;
+  PnProximo.Font.Color := 0;
+  PnUltimo.Font.Color := 0;
+
+  PnEditar.Enabled    := True;
+  PnExcluir.Enabled   := True;
+  PnPrimeiro.Enabled  := True;
+  PnAnterior.Enabled  := True;
+  PnProximo.Enabled   := True;
+  PnUltimo.Enabled    := True;
+  PnSair.Enabled      := True;
 end;
 
 procedure TFrmCadastroUsuario.PnGravarMouseEnter(Sender: TObject);
@@ -362,7 +385,7 @@ end;
 
 procedure TFrmCadastroUsuario.PnPrimeiroClick(Sender: TObject);
 begin
-    dmConexoes.qrCliente.First;
+    dmConexoes.qrUsuario.First;
 end;
 
 procedure TFrmCadastroUsuario.PnPrimeiroMouseEnter(Sender: TObject);

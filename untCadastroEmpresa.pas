@@ -1,10 +1,10 @@
-ï»¿unit untCadastroEmpresa;
+unit untCadastroEmpresa;
 
 interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes, System.UITypes,
+  System.SysUtils, System.Variants, System.Classes, System.UITypes, System.JSON, System.Net.HttpClient,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls,
   Data.Win.ADODB,Vcl.Menus, FireDAC.Stan.Intf, FireDAC.Stan.Option,
@@ -36,6 +36,7 @@ type
     edtIE: TEdit;
     edtIM: TEdit;
     cboRegime: TComboBox;
+    chkPrincipal: TCheckBox;
     grpEndereco: TGroupBox;
     lblCEP: TLabel;
     lblLogradouro: TLabel;
@@ -56,11 +57,13 @@ type
     lblCelular: TLabel;
     lblEmail: TLabel;
     lblSite: TLabel;
+    lblResponsavel: TLabel;
     lblSituacao: TLabel;
     edtTelefone: TEdit;
     edtCelular: TEdit;
     edtEmail: TEdit;
     edtSite: TEdit;
+    edtResponsavel: TEdit;
     cboSituacao: TComboBox;
     grpFiscal: TGroupBox;
     lblCNAE: TLabel;
@@ -69,18 +72,26 @@ type
     edtCNAE: TEdit;
     edtAtividade: TEdit;
     edtSuframa: TEdit;
+    chkEmiteNFCeVenda: TCheckBox;
+    chkEmiteNFeVenda: TCheckBox;
     pnlBotoes: TPanel;
     btnNovo: TButton;
+    btnEditar: TButton;
     btnGravar: TButton;
     btnCancelar: TButton;
     btnExcluir: TButton;
+    btnAnterior: TButton;
+    btnProximo: TButton;
     btnLimpar: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnNovoClick(Sender: TObject);
+    procedure btnEditarClick(Sender: TObject);
     procedure btnGravarClick(Sender: TObject);
     procedure btnCancelarClick(Sender: TObject);
     procedure btnExcluirClick(Sender: TObject);
+    procedure btnAnteriorClick(Sender: TObject);
+    procedure btnProximoClick(Sender: TObject);
     procedure btnLimparClick(Sender: TObject);
     procedure edtCEPExit(Sender: TObject);
     procedure edtCNPJExit(Sender: TObject);
@@ -90,6 +101,9 @@ type
     FCodigoAtual: Integer;
     procedure LimparCampos;
     procedure CarregarDados(ACodigo: Integer);
+    procedure CarregarPrimeiraEmpresa;
+    procedure NavegarEmpresa(ADirecao: Integer);
+    function DocumentoJaCadastrado(const ADocumento: string; out AIdEmpresa: Integer): Boolean;
     procedure HabilitarEdicao(AHabilitar: Boolean);
     procedure AplicarTemaDark;
     function ValidarCampos: Boolean;
@@ -98,6 +112,7 @@ type
     function FormatarCEP(ACEP: string): string;
     function SoNumeros(ATexto: string): string;
     function ProximoCodigo: Integer;
+    procedure BuscarEnderecoPorCEP;
   public
     procedure CarregarEmpresa(ACodigo: Integer);
   end;
@@ -107,9 +122,8 @@ var
 
 implementation
 
-{$R *.dfm}
 uses
- dmconexao ;
+  dmconexao, uEmpresaConfig;
 
 {$R *.dfm}
 
@@ -119,16 +133,18 @@ uses
 
 procedure TfrmCadastroEmpresa.FormCreate(Sender: TObject);
 begin
+  TEmpresaConfig.GarantirEstrutura(dmConexoes.conRobson);
   FModoEdicao  := False;
   FCodigoAtual := 0;
   AplicarTemaDark;
   LimparCampos;
+  CarregarPrimeiraEmpresa;
   HabilitarEdicao(False);
 end;
 
 procedure TfrmCadastroEmpresa.FormDestroy(Sender: TObject);
 begin
-  // Conexao gerenciada pelo dmConexoes â€” nada a fazer aqui
+  // Conexao gerenciada pelo dmConexoes — nada a fazer aqui
 end;
 
 procedure TfrmCadastroEmpresa.pgcPrincipalChange(Sender: TObject);
@@ -147,6 +163,32 @@ const
   COR_EDIT   = $002A2A2A;
   COR_TEXTO  = clSilver;
 
+  procedure PrepararFundoAba(ATab: TTabSheet; const ANomePainel: string);
+  var
+    P: TPanel;
+    I: Integer;
+    C: TControl;
+  begin
+    if ATab.FindComponent(ANomePainel) <> nil then
+      Exit;
+
+    P := TPanel.Create(ATab);
+    P.Name := ANomePainel;
+    P.Parent := ATab;
+    P.Align := alClient;
+    P.BevelOuter := bvNone;
+    P.Color := COR_PAINEL;
+    P.ParentBackground := False;
+
+    for I := ATab.ControlCount - 1 downto 0 do
+    begin
+      C := ATab.Controls[I];
+      if C <> P then
+        C.Parent := P;
+    end;
+
+    P.SendToBack;
+  end;
   procedure ProcessaControle(ACtrl: TWinControl);
   var
     J: Integer;
@@ -163,6 +205,12 @@ const
         with TComboBox(ACtrl.Controls[J]) do
         begin
           Color      := COR_EDIT;
+          Font.Color := COR_TEXTO;
+        end
+      else if ACtrl.Controls[J] is TCheckBox then
+        with TCheckBox(ACtrl.Controls[J]) do
+        begin
+          Color      := COR_PAINEL;
           Font.Color := COR_TEXTO;
         end
       else if ACtrl.Controls[J] is TMemo then
@@ -194,11 +242,13 @@ begin
   Self.Font.Color := COR_TEXTO;
   pnlTopo.Color   := COR_PAINEL;
   pnlBotoes.Color := COR_PAINEL;
+  PrepararFundoAba(tabDadosGerais, 'pnlFundoEmpresa');
+  PrepararFundoAba(tabFiscal, 'pnlFundoFiscal');
   ProcessaControle(Self);
 end;
 
 // ============================================================
-//  CRUD â€” usa dmConexoes.qrEmpresa (ADO)
+//  CRUD — usa dmConexoes.qrEmpresa (ADO)
 // ============================================================
 
 function TfrmCadastroEmpresa.ProximoCodigo: Integer;
@@ -215,6 +265,62 @@ begin
     Result := qry.FieldByName('PROXIMO').AsInteger;
   finally
     qry.Free;
+  end;
+end;
+
+procedure TfrmCadastroEmpresa.CarregarPrimeiraEmpresa;
+var
+  Qry: TADOQuery;
+begin
+  Qry := TADOQuery.Create(nil);
+  try
+    Qry.Connection := dmConexoes.conRobson;
+    Qry.SQL.Text := 'SELECT TOP 1 ID_EMPRESA FROM EMPRESA WHERE ISNULL(NULLIF(LTRIM(RTRIM(RAZAO_SOCIAL)), ''''), NULLIF(LTRIM(RTRIM(NOME_FANTASIA)), '''')) IS NOT NULL ORDER BY ISNULL(PRINCIPAL, 0) DESC, ID_EMPRESA';
+    Qry.Open;
+    if not Qry.IsEmpty then
+      CarregarDados(Qry.FieldByName('ID_EMPRESA').AsInteger);
+  finally
+    Qry.Free;
+  end;
+end;
+
+procedure TfrmCadastroEmpresa.NavegarEmpresa(ADirecao: Integer);
+var
+  Qry: TADOQuery;
+  Sinal, Ordem: string;
+begin
+  if FCodigoAtual = 0 then
+  begin
+    CarregarPrimeiraEmpresa;
+    Exit;
+  end;
+
+  if ADirecao > 0 then
+  begin
+    Sinal := '>';
+    Ordem := 'ASC';
+  end
+  else
+  begin
+    Sinal := '<';
+    Ordem := 'DESC';
+  end;
+
+  Qry := TADOQuery.Create(nil);
+  try
+    Qry.Connection := dmConexoes.conRobson;
+    Qry.SQL.Text := 'SELECT TOP 1 ID_EMPRESA FROM EMPRESA WHERE ID_EMPRESA ' + Sinal + ' :pID ORDER BY ID_EMPRESA ' + Ordem;
+    Qry.Parameters.ParamByName('pID').Value := FCodigoAtual;
+    Qry.Open;
+    if not Qry.IsEmpty then
+    begin
+      CarregarDados(Qry.FieldByName('ID_EMPRESA').AsInteger);
+      HabilitarEdicao(False);
+    end
+    else
+      MessageDlg('Nao ha outra empresa cadastrada nesta direcao.', mtInformation, [mbOK], 0);
+  finally
+    Qry.Free;
   end;
 end;
 
@@ -252,12 +358,25 @@ begin
     edtCelular.Text      := dmConexoes.qrEmpresa.FieldByName('CELULAR').AsString;
     edtEmail.Text        := dmConexoes.qrEmpresa.FieldByName('EMAIL').AsString;
     edtSite.Text         := dmConexoes.qrEmpresa.FieldByName('SITE').AsString;
+    edtResponsavel.Text  := dmConexoes.qrEmpresa.FieldByName('RESPONSAVEL').AsString;
     edtCNAE.Text         := dmConexoes.qrEmpresa.FieldByName('CNAE').AsString;
     edtAtividade.Text    := dmConexoes.qrEmpresa.FieldByName('ATIVIDADE').AsString;
     edtSuframa.Text      := dmConexoes.qrEmpresa.FieldByName('SUFRAMA').AsString;
+    if dmConexoes.qrEmpresa.FindField('EMITE_NFCE_VENDA') <> nil then
+      chkEmiteNFCeVenda.Checked := dmConexoes.qrEmpresa.FieldByName('EMITE_NFCE_VENDA').AsBoolean
+    else
+      chkEmiteNFCeVenda.Checked := False;
+    if dmConexoes.qrEmpresa.FindField('EMITE_NFE_VENDA') <> nil then
+      chkEmiteNFeVenda.Checked := dmConexoes.qrEmpresa.FieldByName('EMITE_NFE_VENDA').AsBoolean
+    else
+      chkEmiteNFeVenda.Checked := False;
 
     cboRegime.ItemIndex   := dmConexoes.qrEmpresa.FieldByName('REGIME_TRIBUTARIO').AsInteger;
     cboSituacao.ItemIndex := dmConexoes.qrEmpresa.FieldByName('SITUACAO').AsInteger;
+    if dmConexoes.qrEmpresa.FindField('PRINCIPAL') <> nil then
+      chkPrincipal.Checked := dmConexoes.qrEmpresa.FieldByName('PRINCIPAL').AsBoolean
+    else
+      chkPrincipal.Checked := False;
 
     HabilitarEdicao(True);
     FModoEdicao := True;
@@ -268,11 +387,60 @@ begin
   end;
 end;
 
+procedure TfrmCadastroEmpresa.btnEditarClick(Sender: TObject);
+begin
+  if FCodigoAtual = 0 then
+    CarregarPrimeiraEmpresa;
+
+  if FCodigoAtual = 0 then
+  begin
+    MessageDlg('Nenhuma empresa cadastrada para editar. Clique em Novo para cadastrar.', mtInformation, [mbOK], 0);
+    Exit;
+  end;
+
+  HabilitarEdicao(True);
+  FModoEdicao := True;
+  edtRazaoSocial.SetFocus;
+end;
+
+function TfrmCadastroEmpresa.DocumentoJaCadastrado(const ADocumento: string; out AIdEmpresa: Integer): Boolean;
+var
+  Qry: TADOQuery;
+begin
+  Result := False;
+  AIdEmpresa := 0;
+  if Trim(ADocumento) = '' then
+    Exit;
+
+  Qry := TADOQuery.Create(nil);
+  try
+    Qry.Connection := dmConexoes.conRobson;
+    Qry.SQL.Text := 'SELECT TOP 1 ID_EMPRESA FROM EMPRESA WHERE CNPJ = :pCNPJ AND ID_EMPRESA <> :pID';
+    Qry.Parameters.ParamByName('pCNPJ').Value := ADocumento;
+    Qry.Parameters.ParamByName('pID').Value := FCodigoAtual;
+    Qry.Open;
+    Result := not Qry.IsEmpty;
+    if Result then
+      AIdEmpresa := Qry.FieldByName('ID_EMPRESA').AsInteger;
+  finally
+    Qry.Free;
+  end;
+end;
+
 procedure TfrmCadastroEmpresa.btnGravarClick(Sender: TObject);
 var
   sSQL: string;
+  IdExistente: Integer;
 begin
   if not ValidarCampos then Exit;
+
+  if DocumentoJaCadastrado(SoNumeros(edtCNPJ.Text), IdExistente) then
+  begin
+    MessageDlg('Este CPF/CNPJ ja esta cadastrado. O cadastro existente sera carregado para edicao.', mtInformation, [mbOK], 0);
+    CarregarDados(IdExistente);
+    HabilitarEdicao(True);
+    Exit;
+  end;
 
   try
     if FCodigoAtual = 0 then
@@ -284,13 +452,13 @@ begin
         '  INSC_ESTADUAL, INSC_MUNICIPAL, REGIME_TRIBUTARIO,' +
         '  CEP, LOGRADOURO, NUMERO, COMPLEMENTO, BAIRRO, CIDADE, UF,' +
         '  TELEFONE, CELULAR, EMAIL, SITE,' +
-        '  CNAE, ATIVIDADE, SUFRAMA, SITUACAO' +
+        '  RESPONSAVEL, CNAE, ATIVIDADE, SUFRAMA, SITUACAO, PRINCIPAL, EMITE_NFCE_VENDA, EMITE_NFE_VENDA' +
         ') VALUES (' +
         '  :pID, :pRazao, :pFantasia, :pCNPJ,' +
         '  :pIE, :pIM, :pRegime,' +
         '  :pCEP, :pLogr, :pNum, :pCompl, :pBairro, :pCidade, :pUF,' +
         '  :pTel, :pCel, :pEmail, :pSite,' +
-        '  :pCNAE, :pAtiv, :pSuframa, :pSit' +
+        '  :pResp, :pCNAE, :pAtiv, :pSuframa, :pSit, :pPrincipal, :pEmiteNFCeVenda, :pEmiteNFeVenda' +
         ')';
     end
     else
@@ -314,10 +482,14 @@ begin
         '  CELULAR           = :pCel,'                +
         '  EMAIL             = :pEmail,'              +
         '  SITE              = :pSite,'               +
+        '  RESPONSAVEL       = :pResp,'               +
         '  CNAE              = :pCNAE,'               +
         '  ATIVIDADE         = :pAtiv,'               +
         '  SUFRAMA           = :pSuframa,'            +
-        '  SITUACAO          = :pSit'                 +
+        '  SITUACAO          = :pSit,'                 +
+        '  PRINCIPAL         = :pPrincipal,'           +
+        '  EMITE_NFCE_VENDA  = :pEmiteNFCeVenda,'     +
+        '  EMITE_NFE_VENDA = :pEmiteNFeVenda' +
         ' WHERE ID_EMPRESA = :pID';
     end;
 
@@ -342,15 +514,28 @@ begin
     dmConexoes.qrEmpresa.Parameters.ParamByName('pCel').Value      := SoNumeros(edtCelular.Text);
     dmConexoes.qrEmpresa.Parameters.ParamByName('pEmail').Value    := Trim(edtEmail.Text);
     dmConexoes.qrEmpresa.Parameters.ParamByName('pSite').Value     := Trim(edtSite.Text);
+    dmConexoes.qrEmpresa.Parameters.ParamByName('pResp').Value     := Trim(edtResponsavel.Text);
     dmConexoes.qrEmpresa.Parameters.ParamByName('pCNAE').Value     := Trim(edtCNAE.Text);
     dmConexoes.qrEmpresa.Parameters.ParamByName('pAtiv').Value     := Trim(edtAtividade.Text);
     dmConexoes.qrEmpresa.Parameters.ParamByName('pSuframa').Value  := Trim(edtSuframa.Text);
     dmConexoes.qrEmpresa.Parameters.ParamByName('pSit').Value      := cboSituacao.ItemIndex;
+    dmConexoes.qrEmpresa.Parameters.ParamByName('pPrincipal').Value := chkPrincipal.Checked;
+    dmConexoes.qrEmpresa.Parameters.ParamByName('pEmiteNFCeVenda').Value := chkEmiteNFCeVenda.Checked;
+    dmConexoes.qrEmpresa.Parameters.ParamByName('pEmiteNFeVenda').Value := chkEmiteNFeVenda.Checked;
+
+    if chkPrincipal.Checked then
+    begin
+      dmConexoes.qrComando.Close;
+      dmConexoes.qrComando.SQL.Text := 'UPDATE EMPRESA SET PRINCIPAL = 0 WHERE ID_EMPRESA <> :pID';
+      dmConexoes.qrComando.Parameters.ParamByName('pID').Value := FCodigoAtual;
+      dmConexoes.qrComando.ExecSQL;
+    end;
 
     dmConexoes.qrEmpresa.ExecSQL;
 
     edtCodigo.Text := IntToStr(FCodigoAtual);
-    FModoEdicao    := True;
+    FModoEdicao    := False;
+    HabilitarEdicao(False);
     ShowMessage('Empresa gravada com sucesso!');
 
   except
@@ -409,6 +594,16 @@ begin
   FModoEdicao := False;
 end;
 
+procedure TfrmCadastroEmpresa.btnAnteriorClick(Sender: TObject);
+begin
+  NavegarEmpresa(-1);
+end;
+
+procedure TfrmCadastroEmpresa.btnProximoClick(Sender: TObject);
+begin
+  NavegarEmpresa(1);
+end;
+
 procedure TfrmCadastroEmpresa.btnLimparClick(Sender: TObject);
 begin
   if MessageDlg('Deseja limpar todos os campos?',
@@ -433,14 +628,21 @@ begin
 
   if SoNumeros(edtCNPJ.Text) = '' then
   begin
-    ShowMessage('CNPJ e obrigatorio.');
+    ShowMessage('CPF/CNPJ e obrigatorio.');
     edtCNPJ.SetFocus;
     Exit;
   end;
 
-  if not CNPJValido(SoNumeros(edtCNPJ.Text)) then
+  if (Length(SoNumeros(edtCNPJ.Text)) = 14) and (not CNPJValido(SoNumeros(edtCNPJ.Text))) then
   begin
     ShowMessage('CNPJ invalido. Verifique o numero informado.');
+    edtCNPJ.SetFocus;
+    Exit;
+  end;
+
+  if not (Length(SoNumeros(edtCNPJ.Text)) in [11, 14]) then
+  begin
+    ShowMessage('Informe CPF com 11 digitos ou CNPJ com 14 digitos.');
     edtCNPJ.SetFocus;
     Exit;
   end;
@@ -502,13 +704,14 @@ var
   N: string;
 begin
   N := SoNumeros(ACNPJ);
-  if Length(N) = 14 then
+  if Length(N) = 11 then
+    Result := Copy(N,1,3) + '.' + Copy(N,4,3) + '.' + Copy(N,7,3) + '-' + Copy(N,10,2)
+  else if Length(N) = 14 then
     Result := Copy(N,1,2) + '.' + Copy(N,3,3) + '.' + Copy(N,6,3) + '/' +
               Copy(N,9,4) + '-' + Copy(N,13,2)
   else
     Result := ACNPJ;
 end;
-
 function TfrmCadastroEmpresa.FormatarCEP(ACEP: string): string;
 var
   N: string;
@@ -520,9 +723,74 @@ begin
     Result := ACEP;
 end;
 
+procedure TfrmCadastroEmpresa.BuscarEnderecoPorCEP;
+var
+  Http: THTTPClient;
+  Resp: IHTTPResponse;
+  JsonValue: TJSONValue;
+  JsonObj: TJSONObject;
+  CEP, Conteudo: string;
+
+  function ValorJSON(const ANome: string): string;
+  var
+    V: TJSONValue;
+  begin
+    Result := '';
+    V := JsonObj.GetValue(ANome);
+    if V <> nil then
+      Result := Trim(V.Value);
+  end;
+
+begin
+  CEP := SoNumeros(edtCEP.Text);
+  if Length(CEP) <> 8 then
+    Exit;
+
+  Http := THTTPClient.Create;
+  try
+    try
+      Http.ConnectionTimeout := 5000;
+      Http.ResponseTimeout := 5000;
+      Resp := Http.Get('https://viacep.com.br/ws/' + CEP + '/json/');
+      if Resp.StatusCode <> 200 then
+        Exit;
+
+      Conteudo := Resp.ContentAsString(TEncoding.UTF8);
+      JsonValue := TJSONObject.ParseJSONValue(TEncoding.UTF8.GetBytes(Conteudo), 0);
+      try
+        if not (JsonValue is TJSONObject) then
+          Exit;
+
+        JsonObj := TJSONObject(JsonValue);
+        if SameText(ValorJSON('erro'), 'true') then
+        begin
+          MessageDlg('CEP nao encontrado.', mtWarning, [mbOK], 0);
+          Exit;
+        end;
+
+        edtLogradouro.Text := ValorJSON('logradouro');
+        edtBairro.Text := ValorJSON('bairro');
+        edtCidade.Text := ValorJSON('localidade');
+        edtUF.Text := ValorJSON('uf');
+
+        if edtLogradouro.Text <> '' then
+          edtNumero.SetFocus;
+      finally
+        JsonValue.Free;
+      end;
+    except
+      on E: Exception do
+        MessageDlg('Nao foi possivel consultar o CEP.' + sLineBreak + E.Message, mtWarning, [mbOK], 0);
+    end;
+  finally
+    Http.Free;
+  end;
+end;
+
 procedure TfrmCadastroEmpresa.edtCEPExit(Sender: TObject);
 begin
   edtCEP.Text := FormatarCEP(edtCEP.Text);
+  BuscarEnderecoPorCEP;
 end;
 
 procedure TfrmCadastroEmpresa.edtCNPJExit(Sender: TObject);
@@ -552,8 +820,11 @@ begin
   edtCNAE.Text         := '';
   edtAtividade.Text    := '';
   edtSuframa.Text      := '';
+  chkEmiteNFCeVenda.Checked := False;
+  chkEmiteNFeVenda.Checked := False;
   cboRegime.ItemIndex   := 0;
   cboSituacao.ItemIndex := 0;
+  chkPrincipal.Checked := False;
   FCodigoAtual := 0;
 end;
 
@@ -575,13 +846,20 @@ begin
   edtCelular.ReadOnly      := not AHabilitar;
   edtEmail.ReadOnly        := not AHabilitar;
   edtSite.ReadOnly         := not AHabilitar;
+  edtResponsavel.ReadOnly  := not AHabilitar;
   edtCNAE.ReadOnly         := not AHabilitar;
   edtAtividade.ReadOnly    := not AHabilitar;
   edtSuframa.ReadOnly      := not AHabilitar;
+  chkEmiteNFCeVenda.Enabled := AHabilitar;
+  chkEmiteNFeVenda.Enabled := AHabilitar;
 
   cboRegime.Enabled    := AHabilitar;
   cboSituacao.Enabled  := AHabilitar;
+  chkPrincipal.Enabled := AHabilitar;
 
+  btnAnterior.Enabled := not AHabilitar;
+  btnProximo.Enabled  := not AHabilitar;
+  btnEditar.Enabled   := (not AHabilitar) and (FCodigoAtual > 0);
   btnGravar.Enabled   := AHabilitar;
   btnExcluir.Enabled  := AHabilitar and (FCodigoAtual > 0);
   btnLimpar.Enabled   := AHabilitar;

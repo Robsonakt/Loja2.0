@@ -4,5 +4,15 @@ Endereco=Rua das Flores, 123 - Centro
 Telefone=(11) 99999-9999
 
 [Impressora]
-Porta=COM3
+Porta=USB001
 Modelo=3
+
+[Banco]
+Servidor=.
+Banco=LojaNova
+Usuario=sa
+Senha=SUA_SENHA_DO_SQL
+
+[Email]
+Usuario=seu_email@gmail.com
+Senha=SENHA_DE_APP_DO_GMAIL
